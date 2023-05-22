@@ -95,10 +95,10 @@ public class Environment {
 
         this.playAreaX = this.hudWidth;
         this.playAreaY = this.hudHeight;
-//        this.playAreaWidth = this.engine.width() - (2 * this.hudWidth);
-//        this.playAreaHeight = this.engine.height() - this.hudHeight - this.hudWidth; // hudHeight is from the top, hudWidth is taken from the bottom
-        this.playAreaWidth = this.engine.width();
-        this.playAreaHeight = this.engine.height();
+        this.playAreaWidth = this.engine.width() - (2 * this.hudWidth);
+        this.playAreaHeight = this.engine.height() - this.hudHeight - this.hudWidth; // hudHeight is from the top, hudWidth is taken from the bottom
+//        this.playAreaWidth = this.engine.width();
+//        this.playAreaHeight = this.engine.height();
 
         this.imageOriginX = this.hudWidth + (this.playAreaWidth / 2.0);
         this.imageOriginY = this.hudHeight + (this.playAreaHeight / 2.0);
@@ -458,6 +458,9 @@ public class Environment {
         } else {
             if (this.currentGoal >= this.targetGoal) { this.levelComplete = true; }
         }
+    }
+    public void addScore(int score) {
+        this.currentScore += score;
     }
 
 //    public boolean CanPauseTimeout() {
