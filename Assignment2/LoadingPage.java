@@ -4,7 +4,7 @@ import java.awt.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class Loading_Page {
+public class LoadingPage {
     // Final fields
     private final Image[] images = new Image[3];
 
@@ -17,7 +17,7 @@ public class Loading_Page {
     private boolean isLoading;
 
     // Constructor
-    public Loading_Page(GameEngine engine) {
+    public LoadingPage(GameEngine engine) {
         this.engine = engine;
 
         this.currentTips = 0;
