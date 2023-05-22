@@ -19,6 +19,8 @@ public class Main extends GameEngine {
     public void update(double dt) {
         updateMenu(dt);
 
+        // While in-game, if the level is complete stop processing
+        if (this.env.GetIsLevelComplete()) { return; }
         updateEnvironment();
         updatePlayer();
         updateEnemy();
@@ -26,9 +28,12 @@ public class Main extends GameEngine {
     public void paintComponent() {
         drawMenu();
 
+        drawEnvironment();
+
         drawPlayer();
         drawEnemy();
-        drawEnvironment();
+
+        drawEnvironmentLayerTop();
     }
 
 
@@ -49,11 +54,16 @@ public class Main extends GameEngine {
     // gameState = 6; Checkout page
     int gameState;
     boolean isSinglePlayer;
+    int width;
+    int height;
 
     public void InitSystem() {
         this.gameState = 0;
         this.gameStateString = "nothing";
-        this.isSinglePlayer = false;
+        this.isSinglePlayer = true;
+        this.width = 500;
+        this.height = 500;
+        setWindowSize(this.width, this.height);
     }
 
 
@@ -94,7 +104,7 @@ public class Main extends GameEngine {
 //    public boolean leftKey;
 //    public boolean upKey;
 //    public boolean downKey;
-//    public boolean escKey;
+    public boolean escKey;
 //    public boolean shiftKey;
 //    public boolean enterKey;
     public boolean spaceKey;
@@ -109,8 +119,8 @@ public class Main extends GameEngine {
 //        if(e.getKeyCode() == KeyEvent.VK_UP) { this.upKey = true; }
 //        // The user pressed up arrow
 //        if(e.getKeyCode() == KeyEvent.VK_DOWN) { this.downKey = true; }
-//        // The user pressed ESC
-//        if(e.getKeyCode() == KeyEvent.VK_ESCAPE) { this.escKey = true; }
+        // The user pressed ESC
+        if(e.getKeyCode() == KeyEvent.VK_ESCAPE) { this.escKey = true; }
 //        // The user pressed shiftKey
 //        if(e.getKeyCode() == KeyEvent.VK_SHIFT) { this.shiftKey = true; }
 //        // The user pressed enterKey
@@ -129,8 +139,8 @@ public class Main extends GameEngine {
 //        if(e.getKeyCode() == KeyEvent.VK_UP) { this.upKey = false; }
 //        // The user released up arrow
 //        if(e.getKeyCode() == KeyEvent.VK_DOWN) { this.downKey = false; }
-//        // The user released ESC
-//        if(e.getKeyCode() == KeyEvent.VK_ESCAPE) { this.escKey = false; }
+        // The user released ESC
+        if(e.getKeyCode() == KeyEvent.VK_ESCAPE) { this.escKey = false; }
 //        // The user released shiftKey
 //        if(e.getKeyCode() == KeyEvent.VK_SHIFT) { this.shiftKey = false; }
 //        // The user released enterKey
@@ -173,77 +183,33 @@ public class Main extends GameEngine {
     }
 
     public void updateMenu(double dt) {
-        switch(this.gameState) {
-            case 0: // Main menu
-                if (Objects.equals(gameStateString, "single_player")) {
-                    System.out.println("Single Player mode was clicked");
-                    // TODO: Load the next game state -> LoadingPage -> SinglePlayerEnvironment
-                    this.gameState = 1; // Go to LoadingPage
-                    this.isSinglePlayer = true;
-//                this.gameStateString = "nothing"; // Reset the gameStateString
+        if (gameState == 0) {
+            if (Objects.equals(gameStateString, "single_player")) {
+                this.gameState = 1; // Go to LoadingPage
+                this.env.SetIsTimeAttack(false); // Set the environment to single player mode
 
-                } else if (Objects.equals(gameStateString, "time_attack")) {
-                    System.out.println("Time Attack mode was clicked");
-                    // TODO: Load the next game state -> LoadingPage -> TimeAttackEnvironment
-                    this.gameState = 1; // Go to LoadingPage
-                    this.isSinglePlayer = false;
-//                this.gameStateString = "nothing"; // Reset the gameStateString
-                }
-                break;
-            case 1: // Loading page
-                this.lp.startLoading();
-                this.lp.updatePage(dt);
-                if (spaceKey) {
-                    // Is single player
-                    if (this.isSinglePlayer) { this.gameState = 4; }
-                    // Is time attack
-                    else { this.gameState = 5; }
-                }
-                break;
-//            case 2:
-//                break;
-//            case 3:
-//                break;
-            case 4: // Single player
-                break;
-            case 5: // Time attack
-                break;
-//            case 6:
-//                break;
-            default:
-                break;
+            } else if (Objects.equals(gameStateString, "time_attack")) {
+                this.gameState = 1; // Go to LoadingPage
+                this.env.SetIsTimeAttack(true); // Set the environment to time attack mode
+            }
+        } else if (gameState == 1) {
+            this.lp.startLoading();
+            this.lp.updatePage(dt);
+            if (spaceKey && (this.lp.getProgress() >= 1.0)) {
+                // Set to the game play area instance
+                this.gameState = 4;
+                this.env.SetBaseTime(getTime());
+                this.env.SetIsPaused(false);
+            }
         }
     }
 
     public void drawMenu() {
-        switch(this.gameState) {
-            case 0:
-                this.sm.drawAll();
-                break;
-            case 1:
-                this.lp.drawAll();
-                break;
-//            case 2:
-//                break;
-//            case 3:
-//                break;
-            case 4:
-                // Is single player
-                // TODO: load the environment (toggle single player)
-                // TODO: load the player
-                break;
-            case 5:
-                // Is time attack
-                // TODO: load the environment (toggle time attack)
-                // TODO: load the player
-
-                break;
-//            case 6:
-//                break;
-            default:
-                break;
+        if (this.gameState == 0) {
+            this.sm.drawAll();
+        } else if (gameState == 1) {
+            this.lp.drawAll();
         }
-
     }
 
 
@@ -272,10 +238,71 @@ public class Main extends GameEngine {
     //-------------------------------------------------------
     // Environment methods
     //-------------------------------------------------------
+    Environment env;
     public void initEnvironment() {
+        this.env = new Environment(this, !this.isSinglePlayer);
+        this.env.SetEnvironmentPlayWidth(this.width);
+        this.env.SetEnvironmentPlayHeight(this.height);
     }
     public void updateEnvironment() {
+        if (gameState == 4) {
+            this.env.EnvironmentLevelCompleteCheck();
+
+            boolean wasPaused = false;
+
+            if (this.escKey) {
+                if (this.env.GetIsPaused()) {
+                    this.env.SetIsPaused(false);
+                    wasPaused = true;
+                } else {
+                    this.env.SetIsPaused(true);
+                }
+            }
+
+            UpdateTimer(wasPaused);
+        }
     }
+
+    public void UpdateTimer(boolean wasPaused) {
+        // return if paused
+        if (this.env.GetIsPaused()) { return; }
+
+        // fields for paused timer
+        double newTime = getTime();
+
+        // Process the timer for paused case
+        if (wasPaused) {
+            double beforePause;
+            double timeDelay;
+
+            beforePause = this.env.GetTimer();
+            double afterPause = Math.round(((newTime - this.env.GetBaseTime()) / 1000.0) * 100.0) / 100.0;
+            timeDelay = (afterPause - beforePause);
+
+            // Set the pausable timer
+            this.env.addCountDownTimerOffset(timeDelay);
+        }
+
+        // Set the global timer
+        this.env.SetTimer(newTime);
+
+        // Time attack counter processing
+        if (this.env.GetIsTimeAttack()) { this.env.SetCountDownCurrentTimer(this.env.GetCountDownTimerWOffset()); }
+    }
+
     public void drawEnvironment() {
+        if (gameState == 4) {
+            this.env.drawEnvironment();
+        }
+    }
+
+    public void drawEnvironmentLayerTop() {
+        if (gameState == 4) {
+            this.env.drawHUD();
+            boolean timeAttack = this.env.GetIsTimeAttack();
+            this.env.drawTimer(timeAttack);
+            this.env.drawScore();
+            this.env.drawGrowth();
+        }
     }
 }

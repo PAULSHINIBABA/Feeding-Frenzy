@@ -184,7 +184,7 @@ public class StartMenu {
 //
 //    }
     public void drawAll() {
-        this.engine.setWindowSize(this.engine.width(), this.engine.height());
+//        this.engine.setWindowSize(this.engine.width(), this.engine.height());
         this.drawBackground();
         this.drawTitle();
         this.drawButton();

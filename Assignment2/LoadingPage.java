@@ -27,6 +27,18 @@ public class LoadingPage {
         this.init();
     }
 
+
+    //**************************************************
+    // Getters
+    //**************************************************
+    public double getProgress() {
+        return this.progress;
+    }
+
+
+    //**************************************************
+    // Other methods
+    //**************************************************
     public void init() {
         this.loadingImage = this.engine.loadImage("Assignment2/assets/image/B2.png");
         this.title = this.engine.loadImage("Assignment2/assets/image/title.png");
@@ -100,7 +112,7 @@ public class LoadingPage {
 //    @Override
 //    public void paintComponent() {
     public void drawAll() {
-        this.engine.setWindowSize(500, 500);
+//        this.engine.setWindowSize(500, 500);
         drawLoadingImage();
         drawTitle();
         drawLoadingBar();
