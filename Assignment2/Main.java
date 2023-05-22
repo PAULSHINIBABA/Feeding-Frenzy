@@ -1,7 +1,9 @@
 package Assignment2;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.Objects;
 
 public class Main extends GameEngine {
     public static void main(String[] args) {
@@ -15,13 +17,15 @@ public class Main extends GameEngine {
         initEnemy();
     }
     public void update(double dt) {
-        updateMenu();
+        updateMenu(dt);
+
         updateEnvironment();
         updatePlayer();
         updateEnemy();
     }
     public void paintComponent() {
         drawMenu();
+
         drawPlayer();
         drawEnemy();
         drawEnvironment();
@@ -31,52 +35,26 @@ public class Main extends GameEngine {
     //-------------------------------------------------------
     // System methods
     //-------------------------------------------------------
-    public int windowX;
-    public int windowY;
-    public int windowWidth;
-    public int windowHeight;
-    public int startMenuX;
-    public int startMenuY;
-    public int startMenuWidth;
-    public int startMenuHeight;
-    public int startMenuButtonWidth;
-    public int startMenuButtonHeight;
-    public int startMenuButtonXOffset;
-    public int startMenuButtonYOffset;
-    public int startMenuMusicButtonX;
-    public int startMenuMusicButtonY;
-//    public int startMenuMusicButtonRadius;
+    // "nothing"; no game state change was clicked
+    // "single_player"; single player game state change was clicked
+    // "time_attack"; time attack game state change was clicked
+    String gameStateString;
 
-    public int startMenuMusicButtonWidth;
-    public int startMenuMusicButtonHeight;
-
+    // gameState = 0; Main menu
+    // gameState = 1; Loading page
+    // gameState = 2; Settings page
+    // gameState = 3; Help page
+    // gameState = 4; Environment(Single Player)
+    // gameState = 5; Environment(Time Attack)
+    // gameState = 6; Checkout page
+    int gameState;
+    boolean isSinglePlayer;
 
     public void InitSystem() {
-        // Window fields
-        this.windowX = 0;
-        this.windowY = 0;
-        this.windowWidth = 500;
-        this.windowHeight = 500;
-
-        // Start menu fields
-        this.startMenuX = 110;
-        this.startMenuY = 0;
-        this.startMenuWidth = 300;
-        this.startMenuHeight = 150;
-
-        this.startMenuButtonWidth = 120;
-        this.startMenuButtonHeight = 50;
-        this.startMenuButtonXOffset = -30;
-        this.startMenuButtonYOffset = -30;
-
-        this.startMenuMusicButtonX = 450;
-        this.startMenuMusicButtonY = 450;
-//        this.startMenuMusicButtonRadius = 25;
-        this.startMenuMusicButtonWidth = 50;
-        this.startMenuMusicButtonHeight = 50;
-
+        this.gameState = 0;
+        this.gameStateString = "nothing";
+        this.isSinglePlayer = false;
     }
-
 
 
     //-------------------------------------------------------
@@ -86,11 +64,14 @@ public class Main extends GameEngine {
     public double mouseY;
     boolean mouse1Pressed = false;
 
+
     // MousePressed Event Handler
     public void mousePressed(MouseEvent e) {
-        if(e.getButton() == MouseEvent.BUTTON1) {
-            this.sm.MenuMouseClicked(mouseX, mouseY);
-//            this.mouse1Pressed = true;
+        if (gameState == 0) {
+            if(e.getButton() == MouseEvent.BUTTON1) {
+                // TODO: Should streamline this so the mouse handler interrupt can return quicker.
+                this.gameStateString = this.sm.menuMouseClicked(e);
+            }
         }
     }
 
@@ -106,120 +87,153 @@ public class Main extends GameEngine {
     }
 
 
+    //-------------------------------------------------------
+    // Key Presses
+    //-------------------------------------------------------
+//    public boolean rightKey;
+//    public boolean leftKey;
+//    public boolean upKey;
+//    public boolean downKey;
+//    public boolean escKey;
+//    public boolean shiftKey;
+//    public boolean enterKey;
+    public boolean spaceKey;
+
+    // Called whenever a key is pressed
+    public void keyPressed(KeyEvent e) {
+//        //The user pressed left arrow
+//        if(e.getKeyCode() == KeyEvent.VK_LEFT) { this.leftKey = true; }
+//        // The user pressed right arrow
+//        if(e.getKeyCode() == KeyEvent.VK_RIGHT) { this.rightKey = true; }
+//        // The user pressed up arrow
+//        if(e.getKeyCode() == KeyEvent.VK_UP) { this.upKey = true; }
+//        // The user pressed up arrow
+//        if(e.getKeyCode() == KeyEvent.VK_DOWN) { this.downKey = true; }
+//        // The user pressed ESC
+//        if(e.getKeyCode() == KeyEvent.VK_ESCAPE) { this.escKey = true; }
+//        // The user pressed shiftKey
+//        if(e.getKeyCode() == KeyEvent.VK_SHIFT) { this.shiftKey = true; }
+//        // The user pressed enterKey
+//        if(e.getKeyCode() == KeyEvent.VK_ENTER) { this.enterKey = true; }
+        // The user pressed spaceKey
+        if(e.getKeyCode() == KeyEvent.VK_SPACE) { this.spaceKey = true; }
+    }
+
+    // Called whenever a key is released
+    public void keyReleased(KeyEvent e) {
+//        // The user released left arrow
+//        if(e.getKeyCode() == KeyEvent.VK_LEFT) { this.leftKey = false; }
+//        // The user released right arrow
+//        if(e.getKeyCode() == KeyEvent.VK_RIGHT) { this.rightKey = false; }
+//        // The user released up arrow
+//        if(e.getKeyCode() == KeyEvent.VK_UP) { this.upKey = false; }
+//        // The user released up arrow
+//        if(e.getKeyCode() == KeyEvent.VK_DOWN) { this.downKey = false; }
+//        // The user released ESC
+//        if(e.getKeyCode() == KeyEvent.VK_ESCAPE) { this.escKey = false; }
+//        // The user released shiftKey
+//        if(e.getKeyCode() == KeyEvent.VK_SHIFT) { this.shiftKey = false; }
+//        // The user released enterKey
+//        if(e.getKeyCode() == KeyEvent.VK_ENTER) { this.enterKey = false; }
+        // The user released spaceKey
+        if(e.getKeyCode() == KeyEvent.VK_SPACE) { this.spaceKey = false; }
+    }
+
+    // Process the keys pressed for each game element.
+//    public void processKeys() {
+//        if (this.leftKey) {
+//        }
+//        if (this.rightKey) {
+//        }
+//        if (this.upKey) {
+//        }
+//        if (this.downKey) {
+//        }
+//        if (this.escKey) {
+//        }
+//        if (this.shiftKey) {
+//        }
+//    }
+
+
 
     //-------------------------------------------------------
     // Menu methods
     //-------------------------------------------------------
     public StartMenu sm;
-    public int menuState;
+//    public int menuState;
 //    public LoadingPage lp;
-//    public Loading_Page lp;
+    public Loading_Page lp;
 
     public void initMenu() {
-        sm = new StartMenu(this.windowX, this.windowY, this.windowWidth, this.windowHeight,
-                this.startMenuX, this.startMenuY, this.startMenuWidth, this.startMenuHeight,
-                this.startMenuButtonWidth, this.startMenuButtonHeight, this.startMenuButtonXOffset, this.startMenuButtonYOffset,
-                this.startMenuMusicButtonX, this.startMenuMusicButtonY, this.startMenuMusicButtonWidth, this.startMenuMusicButtonHeight);
+        this.sm = new StartMenu(this);
+//        this.sm.init();
 
-//        MUSICbutton = loadImage("src/Assignment2/NEW IMAGE/MUSICbutton.png");
-
-        // Set background image
-        this.sm.SetBackgroundImage( loadImage("Assignment2/assets/image/B1.png") );
-
-        // Set title image
-        this.sm.SetTitleImage( loadImage("Assignment2/assets/image/title.png") );
-
-        // Set button images
-        Image[] buttonImages = new Image[5];
-        buttonImages[0] = loadImage("Assignment2/assets/image/StartButton.png");
-        buttonImages[1] = loadImage("Assignment2/assets/image/TIMERACE.png");
-        buttonImages[2] = loadImage("Assignment2/assets/image/SETTINGS.png");
-        buttonImages[3] = loadImage("Assignment2/assets/image/QUIT.png");
-        buttonImages[4] = loadImage("Assignment2/assets/image/HELP.png");
-        this.sm.SetButtonImages(buttonImages);
-
-        // Set music button image
-        this.sm.SetMusicButtonImage(loadImage("Assignment2/assets/image/MUSICbutton.png"));
-
-        // Set music file
-        this.sm.SetMusicFile("Assignment2/assets/music/MENU.wav");
-
-//        lp = new LoadingPage();
-
-        this.menuState = -1; // Nothing?
+        this.lp = new Loading_Page(this);
     }
-    public void updateMenu() {
-//        if (this.mouse1Pressed) {
-////            System.out.println("Mouse1 pressed, x:" + this.mouseX + "\ty:" + this.mouseY);
-//            this.menuState = this.sm.MenuMouseClicked(this.mouseX, this.mouseY);
-//        }
-        if (this.menuState == 0) {
-            System.out.println("Time attack?");
 
-        } else if (this.menuState == 1) {
-            System.out.println("Single player");
+    public void updateMenu(double dt) {
+        if (gameState == 0) {
+            if (Objects.equals(gameStateString, "single_player")) {
+                System.out.println("Single Player mode was clicked");
+                // TODO: Load the next game state -> LoadingPage -> SinglePlayerEnvironment
+                this.gameState = 1; // Go to LoadingPage
+                this.isSinglePlayer = true;
+//                this.gameStateString = "nothing"; // Reset the gameStateString
 
-        } else {
-//            System.out.println("Nothing pressed");
+            } else if (Objects.equals(gameStateString, "time_attack")) {
+                System.out.println("Time Attack mode was clicked");
+                // TODO: Load the next game state -> LoadingPage -> TimeAttackEnvironment
+                this.gameState = 1; // Go to LoadingPage
+                this.isSinglePlayer = false;
+//                this.gameStateString = "nothing"; // Reset the gameStateString
+            }
         }
 
-        // Reset the menu state after click handling
-        this.menuState = -1;
+        this.lp.startLoading();
+        this.lp.updatePage(dt);
+
+        if (spaceKey) {
+            if (this.isSinglePlayer) {
+                // Is single player
+                this.gameState = 4;
+            } else {
+                // Is time attack
+                this.gameState = 5;
+            }
+
+        }
     }
+
     public void drawMenu() {
-        saveCurrentTransform();
+        switch(this.gameState) {
+            case 0:
+                this.sm.drawAll();
+                break;
+            case 1:
+                this.lp.drawAll();
+                break;
+//            case 2:
+//                break;
+//            case 3:
+//                break;
+            case 4:
+                // Is single player
+                // TODO: load the environment (toggle single player)
+                // TODO: load the player
+                break;
+            case 5:
+                // Is time attack
+                // TODO: load the environment (toggle time attack)
+                // TODO: load the player
 
-        drawBackground();
-        drawTitle();
-        drawButtons();
-        drawMusicButton();
-
-        drawButtonColliders();
-
-        restoreLastTransform();
-    }
-
-    public void drawBackground() {
-        // Draw start menu background
-        drawImage(this.sm.GetBackgroundImage(),
-                this.sm.GetBackgroundX(), this.sm.GetBackgroundY(),
-                this.sm.GetBackgroundWidth(), this.sm.GetBackgroundHeight());
-    }
-
-    public void drawTitle() {
-        // Draw start menu title
-        drawImage(this.sm.GetTitleImage(),
-                this.sm.GetTitleX(), this.sm.GetTitleY(),
-                this.sm.GetTitleWidth(), this.sm.GetTitleHeight());
-    }
-
-    public void drawButtons() {
-        // Draw start menu buttons
-        int numberOfButtons = this.sm.GetNumberOfButtons();
-        for (int i = 0; i < numberOfButtons; i++) {
-            double x = this.sm.GetButtonXByIndex(i);
-            double y = this.sm.GetButtonYByIndex(i);
-            double w = this.sm.GetButtonsWidth();
-            double h = this.sm.GetButtonsHeight();
-//            System.out.println("i:" + i + "\tx:" + x + "\ty:" + y + "\tw:" + w + "\th:" + h);
-            drawImage(this.sm.GetButtonImageByIndex(i), x, y, w, h);
+                break;
+//            case 6:
+//                break;
+            default:
+                break;
         }
-    }
 
-    public void drawMusicButton() {
-        drawImage(this.sm.GetMusicButton(),
-                this.sm.GetMusicButtonX(), this.sm.GetMusicButtonY(),
-                this.sm.GetMusicButtonWidth(), this.sm.GetButtonsHeight());
-    }
-
-    public void drawButtonColliders() {
-        changeColor(255,0,0);
-        int numberOfButtons = this.sm.GetNumberOfButtons();
-        for (int i = 0; i < numberOfButtons; i++) {
-            double x = this.sm.GetButtonXByIndex(i) + 30;
-            double y = this.sm.GetButtonYByIndex(i) + 30;
-            drawCircle(x,y,25);
-        }
     }
 
 

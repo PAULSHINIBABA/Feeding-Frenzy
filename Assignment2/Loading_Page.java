@@ -4,51 +4,68 @@ import java.awt.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
-//public class Loading_Page extends GameEngine {
 public class Loading_Page {
-//    private Main_program mainProgram;
+    // Final fields
+    private final Image[] images = new Image[3];
 
-//    public Loading_Page(Main_program mainProgram) {
-//        this.mainProgram = mainProgram;
-//    }
+    // Non-final fields
     private GameEngine engine;
+    private Image loadingImage;
+    private Image title;
+    private int currentTips;
+    private double progress;
+    private boolean isLoading;
+
+    // Constructor
     public Loading_Page(GameEngine engine) {
-//        this.mainProgram = mainProgram;
         this.engine = engine;
+
+        this.currentTips = 0;
+        this.progress = 0.0;
+        this.isLoading = false;
+
+        this.init();
     }
-    Image loadingImage;
-    Image title;
-
-    Image[] images = new Image[3];
-    int currentTips = 0;
-
-    double progress;
 
     public void init() {
-        loadingImage = this.engine.loadImage("src/Assignment2/NEW IMAGE/B2.png");
-        title = this.engine.loadImage("src/Assignment2/NEW IMAGE/title.png");
-        images[0] = this.engine.loadImage("src/Assignment2/NEW IMAGE/Warning.png");
-        images[1] = this.engine.loadImage("src/Assignment2/NEW IMAGE/Tip1.png");
-        images[2] = this.engine.loadImage("src/Assignment2/NEW IMAGE/Tip2.png");
+        this.loadingImage = this.engine.loadImage("Assignment2/assets/image/B2.png");
+        this.title = this.engine.loadImage("Assignment2/assets/image/title.png");
+        this.images[0] = this.engine.loadImage("Assignment2/assets/image/Warning.png");
+        this.images[1] = this.engine.loadImage("Assignment2/assets/image/Tip1.png");
+        this.images[2] = this.engine.loadImage("Assignment2/assets/image/Tip2.png");
 
-        // Start the timer to switch images every 2 seconds
-        Timer timer = new Timer();
-        timer.schedule(new SwitchImageTask(), 0, 1000);
+    }
+
+    // Emulate loading page
+    public void startLoading() {
+        if (!this.isLoading) {
+            // Start the timer to switch images every 2 seconds
+            Timer timer = new Timer();
+            timer.schedule(new SwitchImageTask(), 0, 1000);
+            this.isLoading = true;
+        }
+    }
+
+    // Reset the loading page so it can be reused
+    public void resetLoadingPage() {
+        this.currentTips = 0;
+        this.progress = 0.0;
+        this.isLoading = false;
     }
 
     public void drawLoadingImage() {
         this.engine.saveCurrentTransform();
-        this.engine.drawImage(loadingImage, 0, 0, this.engine.width(), this.engine.height());
+        this.engine.drawImage(this.loadingImage, 0, 0, this.engine.width(), this.engine.height());
         this.engine.restoreLastTransform();
     }
 
     public void drawTitle() {
         this.engine.saveCurrentTransform();
-        this.engine.drawImage(title, 110, 0, 300, 150);
+        this.engine.drawImage(this.title, 110, 0, 300, 150);
         this.engine.restoreLastTransform();
     }
 
-    public void drawloadingBar() {
+    public void drawLoadingBar() {
         int x = 100;
         int y = 400;
         int width = 300;
@@ -86,7 +103,7 @@ public class Loading_Page {
         this.engine.setWindowSize(500, 500);
         drawLoadingImage();
         drawTitle();
-        drawloadingBar();
+        drawLoadingBar();
         drawCurrentImage();
     }
 
