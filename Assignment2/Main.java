@@ -163,45 +163,55 @@ public class Main extends GameEngine {
     public StartMenu sm;
 //    public int menuState;
 //    public LoadingPage lp;
-    public Loading_Page lp;
+    public LoadingPage lp;
 
     public void initMenu() {
         this.sm = new StartMenu(this);
 //        this.sm.init();
 
-        this.lp = new Loading_Page(this);
+        this.lp = new LoadingPage(this);
     }
 
     public void updateMenu(double dt) {
-        if (gameState == 0) {
-            if (Objects.equals(gameStateString, "single_player")) {
-                System.out.println("Single Player mode was clicked");
-                // TODO: Load the next game state -> LoadingPage -> SinglePlayerEnvironment
-                this.gameState = 1; // Go to LoadingPage
-                this.isSinglePlayer = true;
+        switch(this.gameState) {
+            case 0: // Main menu
+                if (Objects.equals(gameStateString, "single_player")) {
+                    System.out.println("Single Player mode was clicked");
+                    // TODO: Load the next game state -> LoadingPage -> SinglePlayerEnvironment
+                    this.gameState = 1; // Go to LoadingPage
+                    this.isSinglePlayer = true;
 //                this.gameStateString = "nothing"; // Reset the gameStateString
 
-            } else if (Objects.equals(gameStateString, "time_attack")) {
-                System.out.println("Time Attack mode was clicked");
-                // TODO: Load the next game state -> LoadingPage -> TimeAttackEnvironment
-                this.gameState = 1; // Go to LoadingPage
-                this.isSinglePlayer = false;
+                } else if (Objects.equals(gameStateString, "time_attack")) {
+                    System.out.println("Time Attack mode was clicked");
+                    // TODO: Load the next game state -> LoadingPage -> TimeAttackEnvironment
+                    this.gameState = 1; // Go to LoadingPage
+                    this.isSinglePlayer = false;
 //                this.gameStateString = "nothing"; // Reset the gameStateString
-            }
-        }
-
-        this.lp.startLoading();
-        this.lp.updatePage(dt);
-
-        if (spaceKey) {
-            if (this.isSinglePlayer) {
-                // Is single player
-                this.gameState = 4;
-            } else {
-                // Is time attack
-                this.gameState = 5;
-            }
-
+                }
+                break;
+            case 1: // Loading page
+                this.lp.startLoading();
+                this.lp.updatePage(dt);
+                if (spaceKey) {
+                    // Is single player
+                    if (this.isSinglePlayer) { this.gameState = 4; }
+                    // Is time attack
+                    else { this.gameState = 5; }
+                }
+                break;
+//            case 2:
+//                break;
+//            case 3:
+//                break;
+            case 4: // Single player
+                break;
+            case 5: // Time attack
+                break;
+//            case 6:
+//                break;
+            default:
+                break;
         }
     }
 
