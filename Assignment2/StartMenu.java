@@ -124,7 +124,7 @@ public class StartMenu {
     }
     public void SetMusicFile(String path) {
         try {
-            //import the music file
+            // Import the music file
 //            this.soundFile = new File("src/Assignment2/Music/MENU.wav");
             this.soundFile = new File(path);
             AudioInputStream audioIn = AudioSystem.getAudioInputStream(this.soundFile);
@@ -191,7 +191,8 @@ public class StartMenu {
         if ((i < 0) || (i >= this.buttonXPositions.length)) {
             throw new IllegalArgumentException("Index for buttons out of range");
         }
-        return this.buttonXPositions[i] - this.buttonXOffset;
+//        return this.buttonXPositions[i] - this.buttonXOffset;
+        return this.buttonXPositions[i];
     }
 //    public double GetButtonXOffset() { return this.buttonXOffset; }
     public double[] GetButtonYs() { return this.buttonYPositions; }
@@ -199,7 +200,8 @@ public class StartMenu {
         if ((i < 0) || (i >= this.buttonYPositions.length)) {
             throw new IllegalArgumentException("Index for buttons out of range");
         }
-        return this.buttonYPositions[i] - this.buttonYOffset;
+//        return this.buttonYPositions[i] - this.buttonYOffset;
+        return this.buttonYPositions[i];
     }
 //    public double GetButtonYOffset() { return this.buttonYOffset; }
     public double GetButtonsWidth() { return this.buttonWidth; }
@@ -221,25 +223,33 @@ public class StartMenu {
     public int MenuMouseClicked(double mouseX, double mouseY) {
 //        double mouseX = e.getX();
 //        double mouseY = e.getY();
-        for (int i = 0; i < 5; i++) {
+        System.out.println("\nMouseCheck > ");
+        for (int i = 0; i < this.BUTTON_IMAGES_SIZE; i++) {
+
             double buttonX = this.buttonXPositions[i];
             double buttonY = this.buttonYPositions[i];
-            double radius = 50;
+            double radius = 25;
+
+            System.out.println("Check click: mx:" + mouseX + "\tmy:" + mouseY + "\tbx:" + buttonX + "\tby:" + buttonY + "\tbr:" + radius);
 
             if (clickButton(mouseX, mouseY, buttonX, buttonY, radius)) {
                 // Quit game was pressed.
                 if (i == 3) {
+                    System.out.println("Quit");
+
                     // Click the Exit and wait 1 second then Exit the program
                     Timer timer = new Timer(1000, e -> System.exit(0));
                     timer.setRepeats(false);
                     timer.start();
                 } else {
+                    System.out.println("Toggle something?");
                     // Otherwise toggle? (toggle to what?)
                     this.buttonClicked[i] = !this.buttonClicked[i];
                 }
             }
             // Handle TIME ATTACK(?) click
             if (i == 0 && this.buttonClicked[i]) {
+                System.out.println("Loading page - time attack");
                 // TODO: Should not be calling "startMainGame", because this creates a new game instance.
 //                mainProgram.startMainGame();
 //                Loading_Page loadingPage = new Loading_Page(mainProgram);
@@ -249,6 +259,7 @@ public class StartMenu {
             }
             // Handle SINGLE PLAYER click
             if(i == 1 && this.buttonClicked[i]) {
+                System.out.println("Loading page - single player");
                 // TODO: Should not be calling "startMainGame", because this creates a new game instance.
 //                mainProgram.startMainGame();
 //                Loading_Page loadingPage = new Loading_Page(mainProgram);
@@ -261,13 +272,18 @@ public class StartMenu {
         double musicButtonX = 475;
         double musicButtonY = 475;
         double musicButtonRadius = 25;
-        if (clickButton(mouseX, mouseY, musicButtonX, musicButtonY, musicButtonRadius)) { toggleMusic(); }
+
+        if (clickButton(mouseX, mouseY, musicButtonX, musicButtonY, musicButtonRadius)) {
+            System.out.println("Toggle music");
+            toggleMusic();
+        }
 
         // Otherwise the method ends
         return 5; // Return a value that isn't used. (the for loop above is from 0-4)
     }
 //check the mouse location
     public boolean clickButton(double mouseX, double mouseY, double buttonX, double buttonY, double radius) {
+        System.out.println("Button clicked");
         double dx = mouseX - buttonX;
         double dy = mouseY - buttonY;
         return (dx * dx + dy * dy) <= (radius * radius);

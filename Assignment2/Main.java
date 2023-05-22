@@ -88,7 +88,10 @@ public class Main extends GameEngine {
 
     // MousePressed Event Handler
     public void mousePressed(MouseEvent e) {
-        if(e.getButton() == MouseEvent.BUTTON1) { this.mouse1Pressed = true; }
+        if(e.getButton() == MouseEvent.BUTTON1) {
+            this.sm.MenuMouseClicked(mouseX, mouseY);
+//            this.mouse1Pressed = true;
+        }
     }
 
     // MouseReleased Event Handler
@@ -109,7 +112,8 @@ public class Main extends GameEngine {
     //-------------------------------------------------------
     public StartMenu sm;
     public int menuState;
-    public LoadingPage lp;
+//    public LoadingPage lp;
+//    public Loading_Page lp;
 
     public void initMenu() {
         sm = new StartMenu(this.windowX, this.windowY, this.windowWidth, this.windowHeight,
@@ -121,6 +125,7 @@ public class Main extends GameEngine {
 
         // Set background image
         this.sm.SetBackgroundImage( loadImage("Assignment2/assets/image/B1.png") );
+
         // Set title image
         this.sm.SetTitleImage( loadImage("Assignment2/assets/image/title.png") );
 
@@ -136,33 +141,59 @@ public class Main extends GameEngine {
         // Set music button image
         this.sm.SetMusicButtonImage(loadImage("Assignment2/assets/image/MUSICbutton.png"));
 
+        // Set music file
+        this.sm.SetMusicFile("Assignment2/assets/music/MENU.wav");
+
 //        lp = new LoadingPage();
 
         this.menuState = -1; // Nothing?
     }
     public void updateMenu() {
-        this.menuState = sm.MenuMouseClicked(this.mouseX, this.mouseY);
+//        if (this.mouse1Pressed) {
+////            System.out.println("Mouse1 pressed, x:" + this.mouseX + "\ty:" + this.mouseY);
+//            this.menuState = this.sm.MenuMouseClicked(this.mouseX, this.mouseY);
+//        }
         if (this.menuState == 0) {
             System.out.println("Time attack?");
 
         } else if (this.menuState == 1) {
             System.out.println("Single player");
 
+        } else {
+//            System.out.println("Nothing pressed");
         }
+
+        // Reset the menu state after click handling
+        this.menuState = -1;
     }
     public void drawMenu() {
         saveCurrentTransform();
 
+        drawBackground();
+        drawTitle();
+        drawButtons();
+        drawMusicButton();
+
+        drawButtonColliders();
+
+        restoreLastTransform();
+    }
+
+    public void drawBackground() {
         // Draw start menu background
         drawImage(this.sm.GetBackgroundImage(),
                 this.sm.GetBackgroundX(), this.sm.GetBackgroundY(),
                 this.sm.GetBackgroundWidth(), this.sm.GetBackgroundHeight());
+    }
 
+    public void drawTitle() {
         // Draw start menu title
         drawImage(this.sm.GetTitleImage(),
                 this.sm.GetTitleX(), this.sm.GetTitleY(),
                 this.sm.GetTitleWidth(), this.sm.GetTitleHeight());
+    }
 
+    public void drawButtons() {
         // Draw start menu buttons
         int numberOfButtons = this.sm.GetNumberOfButtons();
         for (int i = 0; i < numberOfButtons; i++) {
@@ -173,14 +204,22 @@ public class Main extends GameEngine {
 //            System.out.println("i:" + i + "\tx:" + x + "\ty:" + y + "\tw:" + w + "\th:" + h);
             drawImage(this.sm.GetButtonImageByIndex(i), x, y, w, h);
         }
+    }
 
+    public void drawMusicButton() {
         drawImage(this.sm.GetMusicButton(),
                 this.sm.GetMusicButtonX(), this.sm.GetMusicButtonY(),
                 this.sm.GetMusicButtonWidth(), this.sm.GetButtonsHeight());
+    }
 
-
-        restoreLastTransform();
-
+    public void drawButtonColliders() {
+        changeColor(255,0,0);
+        int numberOfButtons = this.sm.GetNumberOfButtons();
+        for (int i = 0; i < numberOfButtons; i++) {
+            double x = this.sm.GetButtonXByIndex(i) + 30;
+            double y = this.sm.GetButtonYByIndex(i) + 30;
+            drawCircle(x,y,25);
+        }
     }
 
 
