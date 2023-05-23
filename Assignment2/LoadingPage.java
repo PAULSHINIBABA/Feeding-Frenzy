@@ -1,3 +1,11 @@
+/*
+ * Author: Paul
+ * ID:
+ *
+ * Co-Author: Robert Tubman (Minor tweaking to merge with team code)
+ * ID: 11115713
+ */
+
 package Assignment2;
 
 import java.awt.*;
@@ -31,9 +39,7 @@ public class LoadingPage {
     //**************************************************
     // Getters
     //**************************************************
-    public double getProgress() {
-        return this.progress;
-    }
+    public double getProgress() { return this.progress; }
 
 
     //**************************************************

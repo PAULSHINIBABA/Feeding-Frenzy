@@ -1,13 +1,21 @@
+/*
+ * Author: Lucass
+ * ID:
+ *
+ * Co-Author: Robert Tubman (Minor tweaking to merge with team code)
+ * ID: 11115713
+ */
+
 package Assignment2;
 
 import java.awt.*;
 
 public class starfish {
-    double starfishpos_x,starfishpos_y;
-    double starspeed_x,starfishspeed_y;
-    int starfish_w,starfish_h;
-    boolean is_visible;
-    double time_visible;
+    private double starfishpos_x,starfishpos_y;
+    private double starspeed_x,starfishspeed_y;
+    private int starfish_w,starfish_h;
+    private boolean is_visible;
+    private double time_visible;
     public starfish(){
         starfish_w=30;
         starfish_h=30;
@@ -19,24 +27,32 @@ public class starfish {
         starspeed_x=-50+randspeed;
         starfishspeed_y=-50+randspeed;
     }
-    public void starfishmove(double dt,double Window_w,double Window_h){
+    public void starfishmove(double dt,double Window_w,double Window_h, double offsetX, double offsetY){
         starfishpos_x+=starspeed_x*dt;
         starfishpos_y+=starfishspeed_y*dt;
-        if (starfishpos_x<0 || starfishpos_x + starfish_w > Window_w){
+        if (starfishpos_x<offsetX || starfishpos_x + starfish_w > (offsetX + Window_w)){
             starspeed_x*=-1; // reverse direction
         }
-        if (starfishpos_y<0 || starfishpos_y + starfish_h > Window_h){
+        if (starfishpos_y<offsetY || starfishpos_y + starfish_h > (offsetY + Window_h)){
             starfishspeed_y*=-1; // reverse direction
         }
     }
-    public boolean updatestarfish(double dt, Rectangle myfishrec, double score,double randx, double randy,double randspeed,double Window_w,double Window_h){
+    public boolean updatestarfish(double dt,
+                                  Rectangle myfishrec,
+                                  double randx,
+                                  double randy,
+                                  double offsetX,
+                                  double offsetY,
+                                  double randspeed,
+                                  double Window_w,
+                                  double Window_h){
         updatetimevis(dt);
         if (!isvisible()&&gettimevis()>5){
-            randomstarfish(randx,randy,randspeed);
+            randomstarfish((offsetX + randx),(offsetY + randy),randspeed);
             setvisible(true);
             resettimevis();
         }
-        starfishmove(dt,Window_w,Window_h);
+        starfishmove(dt,Window_w,Window_h, offsetX, offsetY);
 
         if (isvisible()&&myfishrec.intersects(new Rectangle(new Rectangle((int)getpositionx(),(int)getpositiony(),getwidth(),getheight())))){
             setvisible(false);

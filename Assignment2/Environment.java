@@ -13,10 +13,7 @@
  */
 package Assignment2;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class Environment {
     int defaultGrowthThresholdM = 1;
@@ -59,8 +56,6 @@ public class Environment {
     private int playAreaY; // top side offset
     private int playAreaWidth;
     private int playAreaHeight;
-//    private int borderWidth;
-//    private int borderHeight;
     private boolean levelComplete;
     private boolean canPauseNow;
     private GameEngine engine;
@@ -82,9 +77,6 @@ public class Environment {
         this.timer = 0.0;
         this.pausableTimer = 0.0;
 
-//        this.borderWidth = this.engine.width();
-//        this.borderHeight = this.engine.height();
-
         this.hudWidth = 10; // Arbitrary default HUD width
         this.hudHeight = 80; // Arbitrary default HUD height
         this.hudOffsetX = 10;
@@ -97,8 +89,6 @@ public class Environment {
         this.playAreaY = this.hudHeight;
         this.playAreaWidth = this.engine.width() - (2 * this.hudWidth);
         this.playAreaHeight = this.engine.height() - this.hudHeight - this.hudWidth; // hudHeight is from the top, hudWidth is taken from the bottom
-//        this.playAreaWidth = this.engine.width();
-//        this.playAreaHeight = this.engine.height();
 
         this.imageOriginX = this.hudWidth + (this.playAreaWidth / 2.0);
         this.imageOriginY = this.hudHeight + (this.playAreaHeight / 2.0);
@@ -107,106 +97,44 @@ public class Environment {
         this.imageXOffset = this.imageOriginX - (this.playAreaWidth / 2.0);
         this.imageYOffset = this.imageOriginY - (this.playAreaHeight / 2.0);
 
-        this.SetGrowthThresholdLarge(0);
-        this.SetGrowthThresholdMedium(0);
-        this.SetTargetGoal(0);
+        this.setGrowthThresholdLarge(0);
+        this.setGrowthThresholdMedium(0);
+        this.setTargetGoal(0);
 
-//        this.levelImage = levelImage;
         initEnvironment();
     }
-
-//    public Environment(Image levelImage,
-//                       int imageWidth,
-//                       int imageHeight,
-//                       int borderWidth,
-//                       int borderHeight,
-//                       int hudWidth,
-//                       int hudHeight,
-//                       boolean isTimeAttack,
-//                       double countdownTimer) {
-//        this(levelImage, imageWidth, imageHeight, borderWidth, borderHeight, hudWidth, hudHeight, 0, 0, 0, isTimeAttack, countdownTimer);
-//    }
-
-//    public Environment(Image levelImage,
-//                       int imageWidth,
-//                       int imageHeight,
-//                       int borderWidth,
-//                       int borderHeight,
-//                       int hudWidth,
-//                       int hudHeight,
-//                       int thresholdMedium,
-//                       int thresholdLarge,
-//                       int targetGoal,
-//                       boolean isTimeAttack,
-//                       double countdownTimer) throws IllegalArgumentException {
-//
-//        this.isPaused = false;
-//        this.levelComplete = false;
-//        this.currentScore = 0;
-//        this.currentGoal = 0;
-//        this.isTimeAttack = isTimeAttack;
-//        this.countdownTimer = countdownTimer;
-//        this.countdownTimerCurrent = 0.0;
-//        this.countdownTimeOffset = 0.0;
-//        this.timer = 0.0;
-//        this.pausableTimer = 0.0;
-//
-//        this.borderWidth = borderWidth;
-//        this.borderHeight = borderHeight;
-//
-//        this.hudWidth = hudWidth;
-//        this.hudHeight = hudHeight;
-//
-//        this.playAreaX = hudWidth;
-//        this.playAreaY = hudHeight;
-//        this.playAreaHeight = borderHeight - hudHeight - hudWidth; // hudHeight is from the top, hudWidth is taken from the bottom
-//        this.playAreaWidth = borderWidth - (2 * hudWidth);
-//
-//        this.imageOriginX = hudWidth + (this.playAreaWidth / 2);
-//        this.imageOriginY = hudHeight + (this.playAreaHeight / 2);
-//        this.imageWidth = imageWidth;
-//        this.imageHeight = imageHeight;
-//        this.imageXOffset = this.imageOriginX - (this.playAreaWidth / 2);
-//        this.imageYOffset = this.imageOriginY - (this.playAreaHeight / 2);
-//
-//        this.SetGrowthThresholdLarge(thresholdLarge);
-//        this.SetGrowthThresholdMedium(thresholdMedium);
-//        this.SetTargetGoal(targetGoal);
-//
-//        this.levelImage = levelImage;
-//    }
 
     //-------------------------------------------------------
     // Setters
     //-------------------------------------------------------
-    public void SetEnvironmentImage(Image levelImage) {
+    public void setEnvironmentImage(Image levelImage) {
         if (levelImage == null) { throw new IllegalArgumentException("Cannot set the environment image to null"); }
         this.levelImage = levelImage;
     }
-    public void SetEnvironmentWidth(int width) { this.imageWidth = width; }
-    public void SetEnvironmentHeight(int height) { this.imageHeight = height; }
-    public void SetEnvironmentOriginX(double x) { this.imageOriginX = x; }
-    public void SetEnvironmentOriginY(double y) { this.imageOriginY = y; }
-    public void SetEnvironmentXOffset(double x) { this.imageXOffset = x; }
-    public void SetEnvironmentYOffset(double y) { this.imageYOffset = y; }
-    public void SetEnvironmentPlayWidth(int playAreaWidth) throws IllegalArgumentException {
+    public void setEnvironmentWidth(int width) { this.imageWidth = width; }
+    public void setEnvironmentHeight(int height) { this.imageHeight = height; }
+    public void setEnvironmentOriginX(double x) { this.imageOriginX = x; }
+    public void setEnvironmentOriginY(double y) { this.imageOriginY = y; }
+    public void setEnvironmentXOffset(double x) { this.imageXOffset = x; }
+    public void setEnvironmentYOffset(double y) { this.imageYOffset = y; }
+    public void setEnvironmentPlayWidth(int playAreaWidth) throws IllegalArgumentException {
         if (playAreaWidth < 0) { throw new IllegalArgumentException("Cannot set the play area width to a negative integer"); }
         this.playAreaWidth = playAreaWidth - (2 * this.hudWidth);
 //        this.playAreaWidth = playAreaWidth;
     }
-    public void SetEnvironmentPlayHeight(int playAreaHeight) throws IllegalArgumentException {
+    public void setEnvironmentPlayHeight(int playAreaHeight) throws IllegalArgumentException {
         if (playAreaHeight < 0) { throw new IllegalArgumentException("Cannot set the play area height to a negative integer"); }
         this.playAreaHeight = playAreaHeight - this.hudHeight - this.hudWidth;
 //        this.playAreaHeight = playAreaHeight;
     }
     // Set the score to an integer value. The score cannot be negative.
-    public void SetScore(int score) throws IllegalArgumentException {
+    public void setScore(int score) throws IllegalArgumentException {
         if (score < 0) { throw new IllegalArgumentException("Cannot set score to a negative integer"); }
         this.currentScore = score;
     }
 
     // Set the medium growth threshold to an integer value. The medium growth threshold cannot be negative.
-    public void SetGrowthThresholdMedium(int mediumThreshold) throws IllegalArgumentException {
+    public void setGrowthThresholdMedium(int mediumThreshold) throws IllegalArgumentException {
         if (mediumThreshold < 0) { throw new IllegalArgumentException("Cannot set growth to a negative integer"); }
         if (mediumThreshold > this.growthThresholdLarge) { throw new IllegalArgumentException("The growth threshold medium cannot be greater than the growth threshold large"); }
 
@@ -218,7 +146,7 @@ public class Environment {
     }
 
     // Set the large growth threshold to an integer value. The large growth threshold cannot be negative.
-    public void SetGrowthThresholdLarge(int largeThreshold) throws IllegalArgumentException {
+    public void setGrowthThresholdLarge(int largeThreshold) throws IllegalArgumentException {
         if (largeThreshold < 0) { throw new IllegalArgumentException("Cannot set growth to a negative integer"); }
         if (largeThreshold < this.growthThresholdMedium) { throw new IllegalArgumentException("The growth threshold large cannot be less than the growth threshold medium"); }
 
@@ -237,7 +165,7 @@ public class Environment {
     }
 
     // Set the target goal to an integer value. The target goal cannot be negative.
-    public void SetTargetGoal(int tGoal) {
+    public void setTargetGoal(int tGoal) {
         if (tGoal < 0) { throw new IllegalArgumentException("Cannot set target goal to a negative integer"); }
 
         if (tGoal == 0) {
@@ -267,11 +195,11 @@ public class Environment {
     //-------------------------------------------------------
     // Getters
     //-------------------------------------------------------
-    public int GetScore() { return this.currentScore; }
-    public int GetGrowthThresholdMedium() { return this.growthThresholdMedium; }
-    public int GetGrowthThresholdLarge() { return this.growthThresholdLarge; }
-    public int GetCurrentGoal() { return this.currentGoal; }
-    public int GetTargetGoal() { return this.targetGoal; }
+    public int getScore() { return this.currentScore; }
+    public int getGrowthThresholdMedium() { return this.growthThresholdMedium; }
+    public int getGrowthThresholdLarge() { return this.growthThresholdLarge; }
+    public int getCurrentGoal() { return this.currentGoal; }
+    public int getTargetGoal() { return this.targetGoal; }
     public Image GetEnvironment() { return this.levelImage; }
     public int GetEnvironmentWidth() { return this.imageWidth;}
     public int GetEnvironmentHeight() { return this.imageHeight; }
@@ -357,16 +285,16 @@ public class Environment {
         }
     }
     public void drawScore() {
-        int playerScore = this.GetScore();
+        int playerScore = this.getScore();
         int clr = 0;
         this.engine.changeColor(clr,clr,clr);
         this.engine.drawText(this.hudOffsetX, (this.hudOffsetY + this.hudFontSize + this.hudInfoSpacing), ("Score: " + Double.toString(playerScore)), "Sans Serif", this.hudFontSize);
     }
 
     public void drawGrowth() {
-        double growthTarget = this.GetTargetGoal();
-        double growthM = this.GetGrowthThresholdMedium();
-        double growthL = this.GetGrowthThresholdLarge();
+        double growthTarget = this.getTargetGoal();
+        double growthM = this.getGrowthThresholdMedium();
+        double growthL = this.getGrowthThresholdLarge();
 
         double growthBarLength = this.engine.width() * 0.6;
         double growthBarXOffset = (this.engine.width() - growthBarLength) / 2.0;
@@ -395,10 +323,10 @@ public class Environment {
         this.engine.drawSolidRectangle(growthBarXOffset + gSS + gSM, growthBarYOffset, gSL, this.hudBarThickness);
 
         // Draw the current growth
-        double growthState = (((2 * growthBarLength) / growthTarget) * (this.GetCurrentGoal()));
-        if (growthState >= (2 * growthBarLength)) { growthState = (2 * growthBarLength); }
+        double growthState = ((growthBarLength / growthTarget) * (this.getCurrentGoal()));
+        if (growthState >= growthBarLength) { growthState = growthBarLength; }
         this.engine.changeColor(0,255,0);
-        this.engine.drawSolidRectangle(growthBarLength, growthBarYOffset, growthState, this.hudBarThickness);
+        this.engine.drawSolidRectangle(growthBarXOffset, growthBarYOffset, growthState, this.hudBarThickness);
 
         // draw the growth bar borders
         this.DrawPanelBorder(growthBarXOffset, growthBarYOffset, growthBarLength, this.hudBarThickness);
@@ -459,30 +387,5 @@ public class Environment {
             if (this.currentGoal >= this.targetGoal) { this.levelComplete = true; }
         }
     }
-    public void addScore(int score) {
-        this.currentScore += score;
-    }
-
-//    public boolean CanPauseTimeout() {
-//        if (!this.canPauseNow) {
-//            Timer timer = new Timer(1000, e -> this.canPauseNow = true);
-//            timer.start();
-//        }
-//        return this.canPauseNow;
-//    }
-//                new ActionListener() {
-//            // Click the Exit and wait 1 second then Exit the program
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                System.exit(0);
-//            }
-//        }
-//        );
-//
-//        double val = (Round2DP((this.GetTimer() - this.countdownTimeOffset)));
-////        System.out.println("time:" + val);
-//        if (val > 1.0) { return true; }
-//        else { return false; }
-////        return true;
-//    }
+    public void addScore(int score) { this.currentScore += score; }
 }

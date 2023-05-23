@@ -1,3 +1,11 @@
+/*
+ * Author: Paul
+ * ID:
+ *
+ * Co-Author: Robert Tubman (Tweaked to merge with team code)
+ * ID: 11115713
+ */
+
 package Assignment2;
 
 import javax.sound.sampled.*;
@@ -10,7 +18,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class StartMenu {
-    // TODO: Remove all the "Magic number" fields in the methods in the class
+    // TODO: Should remove all the "Magic number" fields in the methods in the class
     private final GameEngine engine;
     private Clip musicClip;
     private boolean isMusicPlaying = true;
@@ -45,24 +53,22 @@ public class StartMenu {
             double radius = 50; // TODO: this is a "magic number" = 50, replace with actual parameter fields
 
             switch(i) {
-                case 0:
+                case 0: // Single player
                     if (this.clickButton(mouseX, mouseY, ButtonX, ButtonY, radius)) {
                         // Single player was clicked
                         return "single_player";
                     }
-//                    break;
-                case 1:
+                case 1: // Time attack
                     if (this.clickButton(mouseX, mouseY, ButtonX, ButtonY, radius)) {
                         // Time attack was clicked
                         return "time_attack";
                     }
-//                    break;
-//                case 2:
+//                case 2: // Settings/Options?
 //                    if (clickButton(mouseX, mouseY, ButtonX, ButtonY, radius)) {
 //
 //                    }
 //                    break;
-                case 3:
+                case 3: // Quit
                     if (this.clickButton(mouseX, mouseY, ButtonX, ButtonY, radius)) {
                         // Quit was clicked
                         Timer timer = new Timer(1000, new ActionListener() {
@@ -76,7 +82,7 @@ public class StartMenu {
                         timer.start();
                     }
                     break;
-//                case 4:
+//                case 4: // Help menu?
 //                    if (clickButton(mouseX, mouseY, ButtonX, ButtonY, radius)) {
 //
 //                    }

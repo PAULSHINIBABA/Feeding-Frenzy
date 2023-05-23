@@ -8,6 +8,7 @@
  * Some fields are required on instantiation, but the rest can be set using
  * the Setters.
  */
+package Assignment2;
 
 import java.awt.*;
 import java.util.Random;
@@ -19,8 +20,8 @@ public class Enemy {
     private final int MIN_SIZE = 0;
     private final int MAX_SIZE = 3;
     private final double EDGE_OFFSET = 1.0;
-    private final double COLLIDER_BODY_LENGTH = 64.0; // This needs to match the image dimension x
-    private final double COLLIDER_BODY_HEIGHT = 64.0; // This needs to match the image dimension y
+    private final double COLLIDER_BODY_LENGTH = 32.0; // This needs to match the image dimension x
+    private final double COLLIDER_BODY_HEIGHT = 32.0; // This needs to match the image dimension y
     private final double COLLIDER_BODY_X_SCALE = 1.0;
     private final double COLLIDER_BODY_Y_SCALE = 0.5;
     private final double SIZE_1 = 1.5;
@@ -92,7 +93,7 @@ public class Enemy {
         this.SetSize(size);
 
         // Set the enemy velocity
-        this.velocityRange = 100.0;
+        this.velocityRange = 50.0;
         if (velocity == 0.0) { this.SetRandomVelocity(this.DEFAULT_VELOCITY, velocityRange); }
         else { this.velocity = velocity; }
 
@@ -304,7 +305,9 @@ public class Enemy {
     public double GetColliderHeadYOffset() { return this.colliderHeadYOffset; }
     public double GetColliderHeadRadius() { return this.colliderHeadRadius; }
     public double GetImageXOffset() { return this.xPos + this.imageBodyXOffset; }
+    public double GetImageXOffsetNegative() { return this.xPos - this.imageBodyXOffset; }
     public double GetImageYOffset() { return this.yPos + this.imageBodyYOffset; }
+    public double GetImageYOffsetNegative() { return this.yPos - this.imageBodyYOffset; }
     public double GetImageLength() { return this.imageBodyLength; }
     public double GetImageHeight() { return this.imageBodyHeight; }
 
