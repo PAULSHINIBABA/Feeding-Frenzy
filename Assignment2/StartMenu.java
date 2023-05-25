@@ -138,7 +138,7 @@ public class StartMenu {
     public void initMusic() {
         try {
             //import the music file
-            File soundFile = new File("Assignment2/assets/music/MENU.wav");
+            File soundFile = new File("Assignment2/assets/audio/music/track_light_positive_modern.wav");
             AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
 
             //get the music format
@@ -162,15 +162,15 @@ public class StartMenu {
 
 //    @Override
     public void init() {
-        this.background = this.engine.loadImage("Assignment2/assets/image/B1.png");
-        this.title = this.engine.loadImage("Assignment2/assets/image/title.png");
+        this.background = this.engine.loadImage("Assignment2/assets/image/background/background1.png");
+        this.title = this.engine.loadImage("Assignment2/assets/image/icon/icon_title1.png");
 
-        this.buttonImages[0] = this.engine.loadImage("Assignment2/assets/image/StartButton.png");
-        this.buttonImages[1] = this.engine.loadImage("Assignment2/assets/image/TIMERACE.png");
-        this.buttonImages[2] = this.engine.loadImage("Assignment2/assets/image/SETTINGS.png");
-        this.buttonImages[3] = this.engine.loadImage("Assignment2/assets/image/QUIT.png");
-        this.buttonImages[4] = this.engine.loadImage("Assignment2/assets/image/HELP.png");
-        this.musicButton = this.engine.loadImage("Assignment2/assets/image/MUSICbutton.png");
+        this.buttonImages[0] = this.engine.loadImage("Assignment2/assets/image/icon/icon_start1.png");
+        this.buttonImages[1] = this.engine.loadImage("Assignment2/assets/image/icon/icon_time_attack1.png");
+        this.buttonImages[2] = this.engine.loadImage("Assignment2/assets/image/icon/icon_settings1.png");
+        this.buttonImages[3] = this.engine.loadImage("Assignment2/assets/image/icon/icon_quit1.png");
+        this.buttonImages[4] = this.engine.loadImage("Assignment2/assets/image/icon/icon_help1.png");
+        this.musicButton = this.engine.loadImage("Assignment2/assets/image/icon/icon_music1.png");
 
         this.initMusic();
         this.playMusic();

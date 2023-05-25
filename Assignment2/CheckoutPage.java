@@ -15,6 +15,7 @@ import java.awt.*;
 public class CheckoutPage {
     // Final fields
     private final int ENEMY_TYPES;
+    // TODO: implement the number and types of enemies eaten
     private final int[] ENEMIES_EATEN;
     private final GameEngine engine;
 
@@ -104,6 +105,8 @@ public class CheckoutPage {
     public void setPearlsEaten(int pearlsEaten) { this.pearlsEaten = pearlsEaten; }
     public void setStarfishEaten(int starfishEaten) { this.starfishEaten = starfishEaten; }
     public void setEnemiesEaten() {}
+    public void setBackgroundWidth(int width) { this.backgroundWidth = width; }
+    public void setBackgroundHeight(int height) { this.backgroundHeight = height; }
 
     //-------------------------------------------------------
     // Getters
@@ -111,6 +114,8 @@ public class CheckoutPage {
     public int getScore() { return this.score; }
     public int getPearlsEaten() { return this.pearlsEaten; }
     public int getStarfishEaten() { return this.starfishEaten; }
+    public int getBackgroundWidth() { return this.backgroundWidth; }
+    public int getBackgroundHeight() { return this.backgroundHeight; }
 
     //-------------------------------------------------------
     // Other methods
@@ -134,6 +139,7 @@ public class CheckoutPage {
         this.engine.drawText(this.scoreX, this.scoreY, ("Score: " + this.score), "Sans Serif", this.scoreFont);
     }
     public void drawEnemiesEaten() {
+        // TODO: Need to implement
     }
     public void drawPearlsEaten() {
         this.engine.drawText(this.pEatX, this.pEatY, ("Pearls: " + this.pearlsEaten), "Sans Serif", this.pEatFont);
@@ -150,9 +156,9 @@ public class CheckoutPage {
     }
     public void drawNextLevelButton() {
         this.engine.drawImage(this.continueButtonImage,
-                this.nextLevelButtonColliderX,
+                (this.nextLevelButtonColliderX + this.nextLevelButtonColliderWidth),
                 this.nextLevelButtonColliderY,
-                this.nextLevelButtonColliderWidth,
+                (-this.nextLevelButtonColliderWidth),
                 this.nextLevelButtonColliderHeight);
     }
 
@@ -161,33 +167,13 @@ public class CheckoutPage {
         int checkoutLineY = 100;
         this.engine.drawText(checkoutLineX, checkoutLineY, "STAGE COMPLETE!", "a", 28);
     }
-//    public void drawReturnToMainMenuButton() {
-//        int returnPosX = 25;
-//        int returnPosY = 600;
-//        int returnW = 100;
-//        int returnH = 100;
-//        this.engine.drawImage(this.backButtonImage, returnPosX, returnPosY, returnW, returnH);
-//        return "main_menu";
-//    }
-//    public void drawNextLevelButton() {
-//        int continuepos_x=600;
-//        int continuepos_y=620;
-//        int continue_w=65;
-//        int continue_h=65;
-//        this.engine.drawImage(this.contiuneimg,continuepos_x,continuepos_y,continue_w,continue_h);
-////        return "next_level";
-//    }
-
 
     public String checkClickTarget(double mX, double mY) {
         if (checkDistance(mX, mY, this.mainMenuButtonColliderX, this.mainMenuButtonColliderY, this.mainMenuButtonColliderRadius)) {
-            System.out.println("checkout - main menu");
             return "main_menu";
         } else if (checkDistance(mX, mY, this.nextLevelButtonColliderX, this.nextLevelButtonColliderY, this.nextLevelButtonColliderRadius)) {
-            System.out.println("checkout - next level");
             return "next_level";
         } else {
-            System.out.println("checkout - nothing");
             return "nothing";
         }
     }
@@ -208,5 +194,4 @@ public class CheckoutPage {
             return value;
         }
     }
-
 }

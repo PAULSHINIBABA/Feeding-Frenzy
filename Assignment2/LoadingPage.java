@@ -46,11 +46,11 @@ public class LoadingPage {
     // Other methods
     //**************************************************
     public void init() {
-        this.loadingImage = this.engine.loadImage("Assignment2/assets/image/B2.png");
-        this.title = this.engine.loadImage("Assignment2/assets/image/title.png");
-        this.images[0] = this.engine.loadImage("Assignment2/assets/image/Warning.png");
-        this.images[1] = this.engine.loadImage("Assignment2/assets/image/Tip1.png");
-        this.images[2] = this.engine.loadImage("Assignment2/assets/image/Tip2.png");
+        this.loadingImage = this.engine.loadImage("Assignment2/assets/image/background/background2.png");
+        this.title = this.engine.loadImage("Assignment2/assets/image/icon/icon_title1.png");
+        this.images[0] = this.engine.loadImage("Assignment2/assets/image/tip/icon_tip1.png");
+        this.images[1] = this.engine.loadImage("Assignment2/assets/image/tip/icon_tip2.png");
+        this.images[2] = this.engine.loadImage("Assignment2/assets/image/tip/icon_tip3.png");
 
     }
 

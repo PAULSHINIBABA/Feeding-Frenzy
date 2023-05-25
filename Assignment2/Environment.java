@@ -237,7 +237,7 @@ public class Environment {
     // Other Methods
     //-------------------------------------------------------
     public void initEnvironment() {
-        this.levelImage = this.engine.loadImage("Assignment2/assets/image/background.png");
+        this.levelImage = this.engine.loadImage("Assignment2/assets/image/background/background5.png");
 
         this.setBaseTime(this.engine.getTime());
     }
