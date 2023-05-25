@@ -70,46 +70,46 @@ public class Environment {
     public Environment(GameEngine engine, boolean isTimeAttack) {
         this.engine = engine;
 
-        this.isPaused = true;
-        this.levelComplete = false;
-        this.canPauseNow = false;
-        this.currentScore = 0;
-        this.currentGoal = 0;
+        isPaused = true;
+        levelComplete = false;
+        canPauseNow = false;
+        currentScore = 0;
+        currentGoal = 0;
         this.isTimeAttack = isTimeAttack;
-        this.countdownTimer = 60.0; // Time attack default is a minute
-        this.countdownTimerCurrent = 0.0;
-        this.countdownTimeOffset = 0.0;
-        this.timer = 0.0;
-        this.pausableTimer = 0.0;
+        countdownTimer = 60.0; // Time attack default is a minute
+        countdownTimerCurrent = 0.0;
+        countdownTimeOffset = 0.0;
+        timer = 0.0;
+        pausableTimer = 0.0;
 
-        this.hudWidth = 10; // Arbitrary default HUD width
-        this.hudHeight = 80; // Arbitrary default HUD height
-        this.hudOffsetX = 10;
-        this.hudOffsetY = 20;
-        this.hudFontSize =  12;
-        this.hudBarThickness = 12;
-        this.hudInfoSpacing = 2;
+        hudWidth = 10; // Arbitrary default HUD width
+        hudHeight = 80; // Arbitrary default HUD height
+        hudOffsetX = 10;
+        hudOffsetY = 20;
+        hudFontSize =  12;
+        hudBarThickness = 12;
+        hudInfoSpacing = 2;
 
-        this.playAreaX = this.hudWidth;
-        this.playAreaY = this.hudHeight;
-        this.playAreaWidth = this.engine.width() - (2 * this.hudWidth);
-        this.playAreaHeight = this.engine.height() - this.hudHeight - this.hudWidth; // hudHeight is from the top, hudWidth is taken from the bottom
+        playAreaX = hudWidth;
+        playAreaY = hudHeight;
+        playAreaWidth = this.engine.width() - (2 * hudWidth);
+        playAreaHeight = this.engine.height() - hudHeight - hudWidth; // hudHeight is from the top, hudWidth is taken from the bottom
 
-        this.imageOriginX = this.hudWidth + (this.playAreaWidth / 2.0);
-        this.imageOriginY = this.hudHeight + (this.playAreaHeight / 2.0);
-        this.imageWidth = this.playAreaWidth; // Arbitrary image width
-        this.imageHeight = this.playAreaHeight; // Arbitrary image height
-        this.imageXOffset = this.imageOriginX - (this.playAreaWidth / 2.0);
-        this.imageYOffset = this.imageOriginY - (this.playAreaHeight / 2.0);
+        imageOriginX = hudWidth + (playAreaWidth / 2.0);
+        imageOriginY = hudHeight + (playAreaHeight / 2.0);
+        imageWidth = playAreaWidth; // Arbitrary image width
+        imageHeight = playAreaHeight; // Arbitrary image height
+        imageXOffset = imageOriginX - (playAreaWidth / 2.0);
+        imageYOffset = imageOriginY - (playAreaHeight / 2.0);
 
-        this.setGrowthThresholdLarge(0);
-        this.setGrowthThresholdMedium(0);
-        this.setTargetGoal(0);
-        this.endLevel = false;
-        this.restartEnvironment = false;
-        this.enemyTypes = 3;
-        this.setEnemyEatenCounter();
-        this.hardMode = false;
+        setGrowthThresholdLarge(0);
+        setGrowthThresholdMedium(0);
+        setTargetGoal(0);
+        endLevel = false;
+        restartEnvironment = false;
+        enemyTypes = 3;
+        setEnemyEatenCounter();
+        hardMode = false;
 
         initEnvironment();
     }
@@ -121,49 +121,47 @@ public class Environment {
         if (levelImage == null) { throw new IllegalArgumentException("Cannot set the environment image to null"); }
         this.levelImage = levelImage;
     }
-    public void setEnvironmentWidth(int width) { this.imageWidth = width; }
-    public void setEnvironmentHeight(int height) { this.imageHeight = height; }
-    public void setEnvironmentOriginX(double x) { this.imageOriginX = x; }
-    public void setEnvironmentOriginY(double y) { this.imageOriginY = y; }
-    public void setEnvironmentXOffset(double x) { this.imageXOffset = x; }
-    public void setEnvironmentYOffset(double y) { this.imageYOffset = y; }
+    public void setEnvironmentWidth(int width) { imageWidth = width; }
+    public void setEnvironmentHeight(int height) { imageHeight = height; }
+    public void setEnvironmentOriginX(double x) { imageOriginX = x; }
+    public void setEnvironmentOriginY(double y) { imageOriginY = y; }
+    public void setEnvironmentXOffset(double x) { imageXOffset = x; }
+    public void setEnvironmentYOffset(double y) { imageYOffset = y; }
     public void setEnvironmentPlayWidth(int playAreaWidth) throws IllegalArgumentException {
         if (playAreaWidth < 0) { throw new IllegalArgumentException("Cannot set the play area width to a negative integer"); }
-        this.playAreaWidth = playAreaWidth - (2 * this.hudWidth);
-//        this.playAreaWidth = playAreaWidth;
+        this.playAreaWidth = playAreaWidth - (2 * hudWidth);
     }
     public void setEnvironmentPlayHeight(int playAreaHeight) throws IllegalArgumentException {
         if (playAreaHeight < 0) { throw new IllegalArgumentException("Cannot set the play area height to a negative integer"); }
-        this.playAreaHeight = playAreaHeight - this.hudHeight - this.hudWidth;
-//        this.playAreaHeight = playAreaHeight;
+        this.playAreaHeight = playAreaHeight - hudHeight - hudWidth;
     }
     // Set the score to an integer value. The score cannot be negative.
     public void setScore(int score) throws IllegalArgumentException {
         if (score < 0) { throw new IllegalArgumentException("Cannot set score to a negative integer"); }
-        this.currentScore = score;
+        currentScore = score;
     }
 
     // Set the medium growth threshold to an integer value. The medium growth threshold cannot be negative.
     public void setGrowthThresholdMedium(int mediumThreshold) throws IllegalArgumentException {
         if (mediumThreshold < 0) { throw new IllegalArgumentException("Cannot set growth to a negative integer"); }
-        if (mediumThreshold > this.growthThresholdLarge) { throw new IllegalArgumentException("The growth threshold medium cannot be greater than the growth threshold large"); }
+        if (mediumThreshold > growthThresholdLarge) { throw new IllegalArgumentException("The growth threshold medium cannot be greater than the growth threshold large"); }
 
         if (mediumThreshold == 0) {
-            this.growthThresholdMedium = this.defaultGrowthThresholdM;
+            growthThresholdMedium = defaultGrowthThresholdM;
         } else {
-            this.growthThresholdMedium = mediumThreshold;
+            growthThresholdMedium = mediumThreshold;
         }
     }
 
     // Set the large growth threshold to an integer value. The large growth threshold cannot be negative.
     public void setGrowthThresholdLarge(int largeThreshold) throws IllegalArgumentException {
         if (largeThreshold < 0) { throw new IllegalArgumentException("Cannot set growth to a negative integer"); }
-        if (largeThreshold < this.growthThresholdMedium) { throw new IllegalArgumentException("The growth threshold large cannot be less than the growth threshold medium"); }
+        if (largeThreshold < growthThresholdMedium) { throw new IllegalArgumentException("The growth threshold large cannot be less than the growth threshold medium"); }
 
         if (largeThreshold == 0) {
-            this.growthThresholdLarge = this.defaultGrowthThresholdL;
+            growthThresholdLarge = defaultGrowthThresholdL;
         } else {
-            this.growthThresholdLarge = largeThreshold;
+            growthThresholdLarge = largeThreshold;
         }
     }
 
@@ -171,7 +169,7 @@ public class Environment {
     // currentGoal / targetGoal gives us the progression for the current level
     public void setCurrentGoal(int cGoal) {
         if (cGoal < 0) { throw new IllegalArgumentException("Cannot set current goal to a negative integer"); }
-        this.currentGoal = cGoal;
+        currentGoal = cGoal;
     }
 
     // Set the target goal to an integer value. The target goal cannot be negative.
@@ -179,33 +177,33 @@ public class Environment {
         if (tGoal < 0) { throw new IllegalArgumentException("Cannot set target goal to a negative integer"); }
 
         if (tGoal == 0) {
-            this.targetGoal = this.defaultTargetGoal;
+            targetGoal = defaultTargetGoal;
         } else {
-            this.targetGoal = tGoal;
+            targetGoal = tGoal;
         }
     }
 
-    public void setIsPaused(boolean paused) { this.isPaused = paused; }
-    public void setPlayAreaX(int x) { this.playAreaX = x; }
-    public void setPlayAreaY(int y) { this.playAreaY = y; }
-//    public void setPlayAreaWidth(int width) { this.playAreaWidth = width; }
-//    public void setPlayAreaHeight(int height) { this.playAreaHeight = height; }
-    public void setHUDWidth(int width) { this.hudWidth = width; }
-    public void setHUDHeight(int height) { this.hudHeight = height; }
-    public void setTimer(double newTime) { this.timer = (newTime - this.baseTime) / 1000.0; }
+    public void setIsPaused(boolean paused) { isPaused = paused; }
+    public void setPlayAreaX(int x) { playAreaX = x; }
+    public void setPlayAreaY(int y) { playAreaY = y; }
+//    public void setPlayAreaWidth(int width) { playAreaWidth = width; }
+//    public void setPlayAreaHeight(int height) { playAreaHeight = height; }
+    public void setHUDWidth(int width) { hudWidth = width; }
+    public void setHUDHeight(int height) { hudHeight = height; }
+    public void setTimer(double newTime) { timer = (newTime - baseTime) / 1000.0; }
     public void setBaseTime(double baseTime) { this.baseTime = baseTime; }
     public void setIsTimeAttack(boolean isTimeAttack) { this.isTimeAttack = isTimeAttack; }
-    public void setCountDownTimer(double timer) { this.countdownTimer = timer; }
-    public void setCountDownCurrentTimer(double timer) { this.countdownTimerCurrent = timer; }
-//    public void setCountDownTimerOffset(double timer) { this.countdownTimeOffset = timer; }
-    public void setPausableTimer(double timer) { this.pausableTimer = timer; }
+    public void setCountDownTimer(double timer) { countdownTimer = timer; }
+    public void setCountDownCurrentTimer(double timer) { countdownTimerCurrent = timer; }
+//    public void setCountDownTimerOffset(double timer) { countdownTimeOffset = timer; }
+    public void setPausableTimer(double timer) { pausableTimer = timer; }
     public void setEndLevel() {
-        Timer timer = new Timer(600, e->this.endLevel = true);
+        Timer timer = new Timer(600, e->endLevel = true);
         timer.setRepeats(false);
         timer.start();
         setRestartLevel(true);
     }
-    public void setRestartLevel(boolean state) { this.restartEnvironment = state; }
+    public void setRestartLevel(boolean state) { restartEnvironment = state; }
     public void setEnemyTypes(int enemyTypes, boolean reset) {
         this.enemyTypes = enemyTypes;
         if (reset) {
@@ -213,134 +211,134 @@ public class Environment {
         }
     }
     public void setEnemyEatenCounter() {
-        this.enemiesEaten = new int[this.enemyTypes];
-        for (int i = 0; i < this.enemyTypes; i++) { this.enemiesEaten[i] = 0; }
+        enemiesEaten = new int[enemyTypes];
+        for (int i = 0; i < enemyTypes; i++) { enemiesEaten[i] = 0; }
     }
     public void setEatEnemyBySize(int size) throws IllegalArgumentException {
-        if (size < 0 || size >= this.enemyTypes) { throw new IllegalArgumentException("Cannot eat a enemy of size that doesn't exist"); }
-        this.enemiesEaten[size] += 1;
+        if (size < 0 || size >= enemyTypes) { throw new IllegalArgumentException("Cannot eat a enemy of size that doesn't exist"); }
+        enemiesEaten[size] += 1;
     }
-    public void setCurrentLevel(int level) { this.currentLevel = level; }
-    public void setHardMode(boolean mode) { this.hardMode = mode; }
-    public void setIsLevelComplete(boolean state) { this.levelComplete = state; }
+    public void setCurrentLevel(int level) { currentLevel = level; }
+    public void setHardMode(boolean mode) { hardMode = mode; }
+    public void setIsLevelComplete(boolean state) { levelComplete = state; }
+    public void setEndLevel(boolean state) { endLevel = state; }
 
 
     //-------------------------------------------------------
     // Getters
     //-------------------------------------------------------
-    public int getScore() { return this.currentScore; }
-    public int getGrowthThresholdMedium() { return this.growthThresholdMedium; }
-    public int getGrowthThresholdLarge() { return this.growthThresholdLarge; }
-    public int getCurrentGoal() { return this.currentGoal; }
-    public int getTargetGoal() { return this.targetGoal; }
-    public Image getEnvironment() { return this.levelImage; }
-    public int getEnvironmentWidth() { return this.imageWidth;}
-    public int getEnvironmentHeight() { return this.imageHeight; }
-    public double getEnvironmentOriginX() { return this.imageOriginX; }
-    public double getEnvironmentOriginY() { return this.imageOriginY; }
-    public double getEnvironmentXOffset() { return this.imageXOffset; }
-    public double getEnvironmentYOffset() { return this.imageYOffset; }
-    public boolean getIsPaused() { return this.isPaused; }
-    public int getHUDWidth() { return this.hudWidth; }
-    public int getHUDHeight() { return this.hudHeight; }
-    public int getPlayAreaX() { return this.playAreaX; }
-    public int getPlayAreaY() { return this.playAreaY; }
-    public int getPlayAreaWidth() { return this.playAreaWidth; }
-    public int getPlayAreaHeight() { return this.playAreaHeight; }
-    public double getTimer() { return this.round2DP(this.timer); }
-    public double getBaseTime() { return this.round2DP(this.baseTime); }
-    public boolean getIsTimeAttack() { return this.isTimeAttack; }
-    public double getCountDownTimer() { return this.round2DP(this.countdownTimer); }
-    public double getCountDownCurrentTimer() { return this.round2DP(this.countdownTimerCurrent); }
-    public double getCountDownCurrentTimerPercentage() { return this.round2DP((this.countdownTimerCurrent / this.countdownTimer)); }
+    public int getScore() { return currentScore; }
+    public int getGrowthThresholdMedium() { return growthThresholdMedium; }
+    public int getGrowthThresholdLarge() { return growthThresholdLarge; }
+    public int getCurrentGoal() { return currentGoal; }
+    public int getTargetGoal() { return targetGoal; }
+    public Image getEnvironment() { return levelImage; }
+    public int getEnvironmentWidth() { return imageWidth;}
+    public int getEnvironmentHeight() { return imageHeight; }
+    public double getEnvironmentOriginX() { return imageOriginX; }
+    public double getEnvironmentOriginY() { return imageOriginY; }
+    public double getEnvironmentXOffset() { return imageXOffset; }
+    public double getEnvironmentYOffset() { return imageYOffset; }
+    public boolean getIsPaused() { return isPaused; }
+    public int getHUDWidth() { return hudWidth; }
+    public int getHUDHeight() { return hudHeight; }
+    public int getPlayAreaX() { return playAreaX; }
+    public int getPlayAreaY() { return playAreaY; }
+    public int getPlayAreaWidth() { return playAreaWidth; }
+    public int getPlayAreaHeight() { return playAreaHeight; }
+    public double getTimer() { return round2DP(timer); }
+    public double getBaseTime() { return round2DP(baseTime); }
+    public boolean getIsTimeAttack() { return isTimeAttack; }
+    public double getCountDownTimer() { return round2DP(countdownTimer); }
+    public double getCountDownCurrentTimer() { return round2DP(countdownTimerCurrent); }
+    public double getCountDownCurrentTimerPercentage() { return round2DP((countdownTimerCurrent / countdownTimer)); }
     public double getCountDownTimerWOffset() {
-        double theTime = this.getTimer();
-        double theOffset = this.countdownTimeOffset;
+        double theTime = getTimer();
+        double theOffset = countdownTimeOffset;
         if (theOffset > theTime) {
             return round2DP(theTime);
         } else {
             return round2DP((theTime - theOffset));
         }
     }
-    public double getPausableTimer() { return this.pausableTimer; }
-    public boolean getIsLevelComplete() { return this.levelComplete; }
-    public boolean getEndLevel() { return this.endLevel; }
-    public boolean getRestartLevel() { return this.restartEnvironment; }
-    public int getEnemyTypes() { return this.enemyTypes; }
-    public int[] getEnemiesEaten() { return this.enemiesEaten; }
+    public double getPausableTimer() { return pausableTimer; }
+    public boolean getIsLevelComplete() { return levelComplete; }
+    public boolean getEndLevel() { return endLevel; }
+    public boolean getRestartLevel() { return restartEnvironment; }
+    public int getEnemyTypes() { return enemyTypes; }
+    public int[] getEnemiesEaten() { return enemiesEaten; }
     public int getEnemyEatenBySize(int size) {
-        if (size < 0 || size >= this.enemyTypes) { throw new IllegalArgumentException("Cannot eat a enemy of size that doesn't exist"); }
-        return this.enemiesEaten[size];
+        if (size < 0 || size >= enemyTypes) { throw new IllegalArgumentException("Cannot eat a enemy of size that doesn't exist"); }
+        return enemiesEaten[size];
     }
-    public int getCurrentLevel() { return this.currentLevel; }
-    public boolean getHardMode() { return this.hardMode; }
+    public int getCurrentLevel() { return currentLevel; }
+    public boolean getHardMode() { return hardMode; }
 
 
     //-------------------------------------------------------
     // Other Methods
     //-------------------------------------------------------
     public void initEnvironment() {
-        this.levelImage = this.engine.loadImage("Assignment2/assets/image/background/background5.png");
+        levelImage = engine.loadImage("Assignment2/assets/image/background/background5.png");
 
-        this.setBaseTime(this.engine.getTime());
+        setBaseTime(engine.getTime());
     }
     public void drawEnvironment() {
-        this.engine.saveCurrentTransform();
-//        System.out.println("x:" + this.getEnvironmentXOffset() +
-//                "\ty:" + this.getEnvironmentYOffset() +
-//                "\tw:" + this.getPlayAreaWidth() +
-//                "\th:" + this.getPlayAreaHeight());
+        engine.saveCurrentTransform();
+//        System.out.println("x:" + getEnvironmentXOffset() +
+//                "\ty:" + getEnvironmentYOffset() +
+//                "\tw:" + getPlayAreaWidth() +
+//                "\th:" + getPlayAreaHeight());
 
-        this.engine.drawImage(this.levelImage,
-                this.getEnvironmentXOffset(),
-                this.getEnvironmentYOffset(),
-                this.getPlayAreaWidth(),
-                this.getPlayAreaHeight());
+        engine.drawImage(levelImage,
+                getEnvironmentXOffset(),
+                getEnvironmentYOffset(),
+                getPlayAreaWidth(),
+                getPlayAreaHeight());
 
-        this.engine.restoreLastTransform();
+        engine.restoreLastTransform();
     }
 
     public void drawHUD() {
-        int hudWidth = this.getHUDWidth();
-        int hudHeight = this.getHUDHeight();
+        int hudWidth = getHUDWidth();
+        int hudHeight = getHUDHeight();
 
         int whiteOutValue = 100;
-        this.engine.changeColor(whiteOutValue,whiteOutValue,255);
+        engine.changeColor(whiteOutValue,whiteOutValue,255);
         // HUD left
-        this.engine.drawSolidRectangle(0,0, hudWidth, this.engine.height());
+        engine.drawSolidRectangle(0,0, hudWidth, engine.height());
         // HUD Right
-        this.engine.drawSolidRectangle((this.engine.width() - hudWidth),0, hudWidth, this.engine.height());
+        engine.drawSolidRectangle((engine.width() - hudWidth),0, hudWidth, engine.height());
         // HUD bottom
-        this.engine.drawSolidRectangle(0,(this.engine.height() - hudWidth), this.engine.width(), hudWidth);
+        engine.drawSolidRectangle(0,(engine.height() - hudWidth), engine.width(), hudWidth);
         // HUD top
-        this.engine.drawSolidRectangle(0,0, this.engine.width(), hudHeight);
+        engine.drawSolidRectangle(0,0, engine.width(), hudHeight);
     }
 
     public void drawTimer(boolean isTimeAttack) {
-        double displayTime = this.getCountDownTimerWOffset();
+        double displayTime = getCountDownTimerWOffset();
         int clr = 0;
-        this.engine.changeColor(clr,clr,clr);
-        this.engine.drawText(10, 20, ("Time: " + Double.toString(displayTime)), "Sans Serif", 12);
+        engine.changeColor(clr,clr,clr);
+        engine.drawText(10, 20, ("Time: " + Double.toString(displayTime)), "Sans Serif", 12);
 
         if (isTimeAttack) {
-            this.drawTimeAttackBar();
+            drawTimeAttackBar();
         }
     }
     public void drawScore() {
-        int playerScore = this.getScore();
         int clr = 0;
-        this.engine.changeColor(clr,clr,clr);
-        this.engine.drawText(this.hudOffsetX, (this.hudOffsetY + this.hudFontSize + this.hudInfoSpacing), ("Score: " + Double.toString(playerScore)), "Sans Serif", this.hudFontSize);
+        engine.changeColor(clr,clr,clr);
+        engine.drawText(hudOffsetX, (hudOffsetY + hudFontSize + hudInfoSpacing), ("Score: " + Double.toString(getScore())), "Sans Serif", hudFontSize);
     }
 
     public void drawGrowth() {
-        double growthTarget = this.getTargetGoal();
-        double growthM = this.getGrowthThresholdMedium();
-        double growthL = this.getGrowthThresholdLarge();
+        double growthTarget = getTargetGoal();
+        double growthM = getGrowthThresholdMedium();
+        double growthL = getGrowthThresholdLarge();
 
-        double growthBarLength = this.engine.width() * 0.6;
-        double growthBarXOffset = (this.engine.width() - growthBarLength) / 2.0;
-        double growthBarYOffset = this.hudOffsetY;
+        double growthBarLength = engine.width() * 0.6;
+        double growthBarXOffset = (engine.width() - growthBarLength) / 2.0;
+        double growthBarYOffset = hudOffsetY;
 
         double gSS = ((growthBarLength / growthTarget) * (growthM));
         double gSM = ((growthBarLength / growthTarget) * (growthL - growthM));
@@ -351,83 +349,101 @@ public class Environment {
         int lighter = 175;
         int light = 200;
         int basic = 120;
-        this.engine.changeColor(basic,dark,basic);
-        this.engine.drawSolidRectangle(growthBarXOffset, growthBarYOffset, gSS, this.hudBarThickness);
+        engine.changeColor(basic,dark,basic);
+        engine.drawSolidRectangle(growthBarXOffset, growthBarYOffset, gSS, hudBarThickness);
 
         // draw the medium size
         double nextBar = growthL - growthM;
-        this.engine.changeColor(basic,lighter,basic);
-        this.engine.drawSolidRectangle(growthBarXOffset + gSS, growthBarYOffset, gSM, this.hudBarThickness);
+        engine.changeColor(basic,lighter,basic);
+        engine.drawSolidRectangle(growthBarXOffset + gSS, growthBarYOffset, gSM, hudBarThickness);
 
         // draw the large size
         double finalBar = growthTarget - growthL;
-        this.engine.changeColor(basic,light,basic);
-        this.engine.drawSolidRectangle(growthBarXOffset + gSS + gSM, growthBarYOffset, gSL, this.hudBarThickness);
+        engine.changeColor(basic,light,basic);
+        engine.drawSolidRectangle(growthBarXOffset + gSS + gSM, growthBarYOffset, gSL, hudBarThickness);
 
         // Draw the current growth
-        double growthState = ((growthBarLength / growthTarget) * (this.getCurrentGoal()));
+        double growthState = ((growthBarLength / growthTarget) * (getCurrentGoal()));
         if (growthState >= growthBarLength) { growthState = growthBarLength; }
-        this.engine.changeColor(0,255,0);
-        this.engine.drawSolidRectangle(growthBarXOffset, growthBarYOffset, growthState, this.hudBarThickness);
+        engine.changeColor(0,255,0);
+        engine.drawSolidRectangle(growthBarXOffset, growthBarYOffset, growthState, hudBarThickness);
 
         // draw the growth bar borders
-        this.drawPanelBorder(growthBarXOffset, growthBarYOffset, growthBarLength, this.hudBarThickness);
+        drawPanelBorder(growthBarXOffset, growthBarYOffset, growthBarLength, hudBarThickness);
     }
 
     public void drawTimeAttackBar() {
-        double timeAttackLimit = this.getCountDownTimer();
-        double timeAttackRemaining = this.getCountDownCurrentTimer();
+        double timeAttackLimit = getCountDownTimer();
+        double timeAttackRemaining = getCountDownCurrentTimer();
 
-        double timeAttackBarLength = this.engine.width() * 0.6;
-        double timeAttackBarXOffset = (this.engine.width() - timeAttackBarLength) / 2.0;
-        double timeAttackBarYOffset = this.hudOffsetY * 2;
+        double timeAttackBarLength = engine.width() * 0.6;
+        double timeAttackBarXOffset = (engine.width() - timeAttackBarLength) / 2.0;
+        double timeAttackBarYOffset = hudOffsetY * 2;
 
         // draw the small size
         int dark = 120;
         int lighter = 175;
         int light = 240;
         int basic = 50;
-        this.engine.changeColor(light,basic,basic);
-        this.engine.drawSolidRectangle(timeAttackBarXOffset, timeAttackBarYOffset, timeAttackBarLength, this.hudBarThickness);
+        engine.changeColor(light,basic,basic);
+        engine.drawSolidRectangle(timeAttackBarXOffset, timeAttackBarYOffset, timeAttackBarLength, hudBarThickness);
 
         // Draw the current remaining time
         double remainingTime = ((timeAttackBarLength / timeAttackLimit) * timeAttackRemaining);
         if (remainingTime >= timeAttackBarLength) { remainingTime = timeAttackBarLength; }
 
-        this.engine.changeColor(dark,basic,basic);
-        this.engine.drawSolidRectangle(timeAttackBarXOffset, timeAttackBarYOffset, remainingTime, this.hudBarThickness);
+        engine.changeColor(dark,basic,basic);
+        engine.drawSolidRectangle(timeAttackBarXOffset, timeAttackBarYOffset, remainingTime, hudBarThickness);
 
         // draw the time attack borders
-        this.drawPanelBorder(timeAttackBarXOffset, timeAttackBarYOffset, timeAttackBarLength, this.hudBarThickness);
+        drawPanelBorder(timeAttackBarXOffset, timeAttackBarYOffset, timeAttackBarLength, hudBarThickness);
     }
 
     public void drawPanelBorder(double x, double y, double l, double h) {
         int clr = 0;
-        this.engine.changeColor(clr,clr,clr);
+        engine.changeColor(clr,clr,clr);
         int thickness = 2;
 
-        this.engine.drawLine(x,y,x+l,y,thickness);
-        this.engine.drawLine(x,y+h,x+l,y+h,thickness);
-        this.engine.drawLine(x,y,x,y+h,thickness);
-        this.engine.drawLine(x+l,y,x+l,y+h,thickness);
+        engine.drawLine(x,y,x+l,y,thickness);
+        engine.drawLine(x,y+h,x+l,y+h,thickness);
+        engine.drawLine(x,y,x,y+h,thickness);
+        engine.drawLine(x+l,y,x+l,y+h,thickness);
     }
+
+    public void drawCurrentToTargetGoal() {
+        engine.changeColor(0,0,0);
+        engine.drawText(hudOffsetX,
+                (hudOffsetY + ((hudFontSize + hudInfoSpacing) * 2)),
+                (Integer.toString(currentGoal) + "/" + Integer.toString(targetGoal)),
+                "Sans Serif",
+                hudFontSize);
+    }
+
+//    public void drawEatenEnemyCount() {
+//        int x = 100;
+//        int[] y = {100, 200, 300};
+//        engine.changeColor(255,0,0);
+//        for (int i = 0; i < enemyTypes; i++) {
+//            engine.drawText(x, y[i], Integer.toString(enemiesEaten[i]), "Sans serif", 24);
+//        }
+//    }
 
     public void resetLevel() {
-        this.currentScore = 0;
-        this.growthThresholdMedium = this.defaultGrowthThresholdM;
-        this.growthThresholdLarge = this.defaultGrowthThresholdL;
-        this.currentGoal = 0;
-        this.targetGoal = 0;
+        currentScore = 0;
+        growthThresholdMedium = defaultGrowthThresholdM;
+        growthThresholdLarge = defaultGrowthThresholdL;
+        currentGoal = 0;
+        targetGoal = 0;
     }
 
-    public void addCountDownTimerOffset(double timer) { this.countdownTimeOffset += timer; }
+    public void addCountDownTimerOffset(double timer) { countdownTimeOffset += timer; }
     public double round2DP(double value) { return Math.round(value * 100.0) / 100.0; }
     public void environmentLevelCompleteCheck() {
         if (isTimeAttack) {
-            if (this.countdownTimerCurrent >= this.countdownTimer) { this.levelComplete = true; }
+            if (countdownTimerCurrent >= countdownTimer) { levelComplete = true; }
         } else {
-            if (this.currentGoal >= this.targetGoal) { this.levelComplete = true; }
+            if (currentGoal >= targetGoal) { levelComplete = true; }
         }
     }
-    public void addScore(int score) { this.currentScore += score; }
+    public void addScore(int score) { currentScore += score; }
 }

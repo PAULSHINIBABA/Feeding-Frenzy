@@ -22,7 +22,7 @@ public class starfish {
         starfish_h=30;
         is_visible=false;
         time_visible=0;
-        this.timesEaten = 0;
+        timesEaten = 0;
     }
     public void randomstarfish(double randx, double randy,double randspeed){
         setposition(randx,randy);
@@ -58,7 +58,7 @@ public class starfish {
 
         if (isvisible()&&myfishrec.intersects(new Rectangle(new Rectangle((int)getpositionx(),(int)getpositiony(),getwidth(),getheight())))){
             setvisible(false);
-            this.timesEaten += 1;
+            timesEaten += 1;
             return true;
         }
         return false;
@@ -96,7 +96,7 @@ public class starfish {
     public double gettimevis(){
         return time_visible;
     }
-    public int getTimesEaten() { return this.timesEaten; }
+    public int getTimesEaten() { return timesEaten; }
 
     //-------------------------------------------------------
     // Other methods

@@ -79,7 +79,7 @@ public class pearl {
     public double gettimevis(){
         return time_visible;
     }
-    public int getTimesEaten() { return this.timesEaten; }
+    public int getTimesEaten() { return timesEaten; }
 
     //-------------------------------------------------------
     // Other methods

@@ -77,8 +77,8 @@ public class myfish {
             myfishspeed_y = 0;
         }
 
-        fishHeadColliderXOffset = this.myfish_w / 2.0;
-        fishHeadColliderYOffset = this.myfish_h / 2.0;
+        fishHeadColliderXOffset = myfish_w / 2.0;
+        fishHeadColliderYOffset = myfish_h / 2.0;
         fishHeadColliderRadius = fishHeadColliderYOffset;
 
     }
@@ -87,51 +87,51 @@ public class myfish {
     // Setters
     //**************************************************
     public void setFishLength(double length) {
-        this.myfish_w = length;
+        myfish_w = length;
     }
     public void setFishHeight(double height) {
-        this.myfish_h = height;
+        myfish_h = height;
     }
     public void setFishHeadColliderXOffset(double x) {
-        this.fishHeadColliderXOffset = x;
+        fishHeadColliderXOffset = x;
     }
     public void setFishHeadColliderYOffset(double y) {
-        this.fishHeadColliderYOffset = y;
+        fishHeadColliderYOffset = y;
     }
     public void setFishHeadColliderRadius(double r) {
-        this.fishHeadColliderRadius = r;
+        fishHeadColliderRadius = r;
     }
     public void setSize(int size) {
-        this.playerSize = size;
+        playerSize = size;
     }
     public void setIsAlive(boolean isAlive) {
         this.isAlive = isAlive;
     }
-    public void setXPos(double x) { this.mposition_x = x; }
-    public void setYPos(double y) { this.mposition_y = y; }
-    public void setXVel(double xv) { this.myfishspeed_x = xv; }
-    public void setYVel(double yv) { this.myfishspeed_y = yv; }
-    public void setFacingLeft(boolean facing) { this.facingLeft = facing; }
+    public void setXPos(double x) { mposition_x = x; }
+    public void setYPos(double y) { mposition_y = y; }
+    public void setXVel(double xv) { myfishspeed_x = xv; }
+    public void setYVel(double yv) { myfishspeed_y = yv; }
+    public void setFacingLeft(boolean facing) { facingLeft = facing; }
 
     //**************************************************
     // Getters
     //**************************************************
     public double getFishHeadColliderXOffset() {
-        return this.fishHeadColliderXOffset;
+        return fishHeadColliderXOffset;
     }
     public double getFishHeadColliderYOffset() {
-        return this.fishHeadColliderYOffset;
+        return fishHeadColliderYOffset;
     }
     public double getFishHeadColliderRadius() {
-        return this.fishHeadColliderRadius;
+        return fishHeadColliderRadius;
     }
     public int getSize() {
-        return this.playerSize;
+        return playerSize;
     }
     public boolean getIsAlive() {
-        return this.isAlive;
+        return isAlive;
     }
-    public boolean getFacingLeft() { return this.facingLeft; }
+    public boolean getFacingLeft() { return facingLeft; }
     public double getXPos() { return mposition_x; }
     public double getYPos() { return mposition_y; }
     public double getWidth() { return myfish_w; }
@@ -143,9 +143,9 @@ public class myfish {
     // Other methods
     //**************************************************
     public void increaseSize() {
-        this.increaseSize(1);
+        increaseSize(1);
     }
     public void increaseSize(int size) {
-        this.playerSize += size;
+        playerSize += size;
     }
 }

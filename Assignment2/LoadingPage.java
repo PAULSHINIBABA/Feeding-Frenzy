@@ -46,10 +46,10 @@ public class LoadingPage {
     private final int gameStartPromptWidthDefault;
     private int windowWidth;
     private int windowHeight;
-    private int oscillatingPromptMultiplier;
-    private int oscillator;
+//    private int oscillatingPromptMultiplier;
+//    private int oscillator;
     private boolean canDrawLine;
-    private boolean oscillationDirection;
+//    private boolean oscillationDirection;
 
     // Constructor
     public LoadingPage(GameEngine engine, Image loadingImage, Image title, int titleW, int titleH, Image[] tips, int imagTipsLength, int windowWidth, int windowHeight) {
@@ -60,132 +60,123 @@ public class LoadingPage {
 
         this.loadingImage = loadingImage;
         this.title = title;
-        this.titleWidth = titleW;
-        this.titleHeight = titleH;
-        this.titleX = (windowWidth / 2) - (this.titleWidth / 2);
-        this.titleY = windowHeight / 16;
+        titleWidth = titleW;
+        titleHeight = titleH;
+        titleX = (windowWidth / 2) - (titleWidth / 2);
+        titleY = windowHeight / 16;
 
-        this.IMAGES_LENGTH = imagTipsLength;
-        this.IMAGES = new Image[this.IMAGES_LENGTH];
-        System.arraycopy(tips, 0, this.IMAGES, 0, this.IMAGES_LENGTH);
+        IMAGES_LENGTH = imagTipsLength;
+        IMAGES = new Image[IMAGES_LENGTH];
+        System.arraycopy(tips, 0, IMAGES, 0, IMAGES_LENGTH);
 
-        this.currentTips = 0;
-        this.progress = 0.0;
-        this.isLoading = false;
+        currentTips = 0;
+        progress = 0.0;
+        isLoading = false;
 
-        this.loadingBarWidth = 300;
-        this.loadingBarHeight = 10;
-        this.loadingBarX = (windowWidth / 2) - (this.loadingBarWidth / 2);
-        this.loadingBarY = (windowHeight / 2) + (windowHeight / 3);
+        loadingBarWidth = 300;
+        loadingBarHeight = 10;
+        loadingBarX = (windowWidth / 2) - (loadingBarWidth / 2);
+        loadingBarY = (windowHeight / 2) + (windowHeight / 3);
 
-        this.tipsImageWidth = 450;
-        this.tipsImageHeight = 100;
-        this.tipsImageX = (windowWidth / 2) - (this.tipsImageWidth / 2);
-        this.tipsImageY = (windowHeight / 2) + (windowHeight / 8);
+        tipsImageWidth = 450;
+        tipsImageHeight = 100;
+        tipsImageX = (windowWidth / 2) - (tipsImageWidth / 2);
+        tipsImageY = (windowHeight / 2) + (windowHeight / 8);
 
-        this.gameStartPrompt = "Press Space to Start";
-        this.gameStartPromptWidth = 240;
-        this.gameStartPromptHeight = 26;
-        this.linePosX = (windowWidth / 2) - (this.gameStartPromptWidth / 2);
-        this.linePosY = (windowHeight / 2) + (windowHeight / 4);
-        this.oscillatingPromptMultiplier = 0;
-        this.oscillator = 0;
-        this.gameStartPromptWidthDefault = 240;
-        this.canDrawLine = false;
-        this.oscillationDirection = false;
+        gameStartPrompt = "Press Space to Start";
+        gameStartPromptWidth = 240;
+        gameStartPromptHeight = 26;
+        linePosX = (windowWidth / 2) - (gameStartPromptWidth / 2);
+        linePosY = (windowHeight / 2) + (windowHeight / 4);
+//        oscillatingPromptMultiplier = 0;
+//        oscillator = 0;
+        gameStartPromptWidthDefault = 240;
+        canDrawLine = false;
+//        oscillationDirection = false;
     }
 
 
     //**************************************************
     // Getters
     //**************************************************
-    public double getProgress() { return this.progress; }
+    public double getProgress() { return progress; }
 
 
     //**************************************************
     // Other methods
     //**************************************************
-//    public void init() {
-////        this.loadingImage = this.engine.loadImage("Assignment2/assets/image/background/background2.png");
-////        this.title = this.engine.loadImage("Assignment2/assets/image/icon/icon_title1.png");
-////        this.IMAGES[0] = this.engine.loadImage("Assignment2/assets/image/tip/icon_tip1.png");
-////        this.IMAGES[1] = this.engine.loadImage("Assignment2/assets/image/tip/icon_tip2.png");
-////        this.IMAGES[2] = this.engine.loadImage("Assignment2/assets/image/tip/icon_tip3.png");
-//
-//    }
-
     // Emulate loading page
     public void startLoading() {
-        if (!this.isLoading) {
+        if (!isLoading) {
             // Start the timer to switch images every 2 seconds
             Timer timer = new Timer();
             timer.schedule(new SwitchImageTask(), 0, 1000);
-            this.isLoading = true;
+            isLoading = true;
         }
     }
 
     // Reset the loading page so it can be reused
     public void resetLoadingPage() {
-        this.currentTips = 0;
-        this.progress = 0.0;
-        this.isLoading = false;
+        currentTips = 0;
+        progress = 0.0;
+        isLoading = false;
     }
 
     public void drawLoadingImage() {
-        this.engine.drawImage(this.loadingImage, 0, 0, this.engine.width(), this.engine.height());
+        engine.drawImage(loadingImage, 0, 0, engine.width(), engine.height());
     }
 
     public void drawTitle() {
-        this.engine.drawImage(this.title, this.titleX, this.titleY, this.titleWidth, this.titleHeight);
+        engine.drawImage(title, titleX, titleY, titleWidth, titleHeight);
     }
 
     public void drawLoadingBar() {
-        this.engine.changeColor(Color.lightGray);
-        this.engine.drawRectangle(this.loadingBarX, this.loadingBarY, this.loadingBarWidth, this.loadingBarHeight);
+        engine.changeColor(Color.lightGray);
+        engine.drawRectangle(loadingBarX, loadingBarY, loadingBarWidth, loadingBarHeight);
 
-        this.engine.changeColor(Color.red);
-        this.engine.drawSolidRectangle(this.loadingBarX, this.loadingBarY, (int) (this.loadingBarWidth * this.progress), this.loadingBarHeight);
+        engine.changeColor(Color.red);
+        engine.drawSolidRectangle(loadingBarX, loadingBarY, (int) (loadingBarWidth * progress), loadingBarHeight);
     }
 
     public void drawCurrentImage() {
-        this.engine.saveCurrentTransform();
-        this.engine.drawImage(this.IMAGES[this.currentTips], this.tipsImageX, this.tipsImageY, this.tipsImageWidth, this.tipsImageHeight);
-        this.engine.restoreLastTransform();
+        engine.saveCurrentTransform();
+        engine.drawImage(IMAGES[currentTips], tipsImageX, tipsImageY, tipsImageWidth, tipsImageHeight);
+        engine.restoreLastTransform();
     }
     public void drawLine(){
-        if (this.canDrawLine) {
-            this.engine.changeColor(0, 0, 0);
-            this.engine.drawText(this.linePosX, this.linePosY + this.gameStartPromptHeight, this.gameStartPrompt, "a", this.gameStartPromptHeight);
+        if (canDrawLine) {
+            engine.changeColor(0, 0, 0);
+            engine.drawText(linePosX, linePosY + gameStartPromptHeight, gameStartPrompt, "a", gameStartPromptHeight);
 
-            this.engine.changeColor(255, 0, 0);
-            this.engine.drawLine(this.linePosX,
-                    this.linePosY,
-                    this.linePosX + this.gameStartPromptWidth,
-                    this.linePosY);
-            this.engine.drawLine(this.linePosX,
-                    this.linePosY + this.gameStartPromptHeight,
-                    this.linePosX + this.gameStartPromptWidth,
-                    this.linePosY + this.gameStartPromptHeight);
-            this.engine.drawLine(this.linePosX,
-                    this.linePosY,
-                    this.linePosX,
-                    this.linePosY + this.gameStartPromptHeight);
-            this.engine.drawLine(this.linePosX + this.gameStartPromptWidth,
-                    this.linePosY,
-                    this.linePosX + this.gameStartPromptWidth,
-                    this.linePosY + this.gameStartPromptHeight);
+//            engine.changeColor(255, 0, 0);
+//            engine.drawLine(linePosX,
+//                    linePosY,
+//                    linePosX + gameStartPromptWidth,
+//                    linePosY);
+//            engine.drawLine(linePosX,
+//                    linePosY + gameStartPromptHeight,
+//                    linePosX + gameStartPromptWidth,
+//                    linePosY + gameStartPromptHeight);
+//            engine.drawLine(linePosX,
+//                    linePosY,
+//                    linePosX,
+//                    linePosY + gameStartPromptHeight);
+//            engine.drawLine(linePosX + gameStartPromptWidth,
+//                    linePosY,
+//                    linePosX + gameStartPromptWidth,
+//                    linePosY + gameStartPromptHeight);
         }
     }
 
     public void updatePage(double dt) {
         // Loading bar speed
-        this.progress += 0.01;
-        if (this.progress > 1.0) {
-            this.progress = 1.0;
-            this.canDrawLine = true;
+        progress += 0.01;
+        if (progress > 1.0) {
+            progress = 1.0;
+            canDrawLine = true;
         }
 
-//        if (this.canDrawLine) { updateLine(dt); }
+//        if (canDrawLine) { updateLine(dt); }
     }
 
     // Oscillating number
@@ -194,21 +185,21 @@ public class LoadingPage {
 ////        Number1 = (int)(Math.sin(_pos*2*Math.PI/PERIOD)*(SCALE/2) + (SCALE/2));
 //        final int period = 6;
 //        final int scale = 6;
-//        int value = (int)(Math.sin(this.oscillator * 2 * Math.PI / period) * (scale / 2));
-//        if (this.oscillationDirection) {
-//            this.oscillator += 1;
+//        int value = (int)(Math.sin(oscillator * 2 * Math.PI / period) * (scale / 2));
+//        if (oscillationDirection) {
+//            oscillator += 1;
 //        } else {
-//            this.oscillator -= 1;
+//            oscillator -= 1;
 //        }
 //
-//        if (this.oscillator > period) { this.oscillationDirection = false; }
-//        if (this.oscillator < 0) { this.oscillationDirection = true; }
+//        if (oscillator > period) { oscillationDirection = false; }
+//        if (oscillator < 0) { oscillationDirection = true; }
 //
-//        this.oscillatingPromptMultiplier = value + this.gameStartPromptHeight;
-//        this.gameStartPromptWidth = this.gameStartPromptWidthDefault - this.gameStartPromptHeight + this.oscillatingPromptMultiplier;
-//        this.gameStartPromptHeight = this.oscillatingPromptMultiplier;
-//        this.linePosX = (this.windowWidth / 2) - (this.gameStartPromptWidth / 2);
-//        this.linePosY = (this.windowHeight / 2) + (this.windowHeight / 4) - value;
+//        oscillatingPromptMultiplier = value + gameStartPromptHeight;
+//        gameStartPromptWidth = gameStartPromptWidthDefault - gameStartPromptHeight + oscillatingPromptMultiplier;
+//        gameStartPromptHeight = oscillatingPromptMultiplier;
+//        linePosX = (windowWidth / 2) - (gameStartPromptWidth / 2);
+//        linePosY = (windowHeight / 2) + (windowHeight / 4) - value;
 //    }
 
     public void drawAll() {

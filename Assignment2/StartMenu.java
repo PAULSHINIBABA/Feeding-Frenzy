@@ -73,83 +73,83 @@ public class StartMenu {
         this.background = background;
 
         this.buttonImagesLength = buttonsImageLength;
-        this.buttonWidth = 140;
-        this.buttonHeight = 50;
+        buttonWidth = 140;
+        buttonHeight = 50;
         this.buttonImages = buttonImages;
         int div16 = 16;
         int incrementY = this.windowHeight / div16;
         int offsetY = this.windowHeight / 3;
         int offsetX = this.windowWidth / div16;
-        this.BUTTON_X_POSITIONS = new int[this.buttonImagesLength];
-        this.BUTTON_Y_POSITIONS = new int[this.buttonImagesLength];
-        for (int i = 0; i < this.buttonImagesLength - 1; i++) {
+        BUTTON_X_POSITIONS = new int[buttonImagesLength];
+        BUTTON_Y_POSITIONS = new int[buttonImagesLength];
+        for (int i = 0; i < buttonImagesLength - 1; i++) {
             if (i % 2 == 0) { // Even
-                this.BUTTON_X_POSITIONS[i] = (this.windowWidth / 2) - offsetX - this.buttonWidth;
+                BUTTON_X_POSITIONS[i] = (this.windowWidth / 2) - offsetX - buttonWidth;
             } else { // Odd
-                this.BUTTON_X_POSITIONS[i] = (this.windowWidth / 2) + offsetX;
+                BUTTON_X_POSITIONS[i] = (this.windowWidth / 2) + offsetX;
             }
-            this.BUTTON_Y_POSITIONS[i] = offsetY;
+            BUTTON_Y_POSITIONS[i] = offsetY;
             offsetY += incrementY;
         }
         // Set the help menu position
         int buttonOffset = 10;
-        this.BUTTON_X_POSITIONS[this.buttonImagesLength - 1] = buttonOffset;
-        this.BUTTON_Y_POSITIONS[this.buttonImagesLength - 1] = this.windowHeight - this.buttonHeight - buttonOffset;
+        BUTTON_X_POSITIONS[buttonImagesLength - 1] = buttonOffset;
+        BUTTON_Y_POSITIONS[buttonImagesLength - 1] = this.windowHeight - buttonHeight - buttonOffset;
 
         this.title = title;
-        this.titleWidth = titleW;
-        this.titleHeight = titleH;
-        this.titleXPos = (this.windowWidth / 2) - (this.titleWidth / 2);
-        this.titleYPos = this.windowHeight / div16;
+        titleWidth = titleW;
+        titleHeight = titleH;
+        titleXPos = (this.windowWidth / 2) - (titleWidth / 2);
+        titleYPos = this.windowHeight / div16;
 
         this.musicButton = musicButton;
-        this.volume = 1.0f;
-//        this.musicButtonXPos = 475;
-//        this.musicButtonYPos = 475;
-        this.musicButtonRadius = 25;
-        this.musicButtonImageWidth = 50;
-        this.musicButtonImageHeight = 50;
-        this.musicButtonXPos = this.windowWidth - this.musicButtonRadius - buttonOffset;
-        this.musicButtonYPos = this.windowHeight - this.musicButtonRadius - buttonOffset;
+        volume = 1.0f;
+//        musicButtonXPos = 475;
+//        musicButtonYPos = 475;
+        musicButtonRadius = 25;
+        musicButtonImageWidth = 50;
+        musicButtonImageHeight = 50;
+        musicButtonXPos = this.windowWidth - musicButtonRadius - buttonOffset;
+        musicButtonYPos = this.windowHeight - musicButtonRadius - buttonOffset;
 
-//        this.init();
+//        init();
     }
 
 
     //-------------------------------------------------------
     // Setter
     //-------------------------------------------------------
-    public void setTitleXPosition(int x) { this.titleXPos = x; }
-    public void setTitleYPosition(int y) { this.titleYPos = y; }
-    public void setMusicButtonXPosition(int x) { this.musicButtonXPos = x; }
-    public void setMusicButtonYPosition(int y) { this.musicButtonYPos = y; }
+    public void setTitleXPosition(int x) { titleXPos = x; }
+    public void setTitleYPosition(int y) { titleYPos = y; }
+    public void setMusicButtonXPosition(int x) { musicButtonXPos = x; }
+    public void setMusicButtonYPosition(int y) { musicButtonYPos = y; }
     public void setButtonsXPositions(int[] newButtonPositions) throws IllegalArgumentException {
-        if ((newButtonPositions.length > this.buttonImagesLength) || newButtonPositions.length < this.buttonImagesLength) {
+        if ((newButtonPositions.length > buttonImagesLength) || newButtonPositions.length < buttonImagesLength) {
             throw new IllegalArgumentException("The new buttons x positions array length is incorrect");
         }
-        System.arraycopy(newButtonPositions, 0, BUTTON_X_POSITIONS, 0, this.buttonImagesLength);
+        System.arraycopy(newButtonPositions, 0, BUTTON_X_POSITIONS, 0, buttonImagesLength);
     }
     public void setButtonsYPositions(int[] newButtonPositions) throws IllegalArgumentException {
-        if ((newButtonPositions.length > this.buttonImagesLength) || newButtonPositions.length < this.buttonImagesLength) {
+        if ((newButtonPositions.length > buttonImagesLength) || newButtonPositions.length < buttonImagesLength) {
             throw new IllegalArgumentException("The new buttons y positions array length is incorrect");
         }
-        System.arraycopy(newButtonPositions, 0, BUTTON_Y_POSITIONS, 0, this.buttonImagesLength);
+        System.arraycopy(newButtonPositions, 0, BUTTON_Y_POSITIONS, 0, buttonImagesLength);
     }
     public void setButtonsXPositionAt(int index, int x) throws IllegalArgumentException {
-        if (index < 0 || index >= this.buttonImagesLength) {
+        if (index < 0 || index >= buttonImagesLength) {
             throw new IllegalArgumentException("Index for buttons x position is out of bounds");
         }
-        this.BUTTON_X_POSITIONS[index] = x;
+        BUTTON_X_POSITIONS[index] = x;
     }
     public void setButtonsYPositionAt(int index, int y) {
-        if (index < 0 || index >= this.buttonImagesLength) {
+        if (index < 0 || index >= buttonImagesLength) {
             throw new IllegalArgumentException("Index for buttons y position is out of bounds");
         }
-        this.BUTTON_Y_POSITIONS[index] = y;
+        BUTTON_Y_POSITIONS[index] = y;
     }
     public void setMusicFile(String audioPath) {
         try {
-            this.soundFile = new File(audioPath);
+            soundFile = new File(audioPath);
 
         } catch(Exception e) {
             e.printStackTrace();
@@ -161,21 +161,21 @@ public class StartMenu {
     //-------------------------------------------------------
     // Getter
     //-------------------------------------------------------
-    public int getTitleXPos() { return this.titleXPos; }
-    public int getTitleYPos() { return this.titleYPos; }
-    public int getMusicButtonXPos() { return this.musicButtonXPos; }
-    public int getMusicButtonYPos() { return this.musicButtonYPos; }
+    public int getTitleXPos() { return titleXPos; }
+    public int getTitleYPos() { return titleYPos; }
+    public int getMusicButtonXPos() { return musicButtonXPos; }
+    public int getMusicButtonYPos() { return musicButtonYPos; }
     public int getButtonsXPositionAt(int index) throws IllegalArgumentException {
-        if (index < 0 || index >= this.buttonImagesLength) {
+        if (index < 0 || index >= buttonImagesLength) {
             throw new IllegalArgumentException("Index for buttons x position is out of bounds");
         }
-        return this.BUTTON_X_POSITIONS[index];
+        return BUTTON_X_POSITIONS[index];
     }
     public int getButtonsYPositionAt(int index) throws IllegalArgumentException {
-        if (index < 0 || index >= this.buttonImagesLength) {
+        if (index < 0 || index >= buttonImagesLength) {
             throw new IllegalArgumentException("Index for buttons y position is out of bounds");
         }
-        return this.BUTTON_Y_POSITIONS[index];
+        return BUTTON_Y_POSITIONS[index];
     }
 
 
@@ -189,31 +189,30 @@ public class StartMenu {
         double mouseY = e.getY();
 
         // Handle menu button clicks
-        for (int i = 0; i < this.buttonImagesLength; i++) {
-            double buttonX = this.BUTTON_X_POSITIONS[i];
-            double buttonY = this.BUTTON_Y_POSITIONS[i];
-            double buttonW = this.buttonWidth;
-            double buttonH = this.buttonHeight;
-//            double radius = 50; // TODO: this is a "magic number" = 50, replace with actual parameter fields
+        for (int i = 0; i < buttonImagesLength; i++) {
+            double buttonX = BUTTON_X_POSITIONS[i];
+            double buttonY = BUTTON_Y_POSITIONS[i];
+            double buttonW = buttonWidth;
+            double buttonH = buttonHeight;
 
             switch(i) {
                 case 0: // Single player
-                    if (this.clickButton(mouseX, mouseY, buttonX, buttonY, buttonW, buttonH)) {
+                    if (clickButton(mouseX, mouseY, buttonX, buttonY, buttonW, buttonH)) {
                         System.out.println(" > Single Player");
                         return "single_player";
                     }
                 case 1: // Time attack
-                    if (this.clickButton(mouseX, mouseY, buttonX, buttonY, buttonW, buttonH)) {
+                    if (clickButton(mouseX, mouseY, buttonX, buttonY, buttonW, buttonH)) {
                         System.out.println(" > Time Attack");
                         return "time_attack";
                     }
                 case 2: // Settings/Options?
-                    if (this.clickButton(mouseX, mouseY, buttonX, buttonY, buttonW, buttonH)) {
+                    if (clickButton(mouseX, mouseY, buttonX, buttonY, buttonW, buttonH)) {
                         System.out.println(" > Settings");
                     }
                     break;
                 case 3: // Quit
-                    if (this.clickButton(mouseX, mouseY, buttonX, buttonY, buttonW, buttonH)) {
+                    if (clickButton(mouseX, mouseY, buttonX, buttonY, buttonW, buttonH)) {
                         System.out.println(" > Quit");
                         Timer timer = new Timer(1000, new ActionListener() {
                             // Click the Exit and wait 1 second then Exit the program
@@ -227,7 +226,7 @@ public class StartMenu {
                     }
                     break;
                 case 4: // Help menu?
-                    if (this.clickButton(mouseX, mouseY, buttonX, buttonY, buttonW, buttonH)) {
+                    if (clickButton(mouseX, mouseY, buttonX, buttonY, buttonW, buttonH)) {
                         System.out.println(" > Help Menu");
                     }
                     break;
@@ -240,9 +239,9 @@ public class StartMenu {
 //        double musicButtonX = 475;
 //        double musicButtonY = 475;
 //        double musicButtonRadius = 25;
-        if (this.clickButton(mouseX, mouseY, this.musicButtonXPos, this.musicButtonYPos, this.musicButtonRadius)) {
+        if (clickButton(mouseX, mouseY, musicButtonXPos, musicButtonYPos, musicButtonRadius)) {
             System.out.println(" > Music toggle");
-            this.toggleMusic();
+            toggleMusic();
         }
 
         return "nothing";
@@ -263,78 +262,78 @@ public class StartMenu {
     
     //draw background
     public void drawBackground() {
-        this.engine.saveCurrentTransform();
-        this.engine.drawImage(this.background, 0, 0, this.windowWidth, this.windowHeight);
-        this.engine.restoreLastTransform();
+        engine.saveCurrentTransform();
+        engine.drawImage(background, 0, 0, windowWidth, windowHeight);
+        engine.restoreLastTransform();
     }
     
     //draw title
     public void drawTitle() {
-        this.engine.saveCurrentTransform();
-        this.engine.drawImage(this.title, this.titleXPos, this.titleYPos, this.titleWidth, this.titleHeight);
-        this.engine.restoreLastTransform();
+        engine.saveCurrentTransform();
+        engine.drawImage(title, titleXPos, titleYPos, titleWidth, titleHeight);
+        engine.restoreLastTransform();
     }
     
     //draw button
     public void drawButton() {
-        for (int i = 0; i < this.buttonImagesLength; i++) {
-            int buttonX = this.BUTTON_X_POSITIONS[i];
-            int buttonY = this.BUTTON_Y_POSITIONS[i];
+        for (int i = 0; i < buttonImagesLength; i++) {
+            int buttonX = BUTTON_X_POSITIONS[i];
+            int buttonY = BUTTON_Y_POSITIONS[i];
 
-//            this.engine.drawImage(this.buttonImages[i], buttonX - this.buttonOffset, buttonY - this.buttonOffset, this.buttonWidth, this.buttonHeight);
-            this.engine.drawImage(this.buttonImages[i], buttonX, buttonY, this.buttonWidth, this.buttonHeight);
+//            engine.drawImage(buttonImages[i], buttonX - buttonOffset, buttonY - buttonOffset, buttonWidth, buttonHeight);
+            engine.drawImage(buttonImages[i], buttonX, buttonY, buttonWidth, buttonHeight);
         }
-//        this.engine.drawImage(this.musicButton,this.musicButtonXPos,this.musicButtonYPos,this.musicButtonImageWidth,this.musicButtonImageHeight);
-        this.engine.drawImage(this.musicButton,
-                this.musicButtonXPos - this.musicButtonRadius,
-                this.musicButtonYPos - this.musicButtonRadius,
-                this.musicButtonImageWidth,
-                this.musicButtonImageHeight);
+//        engine.drawImage(musicButton,musicButtonXPos,musicButtonYPos,musicButtonImageWidth,musicButtonImageHeight);
+        engine.drawImage(musicButton,
+                musicButtonXPos - musicButtonRadius,
+                musicButtonYPos - musicButtonRadius,
+                musicButtonImageWidth,
+                musicButtonImageHeight);
     }
 
     public void drawButtonsColliders() {
-        for (int i = 0; i < this.buttonImagesLength; i++) {
-            int buttonX = this.BUTTON_X_POSITIONS[i];
-            int buttonY = this.BUTTON_Y_POSITIONS[i];
-            int buttonW = this.buttonWidth;
-            int buttonH = this.buttonHeight;
+        for (int i = 0; i < buttonImagesLength; i++) {
+            int buttonX = BUTTON_X_POSITIONS[i];
+            int buttonY = BUTTON_Y_POSITIONS[i];
+            int buttonW = buttonWidth;
+            int buttonH = buttonHeight;
 
-            this.engine.changeColor(255,0,0);
-            this.engine.drawLine(buttonX,
+            engine.changeColor(255,0,0);
+            engine.drawLine(buttonX,
                     buttonY,
                     buttonX + buttonW,
                     buttonY);
-            this.engine.drawLine(buttonX,
+            engine.drawLine(buttonX,
                     buttonY + buttonH,
                     buttonX + buttonW,
                     buttonY + buttonH);
-            this.engine.drawLine(buttonX,
+            engine.drawLine(buttonX,
                     buttonY,
                     buttonX,
                     buttonY + buttonH);
-            this.engine.drawLine(buttonX + buttonW,
+            engine.drawLine(buttonX + buttonW,
                     buttonY,
                     buttonX + buttonW,
                     buttonY + buttonH);
         }
-//        this.engine.drawCircle(this.musicButtonXPos + (this.musicButtonImageWidth / 2.0), this.musicButtonYPos + (this.musicButtonImageHeight / 2.0), this.musicButtonRadius);
-        this.engine.drawCircle(this.musicButtonXPos, this.musicButtonYPos, this.musicButtonRadius);
+//        engine.drawCircle(musicButtonXPos + (musicButtonImageWidth / 2.0), musicButtonYPos + (musicButtonImageHeight / 2.0), musicButtonRadius);
+        engine.drawCircle(musicButtonXPos, musicButtonYPos, musicButtonRadius);
     }
 
     // Initialize the music file to play on the StartMenu
     public void initMusic(String audioPath) {
         try {
-            this.music = this.engine.loadAudio(audioPath);
+            music = engine.loadAudio(audioPath);
 //            //import the music file
-//            this.soundFile = new File(audioPath);
-//            AudioInputStream audioIn = AudioSystem.getAudioInputStream(this.soundFile);
+//            soundFile = new File(audioPath);
+//            AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
 //
 //            //get the music format
 //            AudioFormat format = audioIn.getFormat();
 //            DataLine.Info info = new DataLine.Info(Clip.class, format);
 //
-//            this.musicClip = (Clip) AudioSystem.getLine(info);
-//            this.musicClip.open(audioIn);
+//            musicClip = (Clip) AudioSystem.getLine(info);
+//            musicClip.open(audioIn);
 
         } catch(Exception e) {
             e.printStackTrace();
@@ -344,32 +343,32 @@ public class StartMenu {
 
     // Play/Pause the music
     public void playMusic(){
-//        this.musicClip.start();
-        this.engine.startAudioLoop(this.music, this.volume);
+//        musicClip.start();
+        engine.startAudioLoop(music, volume);
     }
     public void pauseMusic(){
-//        this.musicClip.stop();
-        this.engine.stopAudioLoop(this.music);
+//        musicClip.stop();
+        engine.stopAudioLoop(music);
     }
 
 
     // Toggle the music
     public void toggleMusic() {
-        if (this.isMusicPlaying) {
-            this.pauseMusic();
+        if (isMusicPlaying) {
+            pauseMusic();
         } else {
-            this.playMusic();
+            playMusic();
         }
-        this.isMusicPlaying = !this.isMusicPlaying;
+        isMusicPlaying = !isMusicPlaying;
     }
 
     // Draw all the StartMenu components
     public void drawAll() {
-        this.drawBackground();
-        this.drawTitle();
-        this.drawButton();
+        drawBackground();
+        drawTitle();
+        drawButton();
 
         // TODO: REMOVE BEFORE SUBMISSION
-        this.drawButtonsColliders();
+//        drawButtonsColliders();
     }
 }

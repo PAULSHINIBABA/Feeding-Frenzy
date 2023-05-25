@@ -53,6 +53,7 @@ public class Main extends GameEngine {
         drawEnvironment();
 
         drawEnemies(enemies); // Draw enemy first
+        drawEnemies(sharkEnemies); // Draw shark enemy next
         drawItems(); // Then draw items
         drawPlayer(); // Then draw the player
 
@@ -383,28 +384,33 @@ public class Main extends GameEngine {
                 chkpg.setPearlsEaten(pearl.getTimesEaten());
                 chkpg.setStarfishEaten(starfish.getTimesEaten());
                 chkpg.setEnemiesEaten(env.getEnemiesEaten());
-                chkpg.setRestartButton();
+                if (env.getRestartLevel()) { chkpg.setRestartButton(); }
 
                 setCheckoutPage = true;
             }
 
             if (gameStateString == "main_menu") {
-                resetGameLevel();
+                System.out.println("Main menu");
+                finalReset();
                 env.setRestartLevel(false);
                 gameState = 0;
 
             } else if (gameStateString == "next_level") {
-                resetGameLevel();
+                System.out.println("Next level");
+                finalReset();
                 if (!env.getRestartLevel()) { nextLevel(); }
                 env.setRestartLevel(false);
                 gameState = 4;
 
             } else if (gameStateString == "restart") {
-                resetGameLevel();
+                System.out.println("Restart");
+                finalReset();
                 env.setRestartLevel(false);
                 gameState = 4;
 
             }
+            gameStateString = "nothing";
+            resetGameLevel();
         }
     }
     public void drawCheckout() {
@@ -807,7 +813,7 @@ public class Main extends GameEngine {
         }
 
         if (env.getHardMode()) {
-            if (env.getCountDownCurrentTimerPercentage() >= 0.75) {
+            if (env.getCountDownCurrentTimerPercentage() >= 0.75 || myfish.getSize() >= 2) {
                 double roll = randSys.nextInt(100);
                 double chance = 33;
                 if (roll < chance) {
@@ -821,8 +827,8 @@ public class Main extends GameEngine {
         if (gameState == 4) {
             for (Enemy en : enemies) {
                 drawEnemy(en);
-//                drawEnemyCollider(en);
-//                drawEnemyHeadCollider(en);
+                drawEnemyCollider(en);
+                drawEnemyHeadCollider(en);
             }
         }
     }
@@ -846,45 +852,45 @@ public class Main extends GameEngine {
     }
 
     // Debug: Used to show the enemy body colliders
-//    public void drawEnemyCollider(Enemy en) {
-//        // Retrieve the enemy collision fields
-//        double xPosCol = en.getColliderBodyXOffset();
-//        double yPosCol = en.getColliderBodyYOffset();
-//        double len = en.getLength();
-//        double hei = en.getHeight();
-//        double xPos = en.getXPos();
-//        double yPos = en.getYPos();
-//
-//        // Calculate the collision offsets
-//        double x1 = xPos + xPosCol;
-//        double y1 = yPos + yPosCol;
-//        double x2 = xPos + xPosCol + len;
-//        double y2 = yPos + yPosCol + hei;
-//
-//        // Draw the collision boxes
-//        changeColor(0, 255, 0);
-//        drawLine(x1,y1,x2,y1); // Collision line
-//        drawLine(x1,y2,x2,y2); // Collision line
-//        drawLine(x1,y1,x1,y2); // Collision line
-//        drawLine(x2,y1,x2,y2); // Collision line
-//        changeColor(255, 0, 0);
-//        drawSolidCircle(xPos, yPos, 2);
-//    }
+    public void drawEnemyCollider(Enemy en) {
+        // Retrieve the enemy collision fields
+        double xPosCol = en.getColliderBodyXOffset();
+        double yPosCol = en.getColliderBodyYOffset();
+        double len = en.getLength();
+        double hei = en.getHeight();
+        double xPos = en.getXPos();
+        double yPos = en.getYPos();
+
+        // Calculate the collision offsets
+        double x1 = xPos + xPosCol;
+        double y1 = yPos + yPosCol;
+        double x2 = xPos + xPosCol + len;
+        double y2 = yPos + yPosCol + hei;
+
+        // Draw the collision boxes
+        changeColor(0, 255, 0);
+        drawLine(x1,y1,x2,y1); // Collision line
+        drawLine(x1,y2,x2,y2); // Collision line
+        drawLine(x1,y1,x1,y2); // Collision line
+        drawLine(x2,y1,x2,y2); // Collision line
+        changeColor(255, 0, 0);
+        drawSolidCircle(xPos, yPos, 2);
+    }
 
     // Debug: Used to show the enemy head colliders
-//    public void drawEnemyHeadCollider(Enemy en) {
-//        double xH = en.getColliderHeadXOffset();
-//        double yH = en.getColliderHeadYOffset();
-//        double rH = en.getColliderHeadRadius();
-//        double x = en.getXPos();
-//        double y = en.getYPos();
-//
-//        double x1 = x + xH;
-//        double y1 = y + yH;
-//
-//        changeColor(255,0,0);
-//        drawCircle(x1, y1, rH);
-//    }
+    public void drawEnemyHeadCollider(Enemy en) {
+        double xH = en.getColliderHeadXOffset();
+        double yH = en.getColliderHeadYOffset();
+        double rH = en.getColliderHeadRadius();
+        double x = en.getXPos();
+        double y = en.getYPos();
+
+        double x1 = x + xH;
+        double y1 = y + yH;
+
+        changeColor(255,0,0);
+        drawCircle(x1, y1, rH);
+    }
 
     public void createEnemy() {
         if (enemies.size() >= maxEnemies) { return; }
@@ -929,8 +935,9 @@ public class Main extends GameEngine {
 
         // The shark should be very fast, ie (400 + range(400))
         shk.setRandomVelocity(400, 400);
+//        shk.setRandomVelocity(50, 50);
         shk.setYHeading(0.0); // Don't move vertically (unless spawning close to the top or bottom)
-        shk.setChanceToLeaveEnvironment(100); // The shark will always leave the environment
+        shk.setChanceToLeaveEnvironment(50); // The shark will always leave the environment
         sharkEnemies.add(shk);
     }
 
@@ -945,20 +952,27 @@ public class Main extends GameEngine {
     double targetTime;
     double targetTimeAdjuster;
     double timeMinimum;
+    double defaultTime;
     boolean singlePlayerComplete;
     boolean timeAttackComplete;
     int growthThresholdM;
     int growthThresholdL;
+    int level = 0;
 
     public void initEnvironment() {
-        targetGoal = 10;
-        targetGoalIncrement = 5;
         goalMaximum = 50;
-        targetTime = 10.0; // TODO: Make this start at 60.0
-        targetTimeAdjuster = 5.0;
         timeMinimum = 10.0;
+        defaultTime = 60.0;
+        targetGoalIncrement = 5;
+        targetTimeAdjuster = 5.0;
         singlePlayerComplete = false;
         timeAttackComplete = false;
+        
+        targetGoal = 10 + (targetGoalIncrement * level);
+        if (targetGoal > goalMaximum) { targetGoal = goalMaximum; }
+        targetTime = 10.0 - (targetTimeAdjuster * level); // TODO: Make this start at 60.0
+        if (targetTime < timeMinimum) { targetTime = timeMinimum; }
+
         growthThresholdM = (int)(targetGoal / 3.0);
         growthThresholdL = (int)((targetGoal / 3.0) * 2.0);
 
@@ -969,6 +983,7 @@ public class Main extends GameEngine {
         env.setCountDownTimer(targetTime);
         env.setGrowthThresholdLarge(growthThresholdL);
         env.setGrowthThresholdMedium(growthThresholdM);
+        env.setHardMode(false);
     }
     public void updateEnvironment() {
         if (gameState == 4) {
@@ -997,16 +1012,17 @@ public class Main extends GameEngine {
     }
 
     public void resetGameLevel() {
-        // Reset the player score
-        env.setScore(0);
 
         // Remove all enemies from the level
         removeAllEnemies(enemies);
-        env.setEnemyEatenCounter();
+
+        // Reset the spawn timer fields
+        enemySpawnTimer = 0.0;
+        enemySpawnTimerPrevious = 0.0;
+        enemySpawnDelay = randSys.nextDouble(2.0) + 1.0;
 
         // Remove all items from the level
         // Reset the pearl
-        pearl.setTimesEaten(0);
         pearl.setvisible(false);
         pearl.resettimevis();
 
@@ -1015,7 +1031,6 @@ public class Main extends GameEngine {
         boom.resettimevis();
 
         // Reset the starfish
-        starfish.setTimesEaten(0);
         starfish.setvisible(false);
         starfish.resettimevis();
         starfish.setSpeedX(0.0);
@@ -1032,11 +1047,23 @@ public class Main extends GameEngine {
         // Reset the in game display timer
         env.setBaseTime(getTime());
         env.setCurrentGoal(0);
-        env.setEnemyEatenCounter();
+        if (env.getIsTimeAttack()) {
+            env.setCountDownCurrentTimer(0.0);
+        }
+//        env.setEnemyEatenCounter();
         env.setIsLevelComplete(false);
+        env.setEndLevel(false);
         env.setIsPaused(false);
+        chkpg.setRestartButton(false);
 
         setCheckoutPage = false;
+    }
+
+    public void finalReset() {
+        env.setScore(0);
+        env.setEnemyEatenCounter();
+        pearl.setTimesEaten(0);
+        starfish.setTimesEaten(0);
     }
 
     public void nextLevel() {
@@ -1045,6 +1072,7 @@ public class Main extends GameEngine {
 
         // Increment the target goal for the level
         targetGoal = targetGoal + (targetGoalIncrement * env.getCurrentLevel());
+        if (targetGoal >= goalMaximum * 0.66) { env.setHardMode(true); }
         if (targetGoal > goalMaximum) {
             // If the goal exceeds the maximum then set to the maximum
             targetGoal = goalMaximum;
@@ -1061,6 +1089,9 @@ public class Main extends GameEngine {
 
             // If the game is time attack decrement the target time
             targetTime -= targetTimeAdjuster;
+            if (targetTime < defaultTime * 0.33) {
+                env.setHardMode(true);
+            }
             // If the target time goes below the minimum, then time attack is complete
             if (targetTime < timeMinimum) {
                 targetTime = timeMinimum;
@@ -1112,6 +1143,7 @@ public class Main extends GameEngine {
             boolean timeAttack = env.getIsTimeAttack();
             env.drawTimer(timeAttack);
             env.drawScore();
+            env.drawCurrentToTargetGoal();
             env.drawGrowth();
         }
     }
