@@ -14,9 +14,11 @@ import java.awt.*;
 
 public class CheckoutPage {
     // Final fields
-    private final int ENEMY_TYPES;
+    private int enemyTypes;
     // TODO: implement the number and types of enemies eaten
-    private final int[] ENEMIES_EATEN;
+    private int[] enemiesEaten;
+    private double enemiesEatenXOffset;
+    private double enemiesEatenYOffset;
     private final GameEngine engine;
 
     // Non-final fields
@@ -30,15 +32,16 @@ public class CheckoutPage {
     private int score;
     private double scoreX;
     private double scoreY;
-    private int scoreFont;
+    private int drawFonts;
+//    private int scoreFont;
     private int pearlsEaten;
     private double pEatX;
     private double pEatY;
-    private int pEatFont;
+//    private int pEatFont;
     private int starfishEaten;
     private double sfEatX;
     private double sfEatY;
-    private int sfEatFont;
+//    private int sfEatFont;
     private double mainMenuButtonColliderX;
     private double mainMenuButtonColliderY;
     private double mainMenuButtonColliderWidth;
@@ -49,50 +52,59 @@ public class CheckoutPage {
     private double nextLevelButtonColliderWidth;
     private double nextLevelButtonColliderHeight;
     private double nextLevelButtonColliderRadius;
+    private double displayOffsetX;
+    private double displayOffsetY;
+    private boolean restartButton;
+    private int enemyBaseWidth;
+    private int enemyBaseHeight;
+
 
 
     public CheckoutPage(GameEngine engine, Image background, Image continueButtonImage, Image backButtonImage, int backgroundWidth, int backgroundHeight) {
         // final fields
         this.engine = engine;
-        this.ENEMY_TYPES = 3;
-        this.ENEMIES_EATEN = new int[ENEMY_TYPES];
+        this.enemyTypes = 3;
+        this.enemiesEaten = new int[enemyTypes];
 
         // Non-final fields
         setBackgroundImage(background);
         setContinueButtonImage(continueButtonImage);
         setBackButtonImage(backButtonImage);
+        this.drawFonts = 28;
         this.imageX = 0;
         this.imageY = 0;
         this.backgroundWidth = backgroundWidth;
         this.backgroundHeight = backgroundHeight;
+        this.displayOffsetX = this.backgroundWidth / 4.0;
+        this.displayOffsetY = 20;
         this.score = 0;
-        this.scoreX = 300;
-        this.scoreY = 280;
-        this.scoreFont = 28;
+        this.scoreX = (this.backgroundWidth / 2.0) - this.displayOffsetX;
+        this.scoreY = (this.backgroundHeight / 3.0);
+//        this.scoreFont = 28;
         this.pearlsEaten = 0;
-        this.pEatX = 300;
-        this.pEatY = this.scoreY + this.scoreFont + 20;
-        this.pEatFont = 28;
+        this.pEatX = (this.backgroundWidth / 2.0) - this.displayOffsetX;
+        this.pEatY = this.scoreY + this.drawFonts + this.displayOffsetY;
+//        this.pEatFont = 28;
         this.starfishEaten = 0;
-        this.sfEatX = 300;
-        this.sfEatY = this.pEatY + this.pEatFont + 20;
-        this.sfEatFont = 28;
+        this.sfEatX = (this.backgroundWidth / 2.0) - this.displayOffsetX;
+        this.sfEatY = this.pEatY + this.drawFonts + this.displayOffsetY;
+//        this.sfEatFont = 28;
         double offset = 50;
-        double buttonSize = 25;
-        this.mainMenuButtonColliderWidth = 140;
-        this.mainMenuButtonColliderHeight = 50;
+        double buttonSize = 50;
+        this.mainMenuButtonColliderWidth = buttonSize * 2;
+        this.mainMenuButtonColliderHeight = buttonSize * 2;
         this.mainMenuButtonColliderX = offset;
         this.mainMenuButtonColliderY = backgroundHeight - offset - this.mainMenuButtonColliderHeight;
         this.mainMenuButtonColliderRadius = buttonSize;
-        this.nextLevelButtonColliderWidth = 140;
-        this.nextLevelButtonColliderHeight = 50;
+        this.nextLevelButtonColliderWidth = buttonSize * 2;
+        this.nextLevelButtonColliderHeight = buttonSize * 2;
         this.nextLevelButtonColliderX = backgroundWidth - offset - this.nextLevelButtonColliderWidth;
         this.nextLevelButtonColliderY = backgroundHeight - offset - this.nextLevelButtonColliderHeight;
         this.nextLevelButtonColliderRadius = buttonSize;
+        this.restartButton = false;
 
-        // TODO: the enemy types eaten display
-//        for (int i = 0; i < this.ENEMY_TYPES; i++) {
-//        }
+        this.enemiesEatenXOffset = (this.backgroundWidth / 2.0) + this.displayOffsetX;
+        this.enemiesEatenYOffset = this.drawFonts + this.displayOffsetY;
     }
 
     //-------------------------------------------------------
@@ -104,9 +116,30 @@ public class CheckoutPage {
     public void setScore(int score) { this.score = score; }
     public void setPearlsEaten(int pearlsEaten) { this.pearlsEaten = pearlsEaten; }
     public void setStarfishEaten(int starfishEaten) { this.starfishEaten = starfishEaten; }
-    public void setEnemiesEaten() {}
+    public void setEnemyTypes(int types, boolean reset) {
+        this.enemyTypes = types;
+        if (reset) { setEnemiesEaten(); }
+    }
+    public void setEnemiesEaten() {
+        this.enemiesEaten = new int[this.enemyTypes];
+        for (int i = 0; i < this.enemyTypes; i++) { this.enemiesEaten[i] = 0; }
+    }
+    public void setEnemiesEaten(int[] enemiesEaten) {
+        this.enemiesEaten = enemiesEaten;
+    }
+    public void setEnemyEatenBySize(int size) {
+        if (size < 0 || size >= this.enemyTypes) {
+            throw new IllegalArgumentException("Cannot eat a enemy of size that doesn't exist");
+        }
+        this.enemiesEaten[size] += 1;
+    }
     public void setBackgroundWidth(int width) { this.backgroundWidth = width; }
     public void setBackgroundHeight(int height) { this.backgroundHeight = height; }
+    public void setRestartButton() { this.restartButton = true; }
+    public void setEnemyBaseSize(int w, int h) {
+        this.enemyBaseWidth = w;
+        this.enemyBaseHeight = h;
+    }
 
     //-------------------------------------------------------
     // Getters
@@ -122,57 +155,91 @@ public class CheckoutPage {
     //-------------------------------------------------------
 //    public void initCheckout() {}
 //    public void updateCheckout() {}
-    public void drawCheckout() {
+    public void drawCheckout(Image[] enemies) {
         drawBackground();
         drawScore();
-        drawEnemiesEaten();
+        drawEnemiesEaten(enemies);
         drawPearlsEaten();
         drawStarfishEaten();
+
         drawReturnToMainMenuButton();
         drawNextLevelButton();
         drawCheckoutLine();
+        drawButtonColliders();
     }
     public void drawBackground() {
         this.engine.drawImage(this.background, this.imageX, this.imageY, this.backgroundWidth, this.backgroundHeight);
     }
     public void drawScore() {
-        this.engine.drawText(this.scoreX, this.scoreY, ("Score: " + this.score), "Sans Serif", this.scoreFont);
+        this.engine.drawText(this.scoreX, this.scoreY, ("Score: " + this.score), "Sans Serif", this.drawFonts);
     }
-    public void drawEnemiesEaten() {
-        // TODO: Need to implement
+    public void drawEnemiesEaten(Image[] enemies) {
+        double yOffsets = (this.backgroundHeight / 3.0) - this.drawFonts;
+        double x1 = ((this.enemiesEatenXOffset/3)*2 - this.enemyBaseWidth);
+        double x2 = ((this.enemiesEatenXOffset) - this.enemyBaseWidth);
+        double w = this.enemyBaseWidth*2;
+        double h = this.enemyBaseHeight*2;
+        for (int i = 0; i < this.enemyTypes; i++) {
+            this.engine.drawImage(enemies[i], x1, yOffsets, w, h);
+            this.engine.drawText(x2, (yOffsets - (this.drawFonts / 2.0)), (": " + Integer.toString(this.enemiesEaten[i])), "Sans serif", this.drawFonts);
+            yOffsets += this.enemiesEatenYOffset;
+
+//            drawLines(this.enemiesEatenXOffset, yOffsets, this.enemyBaseWidth, this.enemyBaseHeight);
+        }
     }
+//    public void drawLines(double x, double y, double w, double h) {
+//        this.engine.changeColor(255,0,0);
+//        this.engine.drawLine(x,y,x+w,y);
+//        this.engine.drawLine(x,y+h,x+w,y+h);
+//        this.engine.drawLine(x,y,x,y+h);
+//        this.engine.drawLine(x+w,y,x+w,y+h);
+//    }
     public void drawPearlsEaten() {
-        this.engine.drawText(this.pEatX, this.pEatY, ("Pearls: " + this.pearlsEaten), "Sans Serif", this.pEatFont);
+        this.engine.changeColor(0,0,0);
+        this.engine.drawText(this.pEatX, this.pEatY, ("Pearls: " + this.pearlsEaten), "Sans Serif", this.drawFonts);
     }
     public void drawStarfishEaten() {
-        this.engine.drawText(this.sfEatX, this.sfEatY, ("Starfish: " + this.starfishEaten), "Sans Serif", this.sfEatFont);
+        this.engine.changeColor(0,0,0);
+        this.engine.drawText(this.sfEatX, this.sfEatY, ("Starfish: " + this.starfishEaten), "Sans Serif", this.drawFonts);
     }
     public void drawReturnToMainMenuButton() {
         this.engine.drawImage(this.backButtonImage,
-                this.mainMenuButtonColliderX,
-                this.mainMenuButtonColliderY,
+                this.mainMenuButtonColliderX - this.mainMenuButtonColliderRadius,
+                this.mainMenuButtonColliderY - this.mainMenuButtonColliderRadius,
                 this.mainMenuButtonColliderWidth,
                 this.mainMenuButtonColliderHeight);
     }
     public void drawNextLevelButton() {
         this.engine.drawImage(this.continueButtonImage,
-                (this.nextLevelButtonColliderX + this.nextLevelButtonColliderWidth),
-                this.nextLevelButtonColliderY,
+                (this.nextLevelButtonColliderX + this.nextLevelButtonColliderWidth - this.mainMenuButtonColliderRadius),
+                this.nextLevelButtonColliderY - this.mainMenuButtonColliderRadius,
                 (-this.nextLevelButtonColliderWidth),
                 this.nextLevelButtonColliderHeight);
     }
 
+    public void drawButtonColliders() {
+        this.engine.changeColor(255,0,0);
+        this.engine.drawCircle(mainMenuButtonColliderX, mainMenuButtonColliderY, mainMenuButtonColliderRadius);
+        this.engine.drawCircle(nextLevelButtonColliderX, nextLevelButtonColliderY, nextLevelButtonColliderRadius);
+    }
+
     public void drawCheckoutLine() {
-        int checkoutLineX = 230;
-        int checkoutLineY = 100;
-        this.engine.drawText(checkoutLineX, checkoutLineY, "STAGE COMPLETE!", "a", 28);
+        double checkoutLineX = (this.backgroundWidth / 2.0) - this.displayOffsetX;
+        double checkoutLineY = (this.backgroundHeight / 4.0);
+        int fontSize = 32;
+        this.engine.changeColor(0,0,0);
+        this.engine.drawText(checkoutLineX, checkoutLineY, "STAGE COMPLETE!", "a", fontSize);
     }
 
     public String checkClickTarget(double mX, double mY) {
         if (checkDistance(mX, mY, this.mainMenuButtonColliderX, this.mainMenuButtonColliderY, this.mainMenuButtonColliderRadius)) {
             return "main_menu";
         } else if (checkDistance(mX, mY, this.nextLevelButtonColliderX, this.nextLevelButtonColliderY, this.nextLevelButtonColliderRadius)) {
-            return "next_level";
+            if (this.restartButton) {
+                return "restart";
+            } else {
+                return "next_level";
+            }
         } else {
             return "nothing";
         }

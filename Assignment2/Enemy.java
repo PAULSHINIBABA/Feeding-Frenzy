@@ -20,8 +20,8 @@ public class Enemy {
     private final int MIN_SIZE = 0;
     private final int MAX_SIZE = 3;
     private final double EDGE_OFFSET = 1.0;
-    private final double COLLIDER_BODY_LENGTH = 32.0; // This needs to match the image dimension x
-    private final double COLLIDER_BODY_HEIGHT = 32.0; // This needs to match the image dimension y
+    private double colliderDefaultBodyLength = 32.0; // This needs to match the image dimension x
+    private double colliderDefaultBodyHeight = 32.0; // This needs to match the image dimension y
     private final double COLLIDER_BODY_X_SCALE = 1.0;
     private final double COLLIDER_BODY_Y_SCALE = 0.5;
     private final double SIZE_1 = 1.5;
@@ -29,7 +29,7 @@ public class Enemy {
     private final double SIZE_3 = 2.5;
     private final double SIZE_4 = 3.0;
     private final double SIZE_UNDEFINED = 0.5;
-    private final double DEFAULT_VELOCITY = 25.0;
+    private double defaultVelocity;
 
     // Variable fields
     private int size;
@@ -93,8 +93,9 @@ public class Enemy {
         this.setSize(size);
 
         // Set the enemy velocity
-        this.velocityRange = 50.0;
-        if (velocity == 0.0) { this.setRandomVelocity(this.DEFAULT_VELOCITY, velocityRange); }
+        velocityRange = 50.0;
+        defaultVelocity = 25.0;
+        if (velocity == 0.0) { this.setRandomVelocity(this.defaultVelocity, velocityRange); }
         else { this.velocity = velocity; }
 
         // Set the enemy xPos and yPos
@@ -208,10 +209,16 @@ public class Enemy {
         double value = this.RANDOM_VALUE.nextDouble(2.0) - 1.0;
         this.setYHeading(value);
     }
+    // After enemy creation, use this in combination with setSize() to change the
+    // enemy dimensions (image and collision size.)
+    public void setDefaultColliderBodyDimensions(int w, int h) {
+        this.colliderDefaultBodyLength = w;
+        this.colliderDefaultBodyHeight = h;
+    }
 
     public void setColliderOffsets(double scale) {
-        this.colliderBodyLength = this.COLLIDER_BODY_LENGTH * this.COLLIDER_BODY_X_SCALE * scale;
-        this.colliderBodyHeight = this.COLLIDER_BODY_HEIGHT * this.COLLIDER_BODY_Y_SCALE * scale;
+        this.colliderBodyLength = this.colliderDefaultBodyLength * this.COLLIDER_BODY_X_SCALE * scale;
+        this.colliderBodyHeight = this.colliderDefaultBodyHeight * this.COLLIDER_BODY_Y_SCALE * scale;
         this.colliderBodyXOffset = this.xPos - (this.colliderBodyLength / 2);
         this.colliderBodyYOffset = this.yPos - (this.colliderBodyHeight / 2);
     }
@@ -302,6 +309,8 @@ public class Enemy {
     public double getImageYOffsetNegative() { return this.yPos - this.imageBodyYOffset; }
     public double getImageLength() { return this.imageBodyLength; }
     public double getImageHeight() { return this.imageBodyHeight; }
+    public double getDefaultVelocity() { return defaultVelocity; }
+    public double getDefaultVelocityRange() { return velocityRange; }
 
     //-------------------------------------------------------
     // Other methods

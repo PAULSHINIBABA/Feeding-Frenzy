@@ -2,6 +2,9 @@
  * Author: Robert Tubman
  * ID: 11115713
  *
+ * Co-Author: Lucass
+ * ID:
+ *
  * The Main Class which contains the entry point.
  * As well as the code to wrap all the classes together to make the game run.
  */
@@ -33,11 +36,11 @@ public class Main extends GameEngine {
         updateCheckout();
 
         // While in-game, if the level is complete stop processing
-        if (this.env.getIsLevelComplete()) { return; }
+        if (env.getIsLevelComplete()) { return; }
         updateEnvironment();
 
         // The environment processing for the pause is still occurring above
-        if (this.env.getIsPaused()) { return; }
+        if (env.getIsPaused()) { return; }
 
         updatePlayer(dt);
         updateItems(dt);
@@ -49,7 +52,7 @@ public class Main extends GameEngine {
 
         drawEnvironment();
 
-        drawEnemies(this.enemies); // Draw enemy first
+        drawEnemies(enemies); // Draw enemy first
         drawItems(); // Then draw items
         drawPlayer(); // Then draw the player
 
@@ -64,6 +67,8 @@ public class Main extends GameEngine {
     // "single_player"; single player game state change was clicked
     // "time_attack"; time attack game state change was clicked
     String gameStateString;
+    final String assetPathImage = "Assignment2/assets/image/";
+    final String assetPathAudio = "Assignment2/assets/audio/";
 
     // gameState = 0; Main menu
     // gameState = 1; Loading page
@@ -77,72 +82,61 @@ public class Main extends GameEngine {
     Random randSys;
     int width;
     int height;
-    int eatenPearlCount;
-    int eatenStarfishCount;
-    boolean hasGrownMedium;
-    boolean hasGrownLarge;
 
     public void InitSystem() {
         // System random field
-        this.randSys = new Random();
+        randSys = new Random();
 
         // System window size
-        this.width = 700;
-        this.height = 700;
+        width = 1200;
+        height = 900;
+//        width = 500;
+//        height = 500;
 
         // Set the window
-        setWindowSize(this.width, this.height);
+        setWindowSize(width, height);
 
         // Game state
-        this.gameState = 0;
-        this.gameStateString = "nothing";
+        gameState = 0;
+        gameStateString = "nothing";
 
         // Single player mode default
-        this.isSinglePlayer = true;
-
-        // Player grown state
-        this.hasGrownMedium = false;
-        this.hasGrownLarge = false;
-
-        // Score tracker
-        this.eatenPearlCount = 0;
-        this.eatenStarfishCount = 0;
+        isSinglePlayer = true;
     }
 
     public void colliderCheck() {
-        // Get the player head collider x position
+        // Get the player head x collider
         double px;
-        if (this.myFishFacing) { px = this.myfish.mposition_x; }
-        else { px = this.myfish.mposition_x + this.myfish.myfish_w; }
-
-        // Get the player head collider y position
-        double py = this.myfish.mposition_y + this.myfish.getFishHeadColliderYOffset();
-
-        // Get the player head collider radius
-        double pr = this.myfish.getFishHeadColliderRadius();
+        if (myfish.getFacingLeft()) { px = myfish.getXPos(); }
+        else { px = myfish.getXPos() + myfish.getWidth(); }
 
         // Check if the enemy is at the head
         ArrayList<Enemy> removalValues = new ArrayList<Enemy>();
-        for (Enemy en : this.enemies) {
-            // Get enemy body position and area
-            double ex = en.getXPos();
-            double ey = en.getYPos();
-            double el = en.getColliderBodyLength();
-            double eh = en.getColliderBodyHeight();
-
+        for (Enemy en : enemies) {
             // Check players head to enemies body collision
-            if (calcDistCircleToSquare(px, py, pr, ex, ey, el, eh)) {
+            if (calcDistCircleToSquare(px,
+                    (myfish.getYPos() + myfish.getFishHeadColliderYOffset()),
+                    myfish.getFishHeadColliderRadius(),
+                    en.getXPos(),
+                    en.getYPos(),
+                    en.getColliderBodyLength(),
+                    en.getColliderBodyHeight())) {
+
                 // There is a collision
                 int enSize = en.getSize();
                 // If the player can eat the enemy (based on size equality)
-                if (this.myfish.getSize() >= enSize) {
+                if (myfish.getSize() >= enSize) {
                     // Player was equal to or greater than the enemy
                     // Get the score based on enemy size
-                    int eatScore = en.getSize() + 1;
+                    int eatScore = enSize + 1;
+                    env.setEatEnemyBySize(enSize);
+
                     // Set the player score in the environment
-                    this.env.setScore((this.env.getScore() + eatScore));
+                    env.setScore((env.getScore() + eatScore));
+
                     // Increase the players current progress to the level goal
-                    this.env.setCurrentGoal(this.env.getCurrentGoal() + 1);
+                    env.setCurrentGoal(env.getCurrentGoal() + 1);
+
                     // Add enemy to removal list
                     removalValues.add(en);
                 }
@@ -150,25 +144,20 @@ public class Main extends GameEngine {
         }
 
         // Remove enemies in the removal list
-        this.removeEnemies(this.enemies, removalValues);
+        removeEnemies(enemies, removalValues);
     }
 
     public void growPlayerSize() {
         // Get the players current goal state
-        int currentGoal = this.env.getCurrentGoal();
-        // Get the threshold for growing
-        int mediumThreshold = this.env.getGrowthThresholdMedium();
-        int largeThreshold = this.env.getGrowthThresholdLarge();
+        int currentGoal = env.getCurrentGoal();
 
         // Check if the player has reached the medium size threshold
-        if (!this.hasGrownMedium && (currentGoal >= mediumThreshold)) {
-            this.hasGrownMedium = true;
-            this.myfish.increaseSize();
+        if (myfish.getSize() == 0 && (currentGoal >= env.getGrowthThresholdMedium())) {
+            myfish.increaseSize();
         }
         // Check if the player has reached the large size threshold
-        if (!this.hasGrownLarge && (currentGoal >= largeThreshold)) {
-            this.hasGrownLarge = true;
-            this.myfish.increaseSize();
+        if (myfish.getSize() == 1 && (currentGoal >= env.getGrowthThresholdLarge())) {
+            myfish.increaseSize();
         }
     }
 
@@ -191,27 +180,7 @@ public class Main extends GameEngine {
         return (dCorner <= Math.pow(pr, 2));
     }
 
-    public void resetGameLevel() {
-        // Player grown state
-        this.hasGrownMedium = false;
-        this.hasGrownLarge = false;
 
-        // Score tracker
-        this.eatenPearlCount = 0;
-        this.eatenStarfishCount = 0;
-
-        // Reset the player score
-        this.env.setScore(0);
-
-        // TODO: remove all enemies from the level
-        // TODO: remove all items from the level
-        // TODO: reset the player position
-        // TODO: reset the player size
-
-        // TODO: reset the level time to 0
-        // TODO: IF TIME ATTACK reset the current time
-        // TODO: Increase next level parameters and set
-    }
 
 
     //-------------------------------------------------------
@@ -224,25 +193,25 @@ public class Main extends GameEngine {
     // MousePressed Event Handler
     public void mousePressed(MouseEvent e) {
         if(e.getButton() == MouseEvent.BUTTON1) {
-            // TODO: Should streamline this so the mouse handler interrupt can return quicker.
             if (gameState == 0) {
-                this.gameStateString = this.sm.menuMouseClicked(e);
-            } else if (this.gameState == 6) {
-                System.out.println("Mouse pressed!\tgameState: " + gameState);
-                this.gameStateString = this.chkpg.checkClickTarget(this.mouseX, this.mouseY);
+                gameStateString = sm.menuMouseClicked(e);
+
+            } else if (gameState == 6) {
+                gameStateString = chkpg.checkClickTarget(mouseX, mouseY);
+
             }
         }
     }
 
     // MouseReleased Event Handler
     public void mouseReleased(MouseEvent e) {
-        if(e.getButton() == MouseEvent.BUTTON1) { this.mouse1Pressed = false; }
+        if(e.getButton() == MouseEvent.BUTTON1) { mouse1Pressed = false; }
     }
 
     // MouseMoved Event Handler
     public void mouseMoved(MouseEvent e) {
-        this.mouseX = e.getX();
-        this.mouseY = e.getY();
+        mouseX = e.getX();
+        mouseY = e.getY();
     }
 
 
@@ -259,33 +228,33 @@ public class Main extends GameEngine {
     // Called whenever a key is pressed
     public void keyPressed(KeyEvent e) {
 //        //The user pressed left arrow
-        if(e.getKeyCode() == KeyEvent.VK_LEFT) { this.leftKey = true; }
+        if(e.getKeyCode() == KeyEvent.VK_LEFT) { leftKey = true; }
         // The user pressed right arrow
-        if(e.getKeyCode() == KeyEvent.VK_RIGHT) { this.rightKey = true; }
+        if(e.getKeyCode() == KeyEvent.VK_RIGHT) { rightKey = true; }
         // The user pressed up arrow
-        if(e.getKeyCode() == KeyEvent.VK_UP) { this.upKey = true; }
+        if(e.getKeyCode() == KeyEvent.VK_UP) { upKey = true; }
         // The user pressed up arrow
-        if(e.getKeyCode() == KeyEvent.VK_DOWN) { this.downKey = true; }
+        if(e.getKeyCode() == KeyEvent.VK_DOWN) { downKey = true; }
         // The user pressed ESC
-        if(e.getKeyCode() == KeyEvent.VK_ESCAPE) { this.escKey = true; }
+        if(e.getKeyCode() == KeyEvent.VK_ESCAPE) { escKey = true; }
         // The user pressed spaceKey
-        if(e.getKeyCode() == KeyEvent.VK_SPACE) { this.spaceKey = true; }
+        if(e.getKeyCode() == KeyEvent.VK_SPACE) { spaceKey = true; }
     }
 
     // Called whenever a key is released
     public void keyReleased(KeyEvent e) {
 //        // The user released left arrow
-        if(e.getKeyCode() == KeyEvent.VK_LEFT) { this.leftKey = false; }
+        if(e.getKeyCode() == KeyEvent.VK_LEFT) { leftKey = false; }
         // The user released right arrow
-        if(e.getKeyCode() == KeyEvent.VK_RIGHT) { this.rightKey = false; }
+        if(e.getKeyCode() == KeyEvent.VK_RIGHT) { rightKey = false; }
         // The user released up arrow
-        if(e.getKeyCode() == KeyEvent.VK_UP) { this.upKey = false; }
+        if(e.getKeyCode() == KeyEvent.VK_UP) { upKey = false; }
         // The user released up arrow
-        if(e.getKeyCode() == KeyEvent.VK_DOWN) { this.downKey = false; }
+        if(e.getKeyCode() == KeyEvent.VK_DOWN) { downKey = false; }
         // The user released ESC
-        if(e.getKeyCode() == KeyEvent.VK_ESCAPE) { this.escKey = false; }
+        if(e.getKeyCode() == KeyEvent.VK_ESCAPE) { escKey = false; }
         // The user released spaceKey
-        if(e.getKeyCode() == KeyEvent.VK_SPACE) { this.spaceKey = false; }
+        if(e.getKeyCode() == KeyEvent.VK_SPACE) { spaceKey = false; }
     }
 
 
@@ -294,39 +263,87 @@ public class Main extends GameEngine {
     //-------------------------------------------------------
     public StartMenu sm;
     public LoadingPage lp;
+    Image startMenuBackground;
+    Image startTitle;
+    int titleWidth;
+    int titleHeight;
+    final int START_BUTTONS_LENGTH = 5;
+    Image[] buttonIcons = new Image[START_BUTTONS_LENGTH];
+    Image musicButton;
+    Image loadingImage;
+    final int LOADING_TIPS_LENGTH = 3;
+    Image[] loadingTips = new Image[LOADING_TIPS_LENGTH];
 
     public void initMenu() {
-        this.sm = new StartMenu(this);
-        this.lp = new LoadingPage(this);
+        titleWidth = 300;
+        titleHeight = 150;
+
+        startMenuBackground = loadImage(assetPathImage + "background/background1.png");
+        startTitle = loadImage(assetPathImage + "icon/icon_title1.png");
+        buttonIcons[0] = loadImage(assetPathImage + "icon/icon_start2.png");
+        buttonIcons[1] = loadImage(assetPathImage + "icon/icon_time_attack2.png");
+        buttonIcons[2] = loadImage(assetPathImage + "icon/icon_settings1.png");
+        buttonIcons[3] = loadImage(assetPathImage + "icon/icon_quit1.png");
+        buttonIcons[4] = loadImage(assetPathImage + "icon/icon_help2.png");
+        musicButton = loadImage(assetPathImage + "icon/icon_music1.png");
+
+        sm = new StartMenu(this,
+                startMenuBackground,
+                startTitle,
+                titleWidth,
+                titleHeight,
+                buttonIcons,
+                START_BUTTONS_LENGTH,
+                musicButton,
+                width,
+                height);
+
+        sm.initMusic(assetPathAudio + "music/track_light_positive_modern.wav");
+        sm.playMusic();
+
+        loadingImage = loadImage(assetPathImage + "background/background2.png");
+        loadingTips[0] = loadImage(assetPathImage + "tip/icon_tip1.png");
+        loadingTips[1] = loadImage(assetPathImage + "tip/icon_tip2.png");
+        loadingTips[2] = loadImage(assetPathImage + "tip/icon_tip3.png");
+
+        lp = new LoadingPage(this,
+                loadingImage,
+                startTitle,
+                titleWidth,
+                titleHeight,
+                loadingTips,
+                LOADING_TIPS_LENGTH,
+                width,
+                height);
     }
 
     public void updateMenu(double dt) {
         if (gameState == 0) {
-            if (Objects.equals(this.gameStateString, "single_player")) {
-                this.gameState = 1; // Go to LoadingPage
-                this.env.setIsTimeAttack(false); // Set the environment to single player mode
+            if (Objects.equals(gameStateString, "single_player")) {
+                gameState = 1; // Go to LoadingPage
+                env.setIsTimeAttack(false); // Set the environment to single player mode
 
-            } else if (Objects.equals(this.gameStateString, "time_attack")) {
-                this.gameState = 1; // Go to LoadingPage
-                this.env.setIsTimeAttack(true); // Set the environment to time attack mode
+            } else if (Objects.equals(gameStateString, "time_attack")) {
+                gameState = 1; // Go to LoadingPage
+                env.setIsTimeAttack(true); // Set the environment to time attack mode
             }
         } else if (gameState == 1) {
-            this.lp.startLoading();
-            this.lp.updatePage(dt);
+            lp.startLoading();
+            lp.updatePage(dt);
             // TODO: add this back in so the player can't skip the loading page
-//            if (spaceKey && (this.lp.getProgress() >= 1.0)) {
+//            if (spaceKey && (lp.getProgress() >= 1.0)) {
             if (spaceKey) {
                 // Set to the game play area instance
-                this.gameState = 4;
-                this.env.setBaseTime(getTime());
-                this.env.setIsPaused(false);
+                gameState = 4;
+                env.setBaseTime(getTime());
+                env.setIsPaused(false);
             }
         }
     }
 
     public void drawMenu() {
-        if (this.gameState == 0) { this.sm.drawAll(); }
-        else if (gameState == 1) { this.lp.drawAll(); }
+        if (gameState == 0) { sm.drawAll(); }
+        else if (gameState == 1) { lp.drawAll(); }
     }
 
 
@@ -337,43 +354,64 @@ public class Main extends GameEngine {
     Image checkoutImage;
     Image backButtonImage;
     Image continueiButtonImage;
+    boolean setCheckoutPage;
     public void initCheckout() {
         try {
-            this.checkoutImage = loadImage("Assignment2/assets/image/background/background4.png");
-            this.backButtonImage = loadImage("Assignment2/assets/image/icon/icon_return2.png");
+            checkoutImage = loadImage(assetPathImage + "background/background4.png");
+            backButtonImage = loadImage(assetPathImage + "icon/icon_return2.png");
             // Image should be reversed when displayed
-            this.continueiButtonImage = loadImage("Assignment2/assets/image/icon/icon_return2.png");
+            continueiButtonImage = loadImage(assetPathImage + "icon/icon_return2.png");
 
         } catch(Exception e) {
             e.printStackTrace();
         }
 
-        this.chkpg = new CheckoutPage(this,
-                this.checkoutImage,
-                this.backButtonImage,
-                this.continueiButtonImage,
-                this.width,
-                this.height);
+        chkpg = new CheckoutPage(this,
+                checkoutImage,
+                backButtonImage,
+                continueiButtonImage,
+                width,
+                height);
+
+        setCheckoutPage = false;
     }
     public void updateCheckout() {
-        if (this.gameState == 6) {
-            // Checkout page should load.
-            this.chkpg.setScore(this.env.getScore());
+        if (gameState == 6) {
+            if (!setCheckoutPage) {
+                // Checkout page should load.
+                chkpg.setScore(env.getScore());
+                chkpg.setPearlsEaten(pearl.getTimesEaten());
+                chkpg.setStarfishEaten(starfish.getTimesEaten());
+                chkpg.setEnemiesEaten(env.getEnemiesEaten());
+                chkpg.setRestartButton();
 
-            if (this.gameStateString == "main_menu") {
-                this.gameState = 0;
-                // TODO: Reset the level
+                setCheckoutPage = true;
+            }
+
+            if (gameStateString == "main_menu") {
                 resetGameLevel();
-            } else if (this.gameStateString == "next_level") {
-                // TODO: reset the level and reload to state = 4
+                env.setRestartLevel(false);
+                gameState = 0;
+
+            } else if (gameStateString == "next_level") {
                 resetGameLevel();
-                nextLevel();
-            } else {}
+                if (!env.getRestartLevel()) { nextLevel(); }
+                env.setRestartLevel(false);
+                gameState = 4;
+
+            } else if (gameStateString == "restart") {
+                resetGameLevel();
+                env.setRestartLevel(false);
+                gameState = 4;
+
+            }
         }
     }
     public void drawCheckout() {
-        if (this.gameState == 6) {
-            this.chkpg.drawCheckout();
+        if (gameState == 6) {
+            Image[] enImages = {enemyFish[0], enemyFish[1], enemyFish[2]};
+            chkpg.drawCheckout(enImages);
+            chkpg.setEnemyBaseSize(enemyWidth,enemyHeight / 2);
         }
     }
 
@@ -381,150 +419,102 @@ public class Main extends GameEngine {
     // Player methods
     //-------------------------------------------------------
     myfish myfish;
-    boolean myFishFacing;
-    boolean gamestart; // TODO: Replace to merge with the rest
-    Image myfish_r;
-    Image myfish_l;
+    Image myFishImage;
     Image pearlimage;
     Image boomimage;
     Image starfishimage;
-    Image backgoundimage;
     public void initPlayer() {
-        this.myfish = new myfish();
-        this.myfish.setFishLength(60);
-        this.myfish.setFishHeight(40);
-        this.gamestart = false;
-        this.myFishFacing = false;
-//        //load image
-//        this.backgoundimage = loadImage("Assignment2/assets/image/background/background.png");
+        myfish = new myfish( (width / 2.0), (height / 2.0) );
+        myfish.setFishLength( 60 );
+        myfish.setFishHeight( 40 );
 
-        // TODO: Compress the _r _l into one image and use a reflect method
-        this.myfish_r = loadImage("Assignment2/assets/image/entity/entity_player1.png");
-//        this.myfish_l = loadImage("Assignment2/assets/image/myfish_l.png");
+        myFishImage = loadImage(assetPathImage + "entity/entity_player1.png");
     }
     public void updatePlayer(double dt) {
         if (gameState == 4) {
-            // TODO: CHEAT for debug, remove when done
-            if (this.spaceKey) { this.myfish.setIsAlive(true); }
-
-
-            // TODO: Should update this to go to a game over screen instead
-            if (!this.gamestart) { this.gamestart = true; }
+//            if (spaceKey) { myfish.setIsAlive(true); } // TODO: CHEAT for debug, remove when done
 
             // Player is dead don't process the player
-            if (!this.myfish.getIsAlive()) { return; }
+            if (!myfish.getIsAlive()) { return; }
 
-            if (this.leftKey) {
-                this.myFishFacing = true;
-            } else if (this.rightKey) {
-                this.myFishFacing = false;
-            }
+            if (leftKey) { myfish.setFacingLeft(true); }
+            else if (rightKey) { myfish.setFacingLeft(false); }
 
-            if (this.myfish.getIsAlive()) {
+            if (myfish.getIsAlive()) {
                 colliderCheck();
                 growPlayerSize();
             }
 
             // playArea fields
-            double playAreaX = this.env.getPlayAreaX();
-            double playAreaY = this.env.getPlayAreaY();
-            double playAreaWidth = this.env.getPlayAreaWidth();
-            double playAreaHeight = this.env.getPlayAreaHeight();
+            double playAreaX = env.getPlayAreaX();
+            double playAreaY = env.getPlayAreaY();
+            double playAreaWidth = env.getPlayAreaWidth();
+            double playAreaHeight = env.getPlayAreaHeight();
 
             // Fish moves within the playArea bounds
             myfish.updatemyfish(dt,
-                    this.upKey,
-                    this.downKey,
-                    this.leftKey,
-                    this.rightKey,
+                    upKey,
+                    downKey,
+                    leftKey,
+                    rightKey,
                     playAreaX,
                     playAreaY,
                     playAreaWidth,
                     playAreaHeight);
-
-            // Check for collision with the enemy
-            // TODO: Will probably need to refactor this with the Enemy code
-//            if (myfish.getmyfishRec().intersects(getenemiefishRec())) {
-////                // Increase fish size
-//                this.myfish.increaseSize();
-////                myfish.myfish_w += 3;
-////                myfish.myfish_h += 12;
-//            }
         }
     }
     public void drawPlayer() {
-        if (this.gameState == 4) {
-            // Player is dead don't process the player
-            if (!this.myfish.getIsAlive()) { return; }
-
-            if (this.gamestart) { this.drawMyself(); }
-
-            // TODO: Handle the game over state (need menu?)
+        if (gameState == 4) {
+            // Draw player if they are alive
+            if (myfish.getIsAlive()) { drawMyself(); }
         }
-
     }
-
-    // Create a rectangle of the enemy?
-    // TODO: Will need to refactor this with the Enemy code
-//    public Rectangle getenemiefishRec(){
-//        //enemies width and enemies high
-//        int emfish_w = 15;
-//        int emfish_h = 15;
-////        return new Rectangle((int) emposition_x, (int) emposition_y, emfish_w, emfish_h);
-//        return new Rectangle((int) 0, (int) 0, emfish_w, emfish_h);
-//    }
 
     public void drawMyself() {
         // Decide which image to draw based on direction
-        // TODO: Should refactor this. (use a reflect image method with one image only)
-//        Image currentFishImage = this.leftKey ? myfish_l : myfish_r;
-        Image currentFishImage = myfish_l;
+        Image currentFishImage = myFishImage;
+        if (myfish.getFacingLeft()) {
+            drawImage(currentFishImage, myfish.getXPos() + myfish.getWidth(), myfish.getYPos(), -myfish.getWidth(), myfish.getHeight());
+        } else {
+            drawImage(currentFishImage, myfish.getXPos(),  myfish.getYPos(), myfish.getWidth(), myfish.getHeight());
+        }
 
-        if (this.myFishFacing) { currentFishImage = myfish_l; }
-        else { currentFishImage = myfish_r; }
+        drawPlayerCollider(); // TODO: Remove before submitting
+    }
 
-        // Draw the fish at its current position
-        drawImage(currentFishImage, (int)myfish.mposition_x,  (int)myfish.mposition_y, myfish.myfish_w, myfish.myfish_h);
-
+    public void drawPlayerCollider() {
         // Draw the collider box
         changeColor(0,255,0);
         // top
-        drawLine(myfish.mposition_x,
-                myfish.mposition_y,
-                (myfish.mposition_x + myfish.myfish_w),
-                myfish.mposition_y);
+        drawLine(myfish.getXPos(),
+                myfish.getYPos(),
+                (myfish.getXPos() + myfish.getWidth()),
+                myfish.getYPos());
         // bottom
-        drawLine(myfish.mposition_x,
-                (myfish.mposition_y + myfish.myfish_h),
-                (myfish.mposition_x + myfish.myfish_w),
-                (myfish.mposition_y + myfish.myfish_h));
+        drawLine(myfish.getXPos(),
+                (myfish.getYPos() + myfish.getHeight()),
+                (myfish.getXPos() + myfish.getWidth()),
+                (myfish.getYPos() + myfish.getHeight()));
         // left
-        drawLine(myfish.mposition_x,
-                myfish.mposition_y,
-                myfish.mposition_x,
-                (myfish.mposition_y + myfish.myfish_h));
+        drawLine(myfish.getXPos(),
+                myfish.getYPos(),
+                myfish.getXPos(),
+                (myfish.getYPos() + myfish.getHeight()));
         // right
-        drawLine((myfish.mposition_x + myfish.myfish_w),
-                myfish.mposition_y,
-                (myfish.mposition_x + myfish.myfish_w),
-                (myfish.mposition_y + myfish.myfish_h));
+        drawLine((myfish.getXPos() + myfish.getWidth()),
+                myfish.getYPos(),
+                (myfish.getXPos() + myfish.getWidth()),
+                (myfish.getYPos() + myfish.getHeight()));
 
         changeColor(255,0,0);
         double fishX;
-        double fishY = this.myfish.mposition_y + this.myfish.getFishHeadColliderYOffset();
-        double fishR = this.myfish.getFishHeadColliderRadius();
-        if (this.myFishFacing) { fishX = this.myfish.mposition_x; }
-        else { fishX = this.myfish.mposition_x + this.myfish.myfish_w; }
+        double fishY = myfish.getYPos() + myfish.getFishHeadColliderYOffset();
+        double fishR = myfish.getFishHeadColliderRadius();
+        if (myfish.getFacingLeft()) { fishX = myfish.getXPos(); }
+        else { fishX = myfish.getXPos() + myfish.getWidth(); }
         drawCircle(fishX, fishY, fishR);
-
     }
 
-//    public Rectangle getenemiefishRec(Enemy en){
-//        return new Rectangle((int)en.getXPos(),
-//                (int)en.getYPos(),
-//                (int)en.getColliderBodyLength(),
-//                (int)en.getHeight());
-//    }
 
 
     //-------------------------------------------------------
@@ -534,44 +524,38 @@ public class Main extends GameEngine {
     boom boom;
     starfish starfish;
     public void initItems() {
-        this.pearl = new pearl();
-        this.boom = new boom();
-        this.starfish = new starfish();
+        pearl = new pearl();
+        boom = new boom();
+        starfish = new starfish();
 
-        this.pearlimage = loadImage("Assignment2/assets/image/item/item_pearl1.png");
-        this.boomimage = loadImage("Assignment2/assets/image/item/item_bomb1.png");
-        this.starfishimage = loadImage("Assignment2/assets/image/item/item_starfish1.png");
+        pearlimage = loadImage(assetPathImage + "item/item_pearl1.png");
+        boomimage = loadImage(assetPathImage + "item/item_bomb1.png");
+        starfishimage = loadImage(assetPathImage + "item/item_starfish1.png");
     }
     public void updateItems(double dt) {
-        // TODO: Update the rand input values to use the playArea bounds
         // Set the pearl x,y pos
-        double areaW = this.env.getPlayAreaWidth();
-        double areaH = this.env.getPlayAreaHeight();
-        double randStarX = rand(areaW);
-        double randStarY = rand(areaH);
-        double randBombX = rand(areaW);
-        double randBombY = rand(areaH);
-        double spawnOffsetWidth = this.env.getHUDWidth();
-        double spawnOffsetHeight = this.env.getHUDHeight();
+        double areaW = env.getPlayAreaWidth();
+        double areaH = env.getPlayAreaHeight();
+        double spawnOffsetWidth = env.getHUDWidth();
+        double spawnOffsetHeight = env.getHUDHeight();
 
         double randSpeed = rand(100);
-        if(gamestart) {
+        if(!env.getIsLevelComplete()) {
             //update pearl
             pearl.updatepearl(dt,
                     myfish.getmyfishRec(),
-                    myfish.myfishspeed_x,
-                    myfish.myfishspeed_y,
-                    randStarX,
-                    randStarY,
+                    myfish.getXVel(),
+                    myfish.getYVel(),
+                    rand(areaW),
+                    rand(areaH),
                     spawnOffsetWidth,
                     spawnOffsetHeight);
 
             //update starfish
-            // TODO: update this to use the playArea bounds
             if (starfish.updatestarfish(dt,
                     myfish.getmyfishRec(),
-                    randStarX,
-                    randStarY,
+                    rand(areaW),
+                    rand(areaH),
                     spawnOffsetWidth,
                     spawnOffsetHeight,
                     randSpeed,
@@ -579,80 +563,108 @@ public class Main extends GameEngine {
                     areaH)) {
 
                 // Update the environment score
-                this.env.addScore(20);
+                env.addScore(20);
             }
 
-            // TODO: update this to use the playArea bounds
             if (boom.updateboom(dt,
                     myfish.getmyfishRec(),
-                    randBombX,
-                    randBombY,
+                    rand(areaW),
+                    rand(areaH),
                     spawnOffsetWidth,
                     spawnOffsetHeight,
                     randSpeed,
                     areaW,
                     areaH)) {
 
-                // Set the gameStart to be false, ie. game over
-                // TODO: load the game over menu state
-                gamestart = false;
+                myfish.setIsAlive(false);
+                env.setEndLevel();
             }
         }
 
     }
     public void drawItems() {
-        if (this.gameState == 4) {
-            this.drawpearl();
-            this.drawstarfish();
-            this.drawboom();
+        if (gameState == 4) {
+            drawpearl();
+            drawstarfish();
+            drawboom();
         }
     }
 
     public void drawboom(){
         if (boom.isvisible()){
-            drawImage(boomimage,boom.getpositionx(),boom.getpositiony(), boom.getwidth(), boom.getheight());
+            drawImage(boomimage,
+                    boom.getpositionx(),
+                    boom.getpositiony(),
+                    boom.getwidth(),
+                    boom.getheight());
         }
     }
     public void drawstarfish(){
         if (starfish.isvisible()){
-            drawImage(starfishimage,starfish.getpositionx(),starfish.getpositiony(),starfish.getwidth(),starfish.getheight());
+            drawImage(starfishimage,
+                    starfish.getpositionx(),
+                    starfish.getpositiony(),
+                    starfish.getwidth(),
+                    starfish.getheight());
         }
     }
     public void drawpearl(){
         if (pearl.isvisible()){
             changeColor(Color.white);
-            drawImage(pearlimage,(int)pearl.getpositionx(),(int)pearl.getpositiony(), pearl.getwidth(), pearl.getheight());
+            drawImage(pearlimage,
+                    pearl.getpositionx(),
+                    pearl.getpositiony(),
+                    pearl.getwidth(),
+                    pearl.getheight());
         }
     }
 
     //-------------------------------------------------------
     // Enemy methods
     //-------------------------------------------------------
-    int maxEnemies = 5; // Set to around 30
+    int maxEnemies; // Set to around 30
     ArrayList<Enemy> enemies;
-    int maxShark = 5;
+    int maxShark;
     ArrayList<Enemy> sharkEnemies;
     double enemySpawnTimer;
     double enemySpawnTimerPrevious;
     double enemySpawnDelay;
-    Image enemyFish1;
-    Image enemyFish2;
-    Image enemyFish3;
+    Image[] enemyFish;
     Image shark;
+    int enemyTypes;
+    int[] enemyEaten;
+    int enemyWidth;
+    int enemyHeight;
     public void initEnemies() {
-        this.maxEnemies = this.width / 100;
-        this.maxShark = this.width / 500;
-        this.enemies = new ArrayList<Enemy>();
-        this.sharkEnemies = new ArrayList<Enemy>();
-        this.enemySpawnTimer = 0.0;
-        this.enemySpawnTimerPrevious = 0.0;
-        this.enemySpawnDelay = this.randSys.nextDouble(2.0) + 1.0;
+        // Define the maximum enemy spawns based on screen dimensions
+        maxEnemies = width / 100;
+        maxShark = width / 500;
+
+        // Instantiate the enemy arraylists
+        enemies = new ArrayList<Enemy>();
+        sharkEnemies = new ArrayList<Enemy>();
+
+        // Set the default enemy spawn timer fields
+        enemySpawnTimer = 0.0;
+        enemySpawnTimerPrevious = 0.0;
+        enemySpawnDelay = randSys.nextDouble(2.0) + 1.0;
+
+        // Set the enemy types
+        enemyTypes = 3;
+
+        // Instantiate the array for enemies eaten
+        enemyEaten = new int[enemyTypes];
+
+        // Default base enemy dimensions
+        enemyWidth = 32;
+        enemyHeight = 32;
 
         try {
-            this.enemyFish1 = loadImage("Assignment2/assets/image/entity/entity_fish1.png");
-            this.enemyFish2 = loadImage("Assignment2/assets/image/entity/entity_fish2.png");
-            this.enemyFish3 = loadImage("Assignment2/assets/image/entity/entity_fish3.png");
-            this.shark = loadImage("Assignment2/assets/image/entity/entity_shark1.png");
+            enemyFish = new Image[enemyTypes];
+            enemyFish[0] = loadImage(assetPathImage + "entity/entity_fish1.png");
+            enemyFish[1] = loadImage(assetPathImage + "entity/entity_fish2.png");
+            enemyFish[2] = loadImage(assetPathImage + "entity/entity_fish3.png");
+            shark = loadImage(assetPathImage + "entity/entity_shark1.png");
 
         } catch(Exception e) {
             e.printStackTrace();
@@ -665,31 +677,37 @@ public class Main extends GameEngine {
 
         // Process the normal enemies
         ArrayList<Enemy> removalValues = new ArrayList<Enemy>();
-        if (this.enemies.size() > 0) {
-            for (int i = 0; i < this.enemies.size(); i++) {
-                this.updateEnemyPosition(dt, this.enemies.get(i), true);
+        if (enemies.size() > 0) {
+            for (Enemy en : enemies) {
+                // Update the enemy positions
+                updateEnemyPosition(dt, en, true);
 
-                // Check if the player has been bit
-                this.checkEnemyBitePlayer(this.enemies.get(i));
+                // Check if the player has been bitten
+                checkEnemyBitePlayer(en);
 
-                this.checkEnemyBounds(this.enemies.get(i), removalValues);
+                // Check if enemy moves out of bounds
+                checkEnemyBounds(en, removalValues);
             }
         }
-        this.removeEnemies(this.enemies, removalValues);
+        // Remove the enemies marked for removal
+        removeEnemies(enemies, removalValues);
 
         // Process the shark enemy
         removalValues = new ArrayList<Enemy>();
-        if (this.sharkEnemies.size() > 0) {
-            for (int i = 0; i < this.sharkEnemies.size(); i++) {
-                this.updateEnemyPosition(dt, this.sharkEnemies.get(i), false);
+        if (sharkEnemies.size() > 0) {
+            for (Enemy sen : sharkEnemies) {
+                // Update the shark enemy positions
+                updateEnemyPosition(dt, sen, false);
 
-                // Check if the player has been bit
-                this.checkEnemyBitePlayer(this.sharkEnemies.get(i));
+                // Check if the player has been bitten
+                checkEnemyBitePlayer(sen);
 
-                this.checkEnemyBounds(this.sharkEnemies.get(i), removalValues);
+                // Check if shark enemy moves out of bounds
+                checkEnemyBounds(sen, removalValues);
             }
         }
-        this.removeEnemies(this.sharkEnemies, removalValues);
+        // Remove the shark enemies marked for removal
+        removeEnemies(sharkEnemies, removalValues);
     }
 
     public void checkEnemyBitePlayer(Enemy en) {
@@ -697,33 +715,29 @@ public class Main extends GameEngine {
         double ex;
         if (en.getHeadingY() == -1.0) { ex = en.getXPos() - en.getColliderHeadXOffset(); }
         else { ex = en.getXPos() + en.getColliderHeadXOffset(); }
-        double ey = en.getYPos();
-        double er = en.getColliderHeadRadius();
 
-        // Player collider fields
-        double px = this.myfish.mposition_x;
-        double py = this.myfish.mposition_y;
-        double pl = this.myfish.myfish_w;
-        double ph = this.myfish.myfish_h;
+        // Player loses if they are "bitten"
+        if (calcDistCircleToSquare(ex,
+                en.getYPos(),
+                en.getColliderHeadRadius(),
+                myfish.getXPos(),
+                myfish.getYPos(),
+                myfish.getWidth(),
+                myfish.getHeight())) {
 
-        // Player loses if they are "bit"
-        if (calcDistCircleToSquare(ex, ey, er, px, py, pl, ph)) {
-            int enSize = en.getSize();
-            if (enSize > this.myfish.getSize()) { this.myfish.setIsAlive(false); }
+            if (en.getSize() > myfish.getSize()) {
+                myfish.setIsAlive(false);
+                env.setEndLevel();
+            }
         }
     }
 
     public void updateEnemyPosition(double dt, Enemy en, boolean shouldRandomize) {
-        if (shouldRandomize) { this.randomizeEnemyMovement(en); }
+        if (shouldRandomize) { randomizeEnemyMovement(en); }
 
-        double currentXPos = en.getXPos();
-        double currentYPos = en.getYPos();
-        double currentXHeading = en.getHeadingX();
-        double currentYHeading = en.getHeadingY();
         double currentVel = en.getVelocity();
-
-        double newXPos = currentXPos + currentXHeading * currentVel * dt;
-        double newYPos = currentYPos + currentYHeading * currentVel * dt;
+        double newXPos = en.getXPos() + en.getHeadingX() * currentVel * dt;
+        double newYPos = en.getYPos() + en.getHeadingY() * currentVel * dt;
 
         en.setPos(newXPos, newYPos);
     }
@@ -732,23 +746,21 @@ public class Main extends GameEngine {
         // Roll each chance separately
         int changeChance = 1; // 1% chance
         // Randomize horizontal direction
-        if (this.randSys.nextInt(100) < changeChance) { en.setRandomXHeading(); }
+        if (randSys.nextInt(100) < changeChance) { en.setRandomXHeading(); }
         // Randomize vertical direction
-        if (this.randSys.nextInt(100) < changeChance) { en.setRandomYHeading(); }
+        if (randSys.nextInt(100) < changeChance) { en.setRandomYHeading(); }
         // Randomize velocity
-        if (this.randSys.nextInt(100) < changeChance) { en.setRandomVelocity(25,100); }
+        if (randSys.nextInt(100) < changeChance) { en.setRandomVelocity(en.getDefaultVelocity(),en.getDefaultVelocityRange()); }
 
         en.updateColliderHeadXOffset();
     }
 
     public void checkEnemyBounds(Enemy en, ArrayList<Enemy> removalValues) {
-        int chanceRemoveEnemy = this.randSys.nextInt(100);
+        int chanceRemoveEnemy = randSys.nextInt(100);
         boolean removeEnemy = (chanceRemoveEnemy < en.getChanceToLeaveEnvironment());
 
-        int playAreaWidth = this.env.getPlayAreaWidth();
-        int playAreaHeight = this.env.getPlayAreaHeight();
-        double playAreaXOffset = this.env.getEnvironmentXOffset();
-        double playAreaYOffset = this.env.getEnvironmentYOffset();
+        double playAreaXOffset = env.getEnvironmentXOffset();
+        double playAreaYOffset = env.getEnvironmentYOffset();
 
         double bodyLengthOffset =  en.getColliderBodyLength() / 2;
         double bodyHeightOffset =  en.getColliderBodyHeight() / 2;
@@ -761,7 +773,7 @@ public class Main extends GameEngine {
                 en.updateColliderHeadXOffset();
             }
         }
-        if ((en.getXPos() >= (playAreaXOffset + playAreaWidth + bodyLengthOffset)) && (en.getHeadingX() == 1.0)) {
+        if ((en.getXPos() >= (playAreaXOffset + env.getPlayAreaWidth() + bodyLengthOffset)) && (en.getHeadingX() == 1.0)) {
             if (removeEnemy) { removalValues.add(en); }
             else {
                 en.setXHeading(-1.0);
@@ -771,7 +783,7 @@ public class Main extends GameEngine {
 
         // Check vertical bounds
         if (en.getYPos() <= (playAreaYOffset + bodyHeightOffset)) { en.setYHeading(1.0); }
-        if (en.getYPos() >= (playAreaYOffset + playAreaHeight - bodyHeightOffset)) { en.setYHeading(-1.0); }
+        if (en.getYPos() >= (playAreaYOffset + env.getPlayAreaHeight() - bodyHeightOffset)) { en.setYHeading(-1.0); }
     }
 
     public void removeEnemies(ArrayList<Enemy> enemies, ArrayList<Enemy> removalValues) {
@@ -783,34 +795,39 @@ public class Main extends GameEngine {
         }
     }
 
+    public void removeAllEnemies(ArrayList<Enemy> enemies) { enemies.clear(); }
+
     // The method to spawn an enemy on click
-    // TODO: the enemy should spawn based on other methods, such as a timer.
     public void SpawnEnemy() {
-        this.enemySpawnTimer = this.env.getCountDownTimerWOffset() - this.enemySpawnTimerPrevious;
-        if (this.enemySpawnTimer > this.enemySpawnDelay) {
-            this.createEnemy();
-            this.enemySpawnDelay = this.randSys.nextDouble(2.0) + 1.0;
-            this.enemySpawnTimerPrevious = this.enemySpawnTimer;
+        enemySpawnTimer = env.getCountDownTimerWOffset() - enemySpawnTimerPrevious;
+        if (enemySpawnTimer > enemySpawnDelay) {
+            createEnemy();
+            enemySpawnDelay = randSys.nextDouble(2.0) + 1.0;
+            enemySpawnTimerPrevious = enemySpawnTimer;
         }
 
-        // TODO: consider when a shark should spawn
-//        if (this.shiftKey) {
-//            this.CreateShark();
-//        }
+        if (env.getHardMode()) {
+            if (env.getCountDownCurrentTimerPercentage() >= 0.75) {
+                double roll = randSys.nextInt(100);
+                double chance = 33;
+                if (roll < chance) {
+                    createShark();
+                }
+            }
+        }
     }
 
     public void drawEnemies(ArrayList<Enemy> enemies) {
-        if (this.gameState == 4) {
+        if (gameState == 4) {
             for (Enemy en : enemies) {
-                this.drawEnemy(en);
-                this.drawEnemyCollider(en);
-                this.drawEnemyHeadCollider(en);
+                drawEnemy(en);
+//                drawEnemyCollider(en);
+//                drawEnemyHeadCollider(en);
             }
         }
     }
 
     public void drawEnemy(Enemy en) {
-        // TODO: Calculate the enemy image offset, to align with the collision box
         double imgX;
         double imgY = en.getImageYOffset();
         double imgLen = en.getImageLength();
@@ -828,104 +845,93 @@ public class Main extends GameEngine {
 
     }
 
-    public void drawEnemyCollider(Enemy en) {
-        // Retrieve the enemy collision fields
-        double xPosCol = en.getColliderBodyXOffset();
-        double yPosCol = en.getColliderBodyYOffset();
-        double len = en.getLength();
-        double hei = en.getHeight();
-        double xPos = en.getXPos();
-        double yPos = en.getYPos();
+    // Debug: Used to show the enemy body colliders
+//    public void drawEnemyCollider(Enemy en) {
+//        // Retrieve the enemy collision fields
+//        double xPosCol = en.getColliderBodyXOffset();
+//        double yPosCol = en.getColliderBodyYOffset();
+//        double len = en.getLength();
+//        double hei = en.getHeight();
+//        double xPos = en.getXPos();
+//        double yPos = en.getYPos();
+//
+//        // Calculate the collision offsets
+//        double x1 = xPos + xPosCol;
+//        double y1 = yPos + yPosCol;
+//        double x2 = xPos + xPosCol + len;
+//        double y2 = yPos + yPosCol + hei;
+//
+//        // Draw the collision boxes
+//        changeColor(0, 255, 0);
+//        drawLine(x1,y1,x2,y1); // Collision line
+//        drawLine(x1,y2,x2,y2); // Collision line
+//        drawLine(x1,y1,x1,y2); // Collision line
+//        drawLine(x2,y1,x2,y2); // Collision line
+//        changeColor(255, 0, 0);
+//        drawSolidCircle(xPos, yPos, 2);
+//    }
 
-        // Calculate the collision offsets
-        double x1 = xPos + xPosCol;
-        double y1 = yPos + yPosCol;
-        double x2 = xPos + xPosCol + len;
-        double y2 = yPos + yPosCol + hei;
-
-        // Draw the collision boxes
-        changeColor(0, 255, 0);
-        drawLine(x1,y1,x2,y1); // Collision line
-        drawLine(x1,y2,x2,y2); // Collision line
-        drawLine(x1,y1,x1,y2); // Collision line
-        drawLine(x2,y1,x2,y2); // Collision line
-        changeColor(255, 0, 0);
-        drawSolidCircle(xPos, yPos, 2);
-    }
-
-    public void drawEnemyHeadCollider(Enemy en) {
-        double xH = en.getColliderHeadXOffset();
-        double yH = en.getColliderHeadYOffset();
-        double rH = en.getColliderHeadRadius();
-        double x = en.getXPos();
-        double y = en.getYPos();
-
-        double x1 = x + xH;
-        double y1 = y + yH;
-
-        changeColor(255,0,0);
-        drawCircle(x1, y1, rH);
-    }
+    // Debug: Used to show the enemy head colliders
+//    public void drawEnemyHeadCollider(Enemy en) {
+//        double xH = en.getColliderHeadXOffset();
+//        double yH = en.getColliderHeadYOffset();
+//        double rH = en.getColliderHeadRadius();
+//        double x = en.getXPos();
+//        double y = en.getYPos();
+//
+//        double x1 = x + xH;
+//        double y1 = y + yH;
+//
+//        changeColor(255,0,0);
+//        drawCircle(x1, y1, rH);
+//    }
 
     public void createEnemy() {
-        if (this.enemies.size() >= this.maxEnemies) {
-//            System.out.println("Max enemies reached.");
-            return;
-        }
-//        System.out.println("Creating enemy.");
+        if (enemies.size() >= maxEnemies) { return; }
 
         // Randomize enemy selection
         // Should the spawn chances be modified such as:
         // - 45% small
         // - 33% medium
         // - 22% large
-//        int selectSize = this.randSys.nextInt(4);
         final int enemySmall = 45;
         final int enemyMedium = 78; // 45 + 33
-//        final int enemyLarge = 100;
-        int selectSize = this.randSys.nextInt(100);
+        int selectSize = randSys.nextInt(100);
 
-        int playAreaWidth = this.env.getPlayAreaWidth();
-        int playAreaHeight = this.env.getPlayAreaHeight();
-        double playAreaXOffset = this.env.getEnvironmentXOffset();
-        double playAreaYOffset = this.env.getEnvironmentYOffset();
-
-        Enemy en;
-        if (selectSize < enemySmall) { // spawn a small fish
-            en = new Enemy(this.enemyFish1, 0, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
-            // TODO: Match these offset values to the actual image sizes
-//            en.setHeadOffset();
-            en.setImageOffsets(-32,-32,64,64);
-        } else if (selectSize < enemyMedium) { // spawn a medium fish
-            en = new Enemy(this.enemyFish2, 1, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
-            // TODO: Match these offset values to the actual image sizes
-            en.setImageOffsets(-32,-32,64,64);
-        } else { // spawn a large fish
-            en = new Enemy(this.enemyFish3, 2, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
-            // TODO: Match these offset values to the actual image sizes
-            en.setImageOffsets(-32,-32,64,64);
-        }
-
-        this.enemies.add(en);
-    }
-
-    public void createShark() {
-        if (this.sharkEnemies.size() >= this.maxShark) {
-            System.out.println("Max sharks.");
-            return;
-        }
-
-//        System.out.println("Create shark.");
         int playAreaWidth = env.getPlayAreaWidth();
         int playAreaHeight = env.getPlayAreaHeight();
         double playAreaXOffset = env.getEnvironmentXOffset();
         double playAreaYOffset = env.getEnvironmentYOffset();
 
-        Enemy shk = new Enemy(this.shark, 3, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
+        Enemy en;
+        int size;
+        if (selectSize < enemySmall) { // spawn a small fish
+            size = 0;
+            en = new Enemy(enemyFish[0], size, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
+            en.setImageOffsets(-enemyWidth,-enemyHeight,enemyWidth * 2,enemyHeight * 2);
+        } else if (selectSize < enemyMedium) { // spawn a medium fish
+            size = 1;
+            en = new Enemy(enemyFish[1], size, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
+            en.setImageOffsets(-enemyWidth,-enemyHeight,enemyWidth * 2,enemyHeight * 2);
+        } else { // spawn a large fish
+            size = 2;
+            en = new Enemy(enemyFish[2], size, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
+            en.setImageOffsets(-enemyWidth,-enemyHeight,enemyWidth * 2,enemyHeight * 2);
+        }
+        enemies.add(en);
+    }
+
+    public void createShark() {
+        if (sharkEnemies.size() >= maxShark) { return; }
+
+        // The shark should be the largest size
+        Enemy shk = new Enemy(shark, 3, env.getEnvironmentXOffset(), env.getEnvironmentYOffset(), env.getPlayAreaWidth(), env.getPlayAreaHeight());
+
+        // The shark should be very fast, ie (400 + range(400))
         shk.setRandomVelocity(400, 400);
-        shk.setYHeading(0.0);
-        shk.setChanceToLeaveEnvironment(100);
-        this.sharkEnemies.add(shk);
+        shk.setYHeading(0.0); // Don't move vertically (unless spawning close to the top or bottom)
+        shk.setChanceToLeaveEnvironment(100); // The shark will always leave the environment
+        sharkEnemies.add(shk);
     }
 
 
@@ -941,57 +947,134 @@ public class Main extends GameEngine {
     double timeMinimum;
     boolean singlePlayerComplete;
     boolean timeAttackComplete;
+    int growthThresholdM;
+    int growthThresholdL;
 
     public void initEnvironment() {
-        this.targetGoal = 10;
-        this.targetGoalIncrement = 5;
-        this.goalMaximum = 50;
-        this.targetTime = 60.0;
-        this.targetTimeAdjuster = 5.0;
-        this.timeMinimum = 10.0;
-        this.singlePlayerComplete = false;
-        this.timeAttackComplete = false;
+        targetGoal = 10;
+        targetGoalIncrement = 5;
+        goalMaximum = 50;
+        targetTime = 10.0; // TODO: Make this start at 60.0
+        targetTimeAdjuster = 5.0;
+        timeMinimum = 10.0;
+        singlePlayerComplete = false;
+        timeAttackComplete = false;
+        growthThresholdM = (int)(targetGoal / 3.0);
+        growthThresholdL = (int)((targetGoal / 3.0) * 2.0);
 
-        this.env = new Environment(this, !this.isSinglePlayer);
-        this.env.setEnvironmentPlayWidth(this.width);
-        this.env.setEnvironmentPlayHeight(this.height);
-//        this.env.
+        env = new Environment(this, !isSinglePlayer);
+        env.setEnvironmentPlayWidth(width);
+        env.setEnvironmentPlayHeight(height);
+        env.setTargetGoal(targetGoal);
+        env.setCountDownTimer(targetTime);
+        env.setGrowthThresholdLarge(growthThresholdL);
+        env.setGrowthThresholdMedium(growthThresholdM);
     }
     public void updateEnvironment() {
         if (gameState == 4) {
-            this.env.environmentLevelCompleteCheck();
+            // Check if the level is complete
+            env.environmentLevelCompleteCheck();
 
+            // Check for the pausing of the game
             boolean wasPaused = false;
-
-            if (this.escKey) {
-                if (this.env.getIsPaused()) {
-                    this.env.setIsPaused(false);
+            if (escKey) {
+                if (env.getIsPaused()) {
+                    env.setIsPaused(false);
                     wasPaused = true;
                 } else {
-                    this.env.setIsPaused(true);
+                    env.setIsPaused(true);
                 }
             }
 
             // Level is complete keep the game paused
-            if (this.env.getIsLevelComplete()) {
-                this.env.setIsPaused(true);
-                this.gameState = 6;
+            if (env.getIsLevelComplete() || env.getEndLevel()) {
+                env.setIsPaused(true);
+                gameState = 6; // Go to CheckoutPage
             }
 
             UpdateTimer(wasPaused);
-
-            // TODO: update the gameState to checkout page
-
         }
     }
 
+    public void resetGameLevel() {
+        // Reset the player score
+        env.setScore(0);
+
+        // Remove all enemies from the level
+        removeAllEnemies(enemies);
+        env.setEnemyEatenCounter();
+
+        // Remove all items from the level
+        // Reset the pearl
+        pearl.setTimesEaten(0);
+        pearl.setvisible(false);
+        pearl.resettimevis();
+
+        // Reset the bomb
+        boom.setvisible(false);
+        boom.resettimevis();
+
+        // Reset the starfish
+        starfish.setTimesEaten(0);
+        starfish.setvisible(false);
+        starfish.resettimevis();
+        starfish.setSpeedX(0.0);
+        starfish.setSpeedY(0.0);
+
+        // Reset the player
+        myfish.setXPos(width / 2.0);
+        myfish.setYPos(height / 2.0);
+        myfish.setXVel(0);
+        myfish.setYVel(0);
+        myfish.setIsAlive(true);
+        myfish.setSize(0);
+
+        // Reset the in game display timer
+        env.setBaseTime(getTime());
+        env.setCurrentGoal(0);
+        env.setEnemyEatenCounter();
+        env.setIsLevelComplete(false);
+        env.setIsPaused(false);
+
+        setCheckoutPage = false;
+    }
+
     public void nextLevel() {
-        // TODO: update the env state to be the next level
+        // Increment level
+        env.setCurrentLevel(env.getCurrentLevel() + 1);
+
+        // Increment the target goal for the level
+        targetGoal = targetGoal + (targetGoalIncrement * env.getCurrentLevel());
+        if (targetGoal > goalMaximum) {
+            // If the goal exceeds the maximum then set to the maximum
+            targetGoal = goalMaximum;
+
+            // If the game is not time attack, then single player is complete
+            if (!env.getIsTimeAttack()) { singlePlayerComplete = true; }
+        }
+        // Set the target goal for the level
+        env.setTargetGoal(targetGoal);
+
+        if (env.getIsTimeAttack()) {
+            // Reset the time attack timer
+            env.setCountDownCurrentTimer(0.0);
+
+            // If the game is time attack decrement the target time
+            targetTime -= targetTimeAdjuster;
+            // If the target time goes below the minimum, then time attack is complete
+            if (targetTime < timeMinimum) {
+                targetTime = timeMinimum;
+                timeAttackComplete = true;
+            }
+
+            // Set the target time otherwise
+            env.setCountDownTimer(targetTime);
+        }
     }
 
     public void UpdateTimer(boolean wasPaused) {
         // return if paused
-        if (this.env.getIsPaused()) { return; }
+        if (env.getIsPaused()) { return; }
 
 
         // fields for paused timer
@@ -1002,34 +1085,34 @@ public class Main extends GameEngine {
             double beforePause;
             double timeDelay;
 
-            beforePause = this.env.getTimer();
-            double afterPause = Math.round(((newTime - this.env.getBaseTime()) / 1000.0) * 100.0) / 100.0;
+            beforePause = env.getTimer();
+            double afterPause = Math.round(((newTime - env.getBaseTime()) / 1000.0) * 100.0) / 100.0;
             timeDelay = (afterPause - beforePause);
 
             // Set the pausable timer
-            this.env.addCountDownTimerOffset(timeDelay);
+            env.addCountDownTimerOffset(timeDelay);
         }
 
         // Set the global timer
-        this.env.setTimer(newTime);
+        env.setTimer(newTime);
 
         // Time attack counter processing
-        if (this.env.getIsTimeAttack()) { this.env.setCountDownCurrentTimer(this.env.getCountDownTimerWOffset()); }
+        if (env.getIsTimeAttack()) { env.setCountDownCurrentTimer(env.getCountDownTimerWOffset()); }
     }
 
     public void drawEnvironment() {
         if (gameState == 4) {
-            this.env.drawEnvironment();
+            env.drawEnvironment();
         }
     }
 
     public void drawEnvironmentLayerTop() {
         if (gameState == 4) {
-            this.env.drawHUD();
-            boolean timeAttack = this.env.getIsTimeAttack();
-            this.env.drawTimer(timeAttack);
-            this.env.drawScore();
-            this.env.drawGrowth();
+            env.drawHUD();
+            boolean timeAttack = env.getIsTimeAttack();
+            env.drawTimer(timeAttack);
+            env.drawScore();
+            env.drawGrowth();
         }
     }
 }

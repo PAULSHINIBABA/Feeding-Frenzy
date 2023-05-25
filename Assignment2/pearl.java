@@ -15,12 +15,14 @@ public class pearl {
     private int pearl_w,pearl_h;
     private boolean is_visible;
     private double time_visible;
+    private int timesEaten;
 
     public pearl(){
-        pearl_w=30;
-        pearl_h=30;
-        is_visible=false;
-        time_visible=0;
+        pearl_w = 30;
+        pearl_h = 30;
+        is_visible = false;
+        time_visible = 0;
+        timesEaten = 0;
     }
     public void updatepearl(double dt,
                             Rectangle myfishrec,
@@ -43,24 +45,30 @@ public class pearl {
             fishspeed_x *= 1.5;//increase speed
             fishspeed_y *= 1.5;
             setvisible(false);
+            timesEaten += 1;
         }
     }
 
+    //-------------------------------------------------------
+    // Setters
+    //-------------------------------------------------------
     public void setposition(double x,double y){
         pearlposition_x=x;
         pearlposition_y=y;
     }
+    public void setvisible(boolean visible) {
+        is_visible = visible;
+    }
+    public void setTimesEaten(int timesEaten) { this.timesEaten = timesEaten; }
+
+    //-------------------------------------------------------
+    // Getters
+    //-------------------------------------------------------
     public double getpositionx(){
         return pearlposition_x;
     }
     public double getpositiony(){
         return pearlposition_y;
-    }
-    public void setvisible(boolean visible) {
-        is_visible = visible;
-    }
-    public boolean isvisible() {
-        return is_visible;
     }
     public int getwidth(){
         return pearl_w;
@@ -68,13 +76,21 @@ public class pearl {
     public int getheight(){
         return pearl_h;
     }
+    public double gettimevis(){
+        return time_visible;
+    }
+    public int getTimesEaten() { return this.timesEaten; }
+
+    //-------------------------------------------------------
+    // Other methods
+    //-------------------------------------------------------
+    public boolean isvisible() {
+        return is_visible;
+    }
     public void updatetimevis(double dt){
         time_visible+=dt;
     }
     public void resettimevis(){
         time_visible=0;
-    }
-    public double gettimevis(){
-        return time_visible;
     }
 }

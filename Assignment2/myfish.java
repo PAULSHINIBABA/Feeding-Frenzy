@@ -8,25 +8,32 @@
 
 package Assignment2;
 
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class myfish {
-    double mposition_x,mposition_y;//myself fish position
-    double myfishspeed_x,myfishspeed_y;
-    double myfish_w = 90,myfish_h = 60;//myfish width and myfish high
-    double fishHeadColliderXOffset;
-    double fishHeadColliderYOffset;
-    double fishHeadColliderRadius;
+    private double mposition_x,mposition_y;//myself fish position
+    private double myfishspeed_x,myfishspeed_y;
+    private double myfish_w = 90,myfish_h = 60;//myfish width and myfish high
+    private double fishHeadColliderXOffset;
+    private double fishHeadColliderYOffset;
+    private double fishHeadColliderRadius;
+    private boolean facingLeft;
     private int playerSize;
     private boolean isAlive;
-    public myfish(){
-        mposition_x=250;
-        mposition_y=250;
-        myfishspeed_y=0;
-        myfishspeed_x=0;
 
-        this.playerSize = 0;
-        this.isAlive = true;
+    // Constructor
+    public myfish(double x, double y){
+        mposition_x = x;
+        mposition_y = y;
+        myfishspeed_y = 0;
+        myfishspeed_x = 0;
+
+        playerSize = 0;
+        isAlive = true;
+        facingLeft = true;
     }
 
     public Rectangle getmyfishRec(){
@@ -100,6 +107,11 @@ public class myfish {
     public void setIsAlive(boolean isAlive) {
         this.isAlive = isAlive;
     }
+    public void setXPos(double x) { this.mposition_x = x; }
+    public void setYPos(double y) { this.mposition_y = y; }
+    public void setXVel(double xv) { this.myfishspeed_x = xv; }
+    public void setYVel(double yv) { this.myfishspeed_y = yv; }
+    public void setFacingLeft(boolean facing) { this.facingLeft = facing; }
 
     //**************************************************
     // Getters
@@ -119,6 +131,13 @@ public class myfish {
     public boolean getIsAlive() {
         return this.isAlive;
     }
+    public boolean getFacingLeft() { return this.facingLeft; }
+    public double getXPos() { return mposition_x; }
+    public double getYPos() { return mposition_y; }
+    public double getWidth() { return myfish_w; }
+    public double getHeight() { return myfish_h; }
+    public double getXVel() { return myfishspeed_x; }
+    public double getYVel() { return myfishspeed_y; }
 
     //**************************************************
     // Other methods

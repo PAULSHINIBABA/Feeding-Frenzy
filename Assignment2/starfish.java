@@ -16,11 +16,13 @@ public class starfish {
     private int starfish_w,starfish_h;
     private boolean is_visible;
     private double time_visible;
+    private int timesEaten;
     public starfish(){
         starfish_w=30;
         starfish_h=30;
         is_visible=false;
         time_visible=0;
+        this.timesEaten = 0;
     }
     public void randomstarfish(double randx, double randy,double randspeed){
         setposition(randx,randy);
@@ -56,25 +58,34 @@ public class starfish {
 
         if (isvisible()&&myfishrec.intersects(new Rectangle(new Rectangle((int)getpositionx(),(int)getpositiony(),getwidth(),getheight())))){
             setvisible(false);
+            this.timesEaten += 1;
             return true;
         }
         return false;
     }
+
+    //-------------------------------------------------------
+    // Setters
+    //-------------------------------------------------------
     public void setposition(double x,double y){
         starfishpos_x=x;
         starfishpos_y=y;
     }
+    public void setvisible(boolean visible) {
+        is_visible = visible;
+    }
+    public void setTimesEaten(int timesEaten) { this.timesEaten = timesEaten; }
+    public void setSpeedX(double x) { starspeed_x = x; }
+    public void setSpeedY(double y) { starfishspeed_y = y; }
+
+    //-------------------------------------------------------
+    // Getters
+    //-------------------------------------------------------
     public double getpositionx(){
         return starfishpos_x;
     }
     public double getpositiony(){
         return starfishpos_y;
-    }
-    public void setvisible(boolean visible) {
-        is_visible = visible;
-    }
-    public boolean isvisible() {
-        return is_visible;
     }
     public int getwidth(){
         return starfish_w;
@@ -82,13 +93,21 @@ public class starfish {
     public int getheight(){
         return starfish_h;
     }
+    public double gettimevis(){
+        return time_visible;
+    }
+    public int getTimesEaten() { return this.timesEaten; }
+
+    //-------------------------------------------------------
+    // Other methods
+    //-------------------------------------------------------
+    public boolean isvisible() {
+        return is_visible;
+    }
     public void updatetimevis(double dt){
         time_visible+=dt;
     }
     public void resettimevis(){
         time_visible=0;
-    }
-    public double gettimevis(){
-        return time_visible;
     }
 }

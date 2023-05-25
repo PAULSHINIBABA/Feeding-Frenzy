@@ -13,12 +13,14 @@
  */
 package Assignment2;
 
+import javax.swing.*;
 import java.awt.*;
 
 public class Environment {
-    int defaultGrowthThresholdM = 1;
-    int defaultGrowthThresholdL = 2;
-    int defaultTargetGoal = 3;
+    private int defaultGrowthThresholdM = 1;
+    private int defaultGrowthThresholdL = 2;
+    private int defaultTargetGoal = 3;
+    private int currentLevel;
     // The score is determined by the number of enemy fish eaten by the player fish.
     // 1 small fish = 1 point
     // 1 medium fish = 2 points
@@ -57,8 +59,13 @@ public class Environment {
     private int playAreaWidth;
     private int playAreaHeight;
     private boolean levelComplete;
+    private boolean endLevel;
     private boolean canPauseNow;
     private GameEngine engine;
+    private boolean restartEnvironment;
+    private int enemyTypes;
+    private int[] enemiesEaten;
+    private boolean hardMode;
 
     public Environment(GameEngine engine, boolean isTimeAttack) {
         this.engine = engine;
@@ -69,9 +76,7 @@ public class Environment {
         this.currentScore = 0;
         this.currentGoal = 0;
         this.isTimeAttack = isTimeAttack;
-        // TODO: Reimplement this
-//        this.countdownTimer = 60.0; // Time attack default is a minute
-        this.countdownTimer = 10.0; // Time attack default is a minute
+        this.countdownTimer = 60.0; // Time attack default is a minute
         this.countdownTimerCurrent = 0.0;
         this.countdownTimeOffset = 0.0;
         this.timer = 0.0;
@@ -100,6 +105,11 @@ public class Environment {
         this.setGrowthThresholdLarge(0);
         this.setGrowthThresholdMedium(0);
         this.setTargetGoal(0);
+        this.endLevel = false;
+        this.restartEnvironment = false;
+        this.enemyTypes = 3;
+        this.setEnemyEatenCounter();
+        this.hardMode = false;
 
         initEnvironment();
     }
@@ -189,7 +199,30 @@ public class Environment {
     public void setCountDownCurrentTimer(double timer) { this.countdownTimerCurrent = timer; }
 //    public void setCountDownTimerOffset(double timer) { this.countdownTimeOffset = timer; }
     public void setPausableTimer(double timer) { this.pausableTimer = timer; }
-
+    public void setEndLevel() {
+        Timer timer = new Timer(600, e->this.endLevel = true);
+        timer.setRepeats(false);
+        timer.start();
+        setRestartLevel(true);
+    }
+    public void setRestartLevel(boolean state) { this.restartEnvironment = state; }
+    public void setEnemyTypes(int enemyTypes, boolean reset) {
+        this.enemyTypes = enemyTypes;
+        if (reset) {
+            setEnemyEatenCounter();
+        }
+    }
+    public void setEnemyEatenCounter() {
+        this.enemiesEaten = new int[this.enemyTypes];
+        for (int i = 0; i < this.enemyTypes; i++) { this.enemiesEaten[i] = 0; }
+    }
+    public void setEatEnemyBySize(int size) throws IllegalArgumentException {
+        if (size < 0 || size >= this.enemyTypes) { throw new IllegalArgumentException("Cannot eat a enemy of size that doesn't exist"); }
+        this.enemiesEaten[size] += 1;
+    }
+    public void setCurrentLevel(int level) { this.currentLevel = level; }
+    public void setHardMode(boolean mode) { this.hardMode = mode; }
+    public void setIsLevelComplete(boolean state) { this.levelComplete = state; }
 
 
     //-------------------------------------------------------
@@ -231,6 +264,16 @@ public class Environment {
     }
     public double getPausableTimer() { return this.pausableTimer; }
     public boolean getIsLevelComplete() { return this.levelComplete; }
+    public boolean getEndLevel() { return this.endLevel; }
+    public boolean getRestartLevel() { return this.restartEnvironment; }
+    public int getEnemyTypes() { return this.enemyTypes; }
+    public int[] getEnemiesEaten() { return this.enemiesEaten; }
+    public int getEnemyEatenBySize(int size) {
+        if (size < 0 || size >= this.enemyTypes) { throw new IllegalArgumentException("Cannot eat a enemy of size that doesn't exist"); }
+        return this.enemiesEaten[size];
+    }
+    public int getCurrentLevel() { return this.currentLevel; }
+    public boolean getHardMode() { return this.hardMode; }
 
 
     //-------------------------------------------------------
@@ -253,7 +296,6 @@ public class Environment {
                 this.getEnvironmentYOffset(),
                 this.getPlayAreaWidth(),
                 this.getPlayAreaHeight());
-//        this.engine.drawImage(this.levelImage, 0, 0, 500, 500);
 
         this.engine.restoreLastTransform();
     }
@@ -382,7 +424,7 @@ public class Environment {
     public double round2DP(double value) { return Math.round(value * 100.0) / 100.0; }
     public void environmentLevelCompleteCheck() {
         if (isTimeAttack) {
-            if (this.countdownTimerCurrent > this.countdownTimer) { this.levelComplete = true; }
+            if (this.countdownTimerCurrent >= this.countdownTimer) { this.levelComplete = true; }
         } else {
             if (this.currentGoal >= this.targetGoal) { this.levelComplete = true; }
         }
