@@ -79,13 +79,13 @@ public class LoadingPage {
 
     public void drawTitle() {
         this.engine.saveCurrentTransform();
-        this.engine.drawImage(this.title, 110, 0, 300, 150);
+        this.engine.drawImage(this.title, 230, 0, 300, 150);
         this.engine.restoreLastTransform();
     }
 
     public void drawLoadingBar() {
-        int x = 100;
-        int y = 400;
+        int x = 220;
+        int y = 550;
         int width = 300;
         int height = 10;
 
@@ -99,12 +99,18 @@ public class LoadingPage {
     public void drawCurrentImage() {
         int imageWidth = 450;
         int imageHeight = 100;
-        int imageX = 25;
-        int imageY = 300;
+        int imageX = 145;
+        int imageY = 400;
 
         this.engine.saveCurrentTransform();
         this.engine.drawImage(this.images[this.currentTips], imageX, imageY, imageWidth, imageHeight);
         this.engine.restoreLastTransform();
+    }
+    public void drawLine(){
+        int linePosX = 230;
+        int linePosY = 650;
+
+        this.engine.drawText(linePosX, linePosY, "Press Space to start!!", "a", 26);
     }
 
     public void updatePage(double dt) {
@@ -115,25 +121,14 @@ public class LoadingPage {
         }
     }
 
-//    @Override
-//    public void paintComponent() {
     public void drawAll() {
 //        this.engine.setWindowSize(500, 500);
         drawLoadingImage();
         drawTitle();
         drawLoadingBar();
         drawCurrentImage();
+        drawLine();
     }
-
-//    @Override
-//    public int width() {
-//        return 500;
-//    }
-
-//    @Override
-//    public int height() {
-//        return 500;
-//    }
 
     class SwitchImageTask extends TimerTask {
         @Override

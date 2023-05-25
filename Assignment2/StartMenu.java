@@ -30,8 +30,8 @@ public class StartMenu {
     private final Image[] buttonImages = new Image[6];
 
     // Variables for mouse click position
-    private final int[] BUTTON_X_POSITIONS = {150, 300, 140, 280, 20};
-    private final int[] BUTTON_Y_POSITIONS = {180, 210, 280, 320, 500,};
+    private final int[] BUTTON_X_POSITIONS = {260, 420, 260, 420, 60};
+    private final int[] BUTTON_Y_POSITIONS = {250, 340, 420, 500, 650,};
 //    private final boolean[] ButtonClicked = {false, false, false, false, false};
 
     // Constructor
@@ -113,14 +113,14 @@ public class StartMenu {
     //draw background
     public void drawBackground() {
         this.engine.saveCurrentTransform();
-        this.engine.drawImage(this.background, 0, 0, 500, 500);
+        this.engine.drawImage(this.background, 0, 0, 700, 700);
         this.engine.restoreLastTransform();
     }
     
     //draw title
     public void drawTitle() {
         this.engine.saveCurrentTransform();
-        this.engine.drawImage(this.title, 110, 0, 300, 150);
+        this.engine.drawImage(this.title, 230, 0, 300, 150);
         this.engine.restoreLastTransform();
     }
     
@@ -130,9 +130,9 @@ public class StartMenu {
             int buttonX = this.BUTTON_X_POSITIONS[i];
             int buttonY = this.BUTTON_Y_POSITIONS[i];
 
-            this.engine.drawImage(this.buttonImages[i], buttonX-30, buttonY - 30, 120, 50);
+            this.engine.drawImage(this.buttonImages[i], buttonX-30, buttonY - 30, 140, 50);
         }
-        this.engine.drawImage(this.musicButton,450,450,50,50);
+        this.engine.drawImage(this.musicButton,650,650,50,50);
     }
     
     public void initMusic() {

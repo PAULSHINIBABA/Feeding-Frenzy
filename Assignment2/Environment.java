@@ -159,7 +159,7 @@ public class Environment {
 
     // Set the current goal to an integer value. The current goal cannot be negative.
     // currentGoal / targetGoal gives us the progression for the current level
-    public void SetCurrentGoal(int cGoal) {
+    public void setCurrentGoal(int cGoal) {
         if (cGoal < 0) { throw new IllegalArgumentException("Cannot set current goal to a negative integer"); }
         this.currentGoal = cGoal;
     }
@@ -175,20 +175,20 @@ public class Environment {
         }
     }
 
-    public void SetIsPaused(boolean paused) { this.isPaused = paused; }
-    public void SetPlayAreaX(int x) { this.playAreaX = x; }
-    public void SetPlayAreaY(int y) { this.playAreaY = y; }
-//    public void SetPlayAreaWidth(int width) { this.playAreaWidth = width; }
-//    public void SetPlayAreaHeight(int height) { this.playAreaHeight = height; }
-    public void SetHUDWidth(int width) { this.hudWidth = width; }
-    public void SetHUDHeight(int height) { this.hudHeight = height; }
-    public void SetTimer(double newTime) { this.timer = (newTime - this.baseTime) / 1000.0; }
-    public void SetBaseTime(double baseTime) { this.baseTime = baseTime; }
-    public void SetIsTimeAttack(boolean isTimeAttack) { this.isTimeAttack = isTimeAttack; }
-    public void SetCountDownTimer(double timer) { this.countdownTimer = timer; }
-    public void SetCountDownCurrentTimer(double timer) { this.countdownTimerCurrent = timer; }
-//    public void SetCountDownTimerOffset(double timer) { this.countdownTimeOffset = timer; }
-    public void SetPausableTimer(double timer) { this.pausableTimer = timer; }
+    public void setIsPaused(boolean paused) { this.isPaused = paused; }
+    public void setPlayAreaX(int x) { this.playAreaX = x; }
+    public void setPlayAreaY(int y) { this.playAreaY = y; }
+//    public void setPlayAreaWidth(int width) { this.playAreaWidth = width; }
+//    public void setPlayAreaHeight(int height) { this.playAreaHeight = height; }
+    public void setHUDWidth(int width) { this.hudWidth = width; }
+    public void setHUDHeight(int height) { this.hudHeight = height; }
+    public void setTimer(double newTime) { this.timer = (newTime - this.baseTime) / 1000.0; }
+    public void setBaseTime(double baseTime) { this.baseTime = baseTime; }
+    public void setIsTimeAttack(boolean isTimeAttack) { this.isTimeAttack = isTimeAttack; }
+    public void setCountDownTimer(double timer) { this.countdownTimer = timer; }
+    public void setCountDownCurrentTimer(double timer) { this.countdownTimerCurrent = timer; }
+//    public void setCountDownTimerOffset(double timer) { this.countdownTimeOffset = timer; }
+    public void setPausableTimer(double timer) { this.pausableTimer = timer; }
 
 
 
@@ -200,37 +200,37 @@ public class Environment {
     public int getGrowthThresholdLarge() { return this.growthThresholdLarge; }
     public int getCurrentGoal() { return this.currentGoal; }
     public int getTargetGoal() { return this.targetGoal; }
-    public Image GetEnvironment() { return this.levelImage; }
-    public int GetEnvironmentWidth() { return this.imageWidth;}
-    public int GetEnvironmentHeight() { return this.imageHeight; }
-    public double GetEnvironmentOriginX() { return this.imageOriginX; }
-    public double GetEnvironmentOriginY() { return this.imageOriginY; }
-    public double GetEnvironmentXOffset() { return this.imageXOffset; }
-    public double GetEnvironmentYOffset() { return this.imageYOffset; }
-    public boolean GetIsPaused() { return this.isPaused; }
-    public int GetHUDWidth() { return this.hudWidth; }
-    public int GetHUDHeight() { return this.hudHeight; }
-    public int GetPlayAreaX() { return this.playAreaX; }
-    public int GetPlayAreaY() { return this.playAreaY; }
-    public int GetPlayAreaWidth() { return this.playAreaWidth; }
-    public int GetPlayAreaHeight() { return this.playAreaHeight; }
-    public double GetTimer() { return this.Round2DP(this.timer); }
-    public double GetBaseTime() { return this.Round2DP(this.baseTime); }
-    public boolean GetIsTimeAttack() { return this.isTimeAttack; }
-    public double GetCountDownTimer() { return this.Round2DP(this.countdownTimer); }
-    public double GetCountDownCurrentTimer() { return this.Round2DP(this.countdownTimerCurrent); }
-    public double GetCountDownCurrentTimerPercentage() { return this.Round2DP((this.countdownTimerCurrent / this.countdownTimer)); }
-    public double GetCountDownTimerWOffset() {
-        double theTime = this.GetTimer();
+    public Image getEnvironment() { return this.levelImage; }
+    public int getEnvironmentWidth() { return this.imageWidth;}
+    public int getEnvironmentHeight() { return this.imageHeight; }
+    public double getEnvironmentOriginX() { return this.imageOriginX; }
+    public double getEnvironmentOriginY() { return this.imageOriginY; }
+    public double getEnvironmentXOffset() { return this.imageXOffset; }
+    public double getEnvironmentYOffset() { return this.imageYOffset; }
+    public boolean getIsPaused() { return this.isPaused; }
+    public int getHUDWidth() { return this.hudWidth; }
+    public int getHUDHeight() { return this.hudHeight; }
+    public int getPlayAreaX() { return this.playAreaX; }
+    public int getPlayAreaY() { return this.playAreaY; }
+    public int getPlayAreaWidth() { return this.playAreaWidth; }
+    public int getPlayAreaHeight() { return this.playAreaHeight; }
+    public double getTimer() { return this.round2DP(this.timer); }
+    public double getBaseTime() { return this.round2DP(this.baseTime); }
+    public boolean getIsTimeAttack() { return this.isTimeAttack; }
+    public double getCountDownTimer() { return this.round2DP(this.countdownTimer); }
+    public double getCountDownCurrentTimer() { return this.round2DP(this.countdownTimerCurrent); }
+    public double getCountDownCurrentTimerPercentage() { return this.round2DP((this.countdownTimerCurrent / this.countdownTimer)); }
+    public double getCountDownTimerWOffset() {
+        double theTime = this.getTimer();
         double theOffset = this.countdownTimeOffset;
         if (theOffset > theTime) {
-            return Round2DP(theTime);
+            return round2DP(theTime);
         } else {
-            return Round2DP((theTime - theOffset));
+            return round2DP((theTime - theOffset));
         }
     }
-    public double GetPausableTimer() { return this.pausableTimer; }
-    public boolean GetIsLevelComplete() { return this.levelComplete; }
+    public double getPausableTimer() { return this.pausableTimer; }
+    public boolean getIsLevelComplete() { return this.levelComplete; }
 
 
     //-------------------------------------------------------
@@ -239,28 +239,28 @@ public class Environment {
     public void initEnvironment() {
         this.levelImage = this.engine.loadImage("Assignment2/assets/image/background.png");
 
-        this.SetBaseTime(this.engine.getTime());
+        this.setBaseTime(this.engine.getTime());
     }
     public void drawEnvironment() {
         this.engine.saveCurrentTransform();
-//        System.out.println("x:" + this.GetEnvironmentXOffset() +
-//                "\ty:" + this.GetEnvironmentYOffset() +
-//                "\tw:" + this.GetPlayAreaWidth() +
-//                "\th:" + this.GetPlayAreaHeight());
+//        System.out.println("x:" + this.getEnvironmentXOffset() +
+//                "\ty:" + this.getEnvironmentYOffset() +
+//                "\tw:" + this.getPlayAreaWidth() +
+//                "\th:" + this.getPlayAreaHeight());
 
         this.engine.drawImage(this.levelImage,
-                this.GetEnvironmentXOffset(),
-                this.GetEnvironmentYOffset(),
-                this.GetPlayAreaWidth(),
-                this.GetPlayAreaHeight());
+                this.getEnvironmentXOffset(),
+                this.getEnvironmentYOffset(),
+                this.getPlayAreaWidth(),
+                this.getPlayAreaHeight());
 //        this.engine.drawImage(this.levelImage, 0, 0, 500, 500);
 
         this.engine.restoreLastTransform();
     }
 
     public void drawHUD() {
-        int hudWidth = this.GetHUDWidth();
-        int hudHeight = this.GetHUDHeight();
+        int hudWidth = this.getHUDWidth();
+        int hudHeight = this.getHUDHeight();
 
         int whiteOutValue = 100;
         this.engine.changeColor(whiteOutValue,whiteOutValue,255);
@@ -275,7 +275,7 @@ public class Environment {
     }
 
     public void drawTimer(boolean isTimeAttack) {
-        double displayTime = this.GetCountDownTimerWOffset();
+        double displayTime = this.getCountDownTimerWOffset();
         int clr = 0;
         this.engine.changeColor(clr,clr,clr);
         this.engine.drawText(10, 20, ("Time: " + Double.toString(displayTime)), "Sans Serif", 12);
@@ -329,12 +329,12 @@ public class Environment {
         this.engine.drawSolidRectangle(growthBarXOffset, growthBarYOffset, growthState, this.hudBarThickness);
 
         // draw the growth bar borders
-        this.DrawPanelBorder(growthBarXOffset, growthBarYOffset, growthBarLength, this.hudBarThickness);
+        this.drawPanelBorder(growthBarXOffset, growthBarYOffset, growthBarLength, this.hudBarThickness);
     }
 
     public void drawTimeAttackBar() {
-        double timeAttackLimit = this.GetCountDownTimer();
-        double timeAttackRemaining = this.GetCountDownCurrentTimer();
+        double timeAttackLimit = this.getCountDownTimer();
+        double timeAttackRemaining = this.getCountDownCurrentTimer();
 
         double timeAttackBarLength = this.engine.width() * 0.6;
         double timeAttackBarXOffset = (this.engine.width() - timeAttackBarLength) / 2.0;
@@ -356,10 +356,10 @@ public class Environment {
         this.engine.drawSolidRectangle(timeAttackBarXOffset, timeAttackBarYOffset, remainingTime, this.hudBarThickness);
 
         // draw the time attack borders
-        this.DrawPanelBorder(timeAttackBarXOffset, timeAttackBarYOffset, timeAttackBarLength, this.hudBarThickness);
+        this.drawPanelBorder(timeAttackBarXOffset, timeAttackBarYOffset, timeAttackBarLength, this.hudBarThickness);
     }
 
-    public void DrawPanelBorder(double x, double y, double l, double h) {
+    public void drawPanelBorder(double x, double y, double l, double h) {
         int clr = 0;
         this.engine.changeColor(clr,clr,clr);
         int thickness = 2;
@@ -379,8 +379,8 @@ public class Environment {
     }
 
     public void addCountDownTimerOffset(double timer) { this.countdownTimeOffset += timer; }
-    public double Round2DP(double value) { return Math.round(value * 100.0) / 100.0; }
-    public void EnvironmentLevelCompleteCheck() {
+    public double round2DP(double value) { return Math.round(value * 100.0) / 100.0; }
+    public void environmentLevelCompleteCheck() {
         if (isTimeAttack) {
             if (this.countdownTimerCurrent > this.countdownTimer) { this.levelComplete = true; }
         } else {

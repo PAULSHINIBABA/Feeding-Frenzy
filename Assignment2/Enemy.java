@@ -90,19 +90,19 @@ public class Enemy {
 
         // Set the enemy size
         if ((size < this.MIN_SIZE) || (size > this.MAX_SIZE)) { throw new IllegalArgumentException("The enemy size must be greater than " + this.MIN_SIZE + " and less than " + this.MAX_SIZE); }
-        this.SetSize(size);
+        this.setSize(size);
 
         // Set the enemy velocity
         this.velocityRange = 50.0;
-        if (velocity == 0.0) { this.SetRandomVelocity(this.DEFAULT_VELOCITY, velocityRange); }
+        if (velocity == 0.0) { this.setRandomVelocity(this.DEFAULT_VELOCITY, velocityRange); }
         else { this.velocity = velocity; }
 
         // Set the enemy xPos and yPos
         // Check whether to randomly assign a position or not
         boolean randomPos = ((xPos == 0.0) && (yPos == 0.0));
         if (randomPos) {
-            this.SetRandomXPos(frameWidth, frameXOffset);
-            this.SetRandomYPos(frameHeight, frameYOffset);
+            this.setRandomXPos(frameWidth, frameXOffset);
+            this.setRandomYPos(frameHeight, frameYOffset);
         } else {
             // Assigning position based on input
             this.xPos = xPos;
@@ -111,8 +111,8 @@ public class Enemy {
 
         // Set the enemy heading
         if (headingXDirection == 0.0) {
-            this.SetSidedXHeading(frameWidth);
-            this.SetRandomYHeading();
+            this.setSidedXHeading(frameWidth);
+            this.setRandomYHeading();
         } else {
             // A heading was provided, assign based on what was provided
             this.headingXDirection = xHeading;
@@ -120,7 +120,7 @@ public class Enemy {
         }
 
         // Set the head collider offset
-        this.SetHeadOffset();
+        this.setHeadOffset();
 
         // Set chance to leave the environment
         this.leaveEnvironmentChance = 33; // The default value
@@ -129,95 +129,87 @@ public class Enemy {
     //-------------------------------------------------------
     // Setters
     //-------------------------------------------------------
-    public void SetImage(Image image) throws IllegalArgumentException {
+    public void setImage(Image image) throws IllegalArgumentException {
         if (image == null) { throw new IllegalArgumentException("The enemy image cannot be null"); }
         this.image = image;
     }
 
-    public void SetSize(int size) throws IllegalArgumentException {
+    public void setSize(int size) throws IllegalArgumentException {
         if ((size < this.MIN_SIZE) || (size > this.MAX_SIZE)) { throw new IllegalArgumentException("The enemy size must be greater than " + this.MIN_SIZE + " and less than " + this.MAX_SIZE); }
         this.size = size;
 
         // Define the enemy colliders based on the size
         switch (this.size) {
-            case 0:
-                this.SetColliderOffsets(1.0);
-                break;
-            case 1:
-                this.SetColliderOffsets(this.SIZE_1);
-                break;
-            case 2:
-                this.SetColliderOffsets(this.SIZE_2);
-                break;
-            case 3:
-                this.SetColliderOffsets(this.SIZE_3);
-                break;
-            default:
-                this.SetColliderOffsets(this.SIZE_UNDEFINED);
+            case 0 -> this.setColliderOffsets(1.0);
+            case 1 -> this.setColliderOffsets(this.SIZE_1);
+            case 2 -> this.setColliderOffsets(this.SIZE_2);
+            case 3 -> this.setColliderOffsets(this.SIZE_3);
+            default -> {
+                this.setColliderOffsets(this.SIZE_UNDEFINED);
                 System.out.println("Enemy.SetSize(); The size is outside of defined specifications. Please add an actual switch case for the size.");
-                break;
+            }
         }
 
         // Set up the image offset
-        this.SetImageOffsets();
+        this.setImageOffsets();
     }
 
-    public void SetXPos(double xPos) { this.xPos = xPos; }
-    public void SetYPos(double yPos) { this.yPos = yPos; }
+    public void setXPos(double xPos) { this.xPos = xPos; }
+    public void setYPos(double yPos) { this.yPos = yPos; }
 
-    public void SetRandomXPos(int frameWidth, double frameXOffset) {
+    public void setRandomXPos(int frameWidth, double frameXOffset) {
         // Randomly assigning a position
         boolean enterLeft = this.RANDOM_VALUE.nextBoolean();
-        if (enterLeft) { this.SetXPos( frameXOffset - (this.colliderBodyLength + this.EDGE_OFFSET) ); }
-        else { this.SetXPos( frameXOffset + frameWidth + this.EDGE_OFFSET + this.colliderBodyLength ); }
+        if (enterLeft) { this.setXPos( frameXOffset - (this.colliderBodyLength + this.EDGE_OFFSET) ); }
+        else { this.setXPos( frameXOffset + frameWidth + this.EDGE_OFFSET + this.colliderBodyLength ); }
     }
 
-    public void SetRandomYPos(int frameHeight, double frameYOffset) {
-        this.SetYPos(frameYOffset + this.EDGE_OFFSET + this.RANDOM_VALUE.nextDouble(frameHeight - (2 * this.EDGE_OFFSET)));
+    public void setRandomYPos(int frameHeight, double frameYOffset) {
+        this.setYPos(frameYOffset + this.EDGE_OFFSET + this.RANDOM_VALUE.nextDouble(frameHeight - (2 * this.EDGE_OFFSET)));
     }
 
-    public void SetPos(double xPos, double yPos) {
+    public void setPos(double xPos, double yPos) {
         this.xPos = xPos;
         this.yPos = yPos;
     }
 
-    public void SetVelocity(double velocity) throws IllegalArgumentException {
+    public void setVelocity(double velocity) throws IllegalArgumentException {
         if (velocity < 0.0) { throw new IllegalArgumentException("The velocity cannot be less than 0.0"); }
         this.velocity = velocity;
     }
 
-    public void SetRandomVelocity(double value, double range) throws IllegalArgumentException {
+    public void setRandomVelocity(double value, double range) throws IllegalArgumentException {
         if (value < 0.0) { throw new IllegalArgumentException("The velocity cannot be less than 0.0"); }
         if (range < 0.0) { throw new IllegalArgumentException("The velocity range cannot be less than 0.0"); }
         this.velocity = value + this.RANDOM_VALUE.nextDouble(range);
     }
 
-    public void SetVelocityRange(double velocityRange) throws IllegalArgumentException {
+    public void setVelocityRange(double velocityRange) throws IllegalArgumentException {
         if (velocityRange < 0.0) { throw new IllegalArgumentException("The velocity range cannot be less than 0.0"); }
         this.velocityRange = velocityRange;
     }
 
-    public void SetXHeading(double xHeading) {
+    public void setXHeading(double xHeading) {
         this.headingXDirection = xHeading;
     }
-    public void SetYHeading(double yHeading) {
+    public void setYHeading(double yHeading) {
         this.headingYDirection = yHeading;
     }
-    public void SetSidedXHeading(int frameWidth) {
+    public void setSidedXHeading(int frameWidth) {
         // If the heading is undefined, then choose based on spawn edge
-        if (this.xPos < (frameWidth / 2)) { this.SetXHeading(1.0); } // Head right
-        else { this.SetXHeading(-1.0); } // Head left
+        if (this.xPos < (frameWidth / 2.0)) { this.setXHeading(1.0); } // Head right
+        else { this.setXHeading(-1.0); } // Head left
     }
-    public void SetRandomXHeading() {
-        if (this.RANDOM_VALUE.nextBoolean()) { this.SetXHeading(1.0); } // Head right
-        else { this.SetXHeading(-1.0); } // Head left
+    public void setRandomXHeading() {
+        if (this.RANDOM_VALUE.nextBoolean()) { this.setXHeading(1.0); } // Head right
+        else { this.setXHeading(-1.0); } // Head left
     }
-    public void SetRandomYHeading() {
+    public void setRandomYHeading() {
         double value = this.RANDOM_VALUE.nextDouble(2.0) - 1.0;
-        this.SetYHeading(value);
+        this.setYHeading(value);
     }
 
-    public void SetColliderOffsets(double scale) {
+    public void setColliderOffsets(double scale) {
         this.colliderBodyLength = this.COLLIDER_BODY_LENGTH * this.COLLIDER_BODY_X_SCALE * scale;
         this.colliderBodyHeight = this.COLLIDER_BODY_HEIGHT * this.COLLIDER_BODY_Y_SCALE * scale;
         this.colliderBodyXOffset = this.xPos - (this.colliderBodyLength / 2);
@@ -226,13 +218,13 @@ public class Enemy {
 
     // Set the image offsets based on the collider sizes.
     // If the offset is wrong, set them individually using:
-    // - SetImageBodyXOffset
-    // - SetImageBodyYOffset
-    // - SetImageBodyLength
-    // - SetImageBodyHeight
+    // - setImageBodyXOffset
+    // - setImageBodyYOffset
+    // - setImageBodyLength
+    // - setImageBodyHeight
     // or to set them all at once use:
-    // - SetImageOffsets(double x, double y, double l, double h)
-    public void SetImageOffsets() {
+    // - setImageOffsets(double x, double y, double l, double h)
+    public void setImageOffsets() {
         // Assuming the image and collider box are equal sizes, set the following
         this.imageBodyLength = this.colliderBodyLength;
         this.imageBodyHeight = this.colliderBodyHeight;
@@ -245,78 +237,78 @@ public class Enemy {
     // The x,y value provided should be negative to have the image center in the object center.
     // The imageBodyXOffset is the left side of the image.
     // The imageBodyYOffset is the top side of the image.
-    public void SetImageBodyXOffset(double x) { this.imageBodyXOffset = this.xPos + x; }
-    public void SetImageBodyYOffset(double y) { this.imageBodyYOffset = this.yPos + y; }
-    public void SetImageBodyLength(double l) { this.imageBodyLength = l; }
-    public void SetImageBodyHeight(double h) { this.imageBodyHeight = h; }
+    public void setImageBodyXOffset(double x) { this.imageBodyXOffset = this.xPos + x; }
+    public void setImageBodyYOffset(double y) { this.imageBodyYOffset = this.yPos + y; }
+    public void setImageBodyLength(double l) { this.imageBodyLength = l; }
+    public void setImageBodyHeight(double h) { this.imageBodyHeight = h; }
 
-    public void SetImageOffsets(double x, double y, double l, double h) {
+    public void setImageOffsets(double x, double y, double l, double h) {
         this.imageBodyXOffset = x;
         this.imageBodyYOffset = y;
         this.imageBodyLength = l;
         this.imageBodyHeight = h;
     }
 
-    public void SetChanceToLeaveEnvironment(int chance) throws IllegalArgumentException {
+    public void setChanceToLeaveEnvironment(int chance) throws IllegalArgumentException {
         if ((chance < 0) || (chance > 100)) { throw new IllegalArgumentException("The chance cannot be less than 0 or greater than 100;"); }
         this.leaveEnvironmentChance = chance;
     }
 
-    public void SetHeadXOffset(double x) {
+    public void setHeadXOffset(double x) {
         this.colliderHeadXOffset = x;
     }
-    public void SetHeadYOffset(double y) {
+    public void setHeadYOffset(double y) {
         this.colliderHeadYOffset = y;
     }
-    public void SetHeadRadius(double r) {
+    public void setHeadRadius(double r) {
         this.colliderHeadRadius = r;
     }
-    public void SetHeadOffset() {
+    public void setHeadOffset() {
         if (this.headingXDirection == -1.0) {
-            this.SetHeadOffset(this.colliderBodyXOffset, 0, this.colliderBodyHeight/2);
+            this.setHeadOffset(this.colliderBodyXOffset, 0, this.colliderBodyHeight/2);
         } else {
-            this.SetHeadOffset((this.colliderBodyXOffset + this.colliderBodyLength), 0, this.colliderBodyHeight/2);
+            this.setHeadOffset((this.colliderBodyXOffset + this.colliderBodyLength), 0, this.colliderBodyHeight/2);
         }
     }
-    public void SetHeadOffset(double x, double y, double r) {
-        this.SetHeadXOffset(x);
-        this.SetHeadYOffset(y);
-        this.SetHeadRadius(r);
+    public void setHeadOffset(double x, double y, double r) {
+        this.setHeadXOffset(x);
+        this.setHeadYOffset(y);
+        this.setHeadRadius(r);
     }
 
     //-------------------------------------------------------
     // Getters
     //-------------------------------------------------------
-    public double GetXPos() { return this.xPos; }
-    public double GetYPos() { return this.yPos; }
-    public Image GetImage() { return this.image; }
-    public int GetSize() { return this.size; }
-    public double GetVelocity() { return this.velocity; }
-    public double GetHeadingX() { return this.headingXDirection; }
-    public double GetHeadingY() { return this.headingYDirection; }
-    public double GetLength() { return this.colliderBodyLength; }
-    public double GetHeight() { return this.colliderBodyHeight; }
-    public int GetChanceToLeaveEnvironment() { return this.leaveEnvironmentChance; }
-    public double GetColliderBodyXOffset() { return this.colliderBodyXOffset; }
-    public double GetColliderBodyYOffset() { return this.colliderBodyYOffset; }
-    public double GetColliderBodyLength() { return this.colliderBodyLength; }
-    public double GetColliderBodyHeight() { return this.colliderBodyHeight; }
-    public double GetColliderHeadXOffset() { return this.colliderHeadXOffset; }
-    public double GetColliderHeadYOffset() { return this.colliderHeadYOffset; }
-    public double GetColliderHeadRadius() { return this.colliderHeadRadius; }
-    public double GetImageXOffset() { return this.xPos + this.imageBodyXOffset; }
-    public double GetImageXOffsetNegative() { return this.xPos - this.imageBodyXOffset; }
-    public double GetImageYOffset() { return this.yPos + this.imageBodyYOffset; }
-    public double GetImageYOffsetNegative() { return this.yPos - this.imageBodyYOffset; }
-    public double GetImageLength() { return this.imageBodyLength; }
-    public double GetImageHeight() { return this.imageBodyHeight; }
+    public double getXPos() { return this.xPos; }
+    public double getYPos() { return this.yPos; }
+    public Image getImage() { return this.image; }
+    public int getSize() { return this.size; }
+    public double getVelocity() { return this.velocity; }
+    public double getHeadingX() { return this.headingXDirection; }
+    public double getHeadingY() { return this.headingYDirection; }
+    public double getLength() { return this.colliderBodyLength; }
+    public double getHeight() { return this.colliderBodyHeight; }
+    public int getChanceToLeaveEnvironment() { return this.leaveEnvironmentChance; }
+    public double getColliderBodyXOffset() { return this.colliderBodyXOffset; }
+    public double getColliderBodyYOffset() { return this.colliderBodyYOffset; }
+    public double getColliderBodyLength() { return this.colliderBodyLength; }
+    public double getColliderBodyHeight() { return this.colliderBodyHeight; }
+    public double getColliderHeadXOffset() { return this.colliderHeadXOffset; }
+    public double getColliderHeadYOffset() { return this.colliderHeadYOffset; }
+    public double getColliderHeadRadius() { return this.colliderHeadRadius; }
+    public double getImageXOffset() { return this.xPos + this.imageBodyXOffset; }
+    public double getImageXOffsetNegative() { return this.xPos - this.imageBodyXOffset; }
+    public double getImageYOffset() { return this.yPos + this.imageBodyYOffset; }
+    public double getImageYOffsetNegative() { return this.yPos - this.imageBodyYOffset; }
+    public double getImageLength() { return this.imageBodyLength; }
+    public double getImageHeight() { return this.imageBodyHeight; }
 
     //-------------------------------------------------------
     // Other methods
     //-------------------------------------------------------
-    public void UpdateColliderHeadXOffset() {
-        if (this.headingXDirection == -1.0) { this.SetHeadXOffset(this.colliderBodyXOffset); }
-        else { this.SetHeadXOffset((this.colliderBodyXOffset + this.colliderBodyLength)); }
+    public void updateColliderHeadXOffset() {
+        if (this.headingXDirection == -1.0) { this.setHeadXOffset(this.colliderBodyXOffset); }
+        else { this.setHeadXOffset((this.colliderBodyXOffset + this.colliderBodyLength)); }
     }
 
     // TODO: consider other enemy behaviours can be added once the main parts work.

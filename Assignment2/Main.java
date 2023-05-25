@@ -33,11 +33,11 @@ public class Main extends GameEngine {
         updateCheckout();
 
         // While in-game, if the level is complete stop processing
-        if (this.env.GetIsLevelComplete()) { return; }
+        if (this.env.getIsLevelComplete()) { return; }
         updateEnvironment();
 
         // The environment processing for the pause is still occurring above
-        if (this.env.GetIsPaused()) { return; }
+        if (this.env.getIsPaused()) { return; }
 
         updatePlayer(dt);
         updateItems(dt);
@@ -88,8 +88,8 @@ public class Main extends GameEngine {
         this.isSinglePlayer = true;
         this.hasGrownMedium = false;
         this.hasGrownLarge = false;
-        this.width = 500;
-        this.height = 500;
+        this.width = 700;
+        this.height = 700;
 //        this.score = 0;
         this.eatenPearlCount = 0;
         this.eatenStarfishCount = 0;
@@ -107,17 +107,17 @@ public class Main extends GameEngine {
 
         ArrayList<Enemy> removalValues = new ArrayList<Enemy>();
         for (Enemy en : this.enemies) {
-            double ex = en.GetXPos();
-            double ey = en.GetYPos();
-            double el = en.GetColliderBodyLength();
-            double eh = en.GetColliderBodyHeight();
+            double ex = en.getXPos();
+            double ey = en.getYPos();
+            double el = en.getColliderBodyLength();
+            double eh = en.getColliderBodyHeight();
 
             if (calcDistCircleToSquare(px, py, pr, ex, ey, el, eh)) {
-                int enSize = en.GetSize();
+                int enSize = en.getSize();
                 if (this.myfish.getSize() >= enSize) {
-                    int eatScore = en.GetSize() + 1;
+                    int eatScore = en.getSize() + 1;
                     this.env.setScore((this.env.getScore() + eatScore));
-                    this.env.SetCurrentGoal(this.env.getCurrentGoal() + 1);
+                    this.env.setCurrentGoal(this.env.getCurrentGoal() + 1);
                     removalValues.add(en);
                 }
             }
@@ -286,11 +286,11 @@ public class Main extends GameEngine {
         if (gameState == 0) {
             if (Objects.equals(this.gameStateString, "single_player")) {
                 this.gameState = 1; // Go to LoadingPage
-                this.env.SetIsTimeAttack(false); // Set the environment to single player mode
+                this.env.setIsTimeAttack(false); // Set the environment to single player mode
 
             } else if (Objects.equals(this.gameStateString, "time_attack")) {
                 this.gameState = 1; // Go to LoadingPage
-                this.env.SetIsTimeAttack(true); // Set the environment to time attack mode
+                this.env.setIsTimeAttack(true); // Set the environment to time attack mode
             }
         } else if (gameState == 1) {
             this.lp.startLoading();
@@ -299,8 +299,8 @@ public class Main extends GameEngine {
             if (spaceKey) {
                 // Set to the game play area instance
                 this.gameState = 4;
-                this.env.SetBaseTime(getTime());
-                this.env.SetIsPaused(false);
+                this.env.setBaseTime(getTime());
+                this.env.setIsPaused(false);
             }
         }
     }
@@ -319,16 +319,24 @@ public class Main extends GameEngine {
     //-------------------------------------------------------
     CheckoutPage chkpg;
     Image checkoutImage;
+    Image backButtonImage;
+    Image continueiButtonImage;
     public void initCheckout() {
         try {
-            this.checkoutImage = loadImage("Assignment2/assets/image/B2.png");
+            this.checkoutImage = loadImage("Assignment2/assets/image/B4.png");
+            this.backButtonImage = loadImage("Assignment2/assets/image/back1.png");
+            this.continueiButtonImage = loadImage("Assignment2/assets/image/continue1.png");
 
         } catch(Exception e) {
             e.printStackTrace();
-
         }
 
-        this.chkpg = new CheckoutPage(this, this.checkoutImage, this.width, this.height);
+        this.chkpg = new CheckoutPage(this,
+                this.checkoutImage,
+                this.backButtonImage,
+                this.continueiButtonImage,
+                this.width,
+                this.height);
     }
     public void updateCheckout() {
         if (this.gameState == 6) {
@@ -346,9 +354,34 @@ public class Main extends GameEngine {
             } else {}
         }
     }
+//    public void drawcheckoutline(){
+//        int checklinepos_x=230;
+//        int checklinepos_y=100;
+//
+//        drawText(checklinepos_x,checklinepos_y,"STAGE COMPLETE!","a",28);
+//    }
+//    public String drawReturnToMainMenuButton() {
+//        int backpos_x=25;
+//        int backpos_y=600;
+//        int back_w=100;
+//        int back_h=100;
+//        drawImage(this.bakcBut,backpos_x,backpos_y,back_w,back_h);
+//        return "main_menu";
+//    }
+//    public String drawNextLevelButton() {
+//        int continuepos_x=600;
+//        int continuepos_y=620;
+//        int continue_w=65;
+//        int continue_h=65;
+//        drawImage(this.contiuneimg,continuepos_x,continuepos_y,continue_w,continue_h);
+//        return "next_level";
+//    }
     public void drawCheckout() {
         if (this.gameState == 6) {
             this.chkpg.drawCheckout();
+//            drawReturnToMainMenuButton();
+//            drawNextLevelButton();
+//            drawcheckoutline();
         }
     }
 
@@ -398,10 +431,10 @@ public class Main extends GameEngine {
             }
 
             // playArea fields
-            double playAreaX = this.env.GetPlayAreaX();
-            double playAreaY = this.env.GetPlayAreaY();
-            double playAreaWidth = this.env.GetPlayAreaWidth();
-            double playAreaHeight = this.env.GetPlayAreaHeight();
+            double playAreaX = this.env.getPlayAreaX();
+            double playAreaY = this.env.getPlayAreaY();
+            double playAreaWidth = this.env.getPlayAreaWidth();
+            double playAreaHeight = this.env.getPlayAreaHeight();
 
             // Fish moves within the playArea bounds
             myfish.updatemyfish(dt,
@@ -492,10 +525,10 @@ public class Main extends GameEngine {
     }
 
 //    public Rectangle getenemiefishRec(Enemy en){
-//        return new Rectangle((int)en.GetXPos(),
-//                (int)en.GetYPos(),
-//                (int)en.GetColliderBodyLength(),
-//                (int)en.GetHeight());
+//        return new Rectangle((int)en.getXPos(),
+//                (int)en.getYPos(),
+//                (int)en.getColliderBodyLength(),
+//                (int)en.getHeight());
 //    }
 
 
@@ -517,14 +550,14 @@ public class Main extends GameEngine {
     public void updateItems(double dt) {
         // TODO: Update the rand input values to use the playArea bounds
         // Set the pearl x,y pos
-        double areaW = this.env.GetPlayAreaWidth();
-        double areaH = this.env.GetPlayAreaHeight();
+        double areaW = this.env.getPlayAreaWidth();
+        double areaH = this.env.getPlayAreaHeight();
         double randStarX = rand(areaW);
         double randStarY = rand(areaH);
         double randBombX = rand(areaW);
         double randBombY = rand(areaH);
-        double spawnOffsetWidth = this.env.GetHUDWidth();
-        double spawnOffsetHeight = this.env.GetHUDHeight();
+        double spawnOffsetWidth = this.env.getHUDWidth();
+        double spawnOffsetHeight = this.env.getHUDHeight();
 
         double randSpeed = rand(100);
         if(gamestart) {
@@ -666,10 +699,10 @@ public class Main extends GameEngine {
     public void checkEnemyBitePlayer(Enemy en) {
         // Enemy collider fields
         double ex;
-        if (en.GetHeadingY() == -1.0) { ex = en.GetXPos() - en.GetColliderHeadXOffset(); }
-        else { ex = en.GetXPos() + en.GetColliderHeadXOffset(); }
-        double ey = en.GetYPos();
-        double er = en.GetColliderHeadRadius();;
+        if (en.getHeadingY() == -1.0) { ex = en.getXPos() - en.getColliderHeadXOffset(); }
+        else { ex = en.getXPos() + en.getColliderHeadXOffset(); }
+        double ey = en.getYPos();
+        double er = en.getColliderHeadRadius();
 
         // Player collider fields
         double px = this.myfish.mposition_x;
@@ -679,7 +712,7 @@ public class Main extends GameEngine {
 
         // Player loses if they are "bit"
         if (calcDistCircleToSquare(ex, ey, er, px, py, pl, ph)) {
-            int enSize = en.GetSize();
+            int enSize = en.getSize();
             if (enSize > this.myfish.getSize()) { this.myfish.setIsAlive(false); }
         }
     }
@@ -687,62 +720,62 @@ public class Main extends GameEngine {
     public void updateEnemyPosition(double dt, Enemy en, boolean shouldRandomize) {
         if (shouldRandomize) { this.randomizeEnemyMovement(en); }
 
-        double currentXPos = en.GetXPos();
-        double currentYPos = en.GetYPos();
-        double currentXHeading = en.GetHeadingX();
-        double currentYHeading = en.GetHeadingY();
-        double currentVel = en.GetVelocity();
+        double currentXPos = en.getXPos();
+        double currentYPos = en.getYPos();
+        double currentXHeading = en.getHeadingX();
+        double currentYHeading = en.getHeadingY();
+        double currentVel = en.getVelocity();
 
         double newXPos = currentXPos + currentXHeading * currentVel * dt;
         double newYPos = currentYPos + currentYHeading * currentVel * dt;
 
-        en.SetPos(newXPos, newYPos);
+        en.setPos(newXPos, newYPos);
     }
 
     public void randomizeEnemyMovement(Enemy en) {
         // Roll each chance separately
         int changeChance = 1; // 1% chance
         // Randomize horizontal direction
-        if (this.randSys.nextInt(100) < changeChance) { en.SetRandomXHeading(); }
+        if (this.randSys.nextInt(100) < changeChance) { en.setRandomXHeading(); }
         // Randomize vertical direction
-        if (this.randSys.nextInt(100) < changeChance) { en.SetRandomYHeading(); }
+        if (this.randSys.nextInt(100) < changeChance) { en.setRandomYHeading(); }
         // Randomize velocity
-        if (this.randSys.nextInt(100) < changeChance) { en.SetRandomVelocity(25,100); }
+        if (this.randSys.nextInt(100) < changeChance) { en.setRandomVelocity(25,100); }
 
-        en.UpdateColliderHeadXOffset();
+        en.updateColliderHeadXOffset();
     }
 
     public void checkEnemyBounds(Enemy en, ArrayList<Enemy> removalValues) {
         int chanceRemoveEnemy = this.randSys.nextInt(100);
-        boolean removeEnemy = (chanceRemoveEnemy < en.GetChanceToLeaveEnvironment());
+        boolean removeEnemy = (chanceRemoveEnemy < en.getChanceToLeaveEnvironment());
 
-        int playAreaWidth = this.env.GetPlayAreaWidth();
-        int playAreaHeight = this.env.GetPlayAreaHeight();
-        double playAreaXOffset = this.env.GetEnvironmentXOffset();
-        double playAreaYOffset = this.env.GetEnvironmentYOffset();
+        int playAreaWidth = this.env.getPlayAreaWidth();
+        int playAreaHeight = this.env.getPlayAreaHeight();
+        double playAreaXOffset = this.env.getEnvironmentXOffset();
+        double playAreaYOffset = this.env.getEnvironmentYOffset();
 
-        double bodyLengthOffset =  en.GetColliderBodyLength() / 2;
-        double bodyHeightOffset =  en.GetColliderBodyHeight() / 2;
+        double bodyLengthOffset =  en.getColliderBodyLength() / 2;
+        double bodyHeightOffset =  en.getColliderBodyHeight() / 2;
 
         // Check horizontal bounds
-        if ((en.GetXPos() <= (playAreaXOffset - bodyLengthOffset)) && (en.GetHeadingX() == -1.0)) {
+        if ((en.getXPos() <= (playAreaXOffset - bodyLengthOffset)) && (en.getHeadingX() == -1.0)) {
             if (removeEnemy) { removalValues.add(en); }
             else {
-                en.SetXHeading(1.0);
-                en.UpdateColliderHeadXOffset();
+                en.setXHeading(1.0);
+                en.updateColliderHeadXOffset();
             }
         }
-        if ((en.GetXPos() >= (playAreaXOffset + playAreaWidth + bodyLengthOffset)) && (en.GetHeadingX() == 1.0)) {
+        if ((en.getXPos() >= (playAreaXOffset + playAreaWidth + bodyLengthOffset)) && (en.getHeadingX() == 1.0)) {
             if (removeEnemy) { removalValues.add(en); }
             else {
-                en.SetXHeading(-1.0);
-                en.UpdateColliderHeadXOffset();
+                en.setXHeading(-1.0);
+                en.updateColliderHeadXOffset();
             }
         }
 
         // Check vertical bounds
-        if (en.GetYPos() <= (playAreaYOffset + bodyHeightOffset)) { en.SetYHeading(1.0); }
-        if (en.GetYPos() >= (playAreaYOffset + playAreaHeight - bodyHeightOffset)) { en.SetYHeading(-1.0); }
+        if (en.getYPos() <= (playAreaYOffset + bodyHeightOffset)) { en.setYHeading(1.0); }
+        if (en.getYPos() >= (playAreaYOffset + playAreaHeight - bodyHeightOffset)) { en.setYHeading(-1.0); }
     }
 
     public void removeEnemies(ArrayList<Enemy> enemies, ArrayList<Enemy> removalValues) {
@@ -758,7 +791,7 @@ public class Main extends GameEngine {
     // The method to spawn an enemy on click
     // TODO: the enemy should spawn based on other methods, such as a timer.
     public void SpawnEnemy() {
-        this.enemySpawnTimer = this.env.GetCountDownTimerWOffset() - this.enemySpawnTimerPrevious;
+        this.enemySpawnTimer = this.env.getCountDownTimerWOffset() - this.enemySpawnTimerPrevious;
         if (this.enemySpawnTimer > this.enemySpawnDelay) {
             this.createEnemy();
             this.enemySpawnDelay = this.randSys.nextDouble(2.0) + 1.0;
@@ -784,17 +817,17 @@ public class Main extends GameEngine {
     public void drawEnemy(Enemy en) {
         // TODO: Calculate the enemy image offset, to align with the collision box
         double imgX;
-        double imgY = en.GetImageYOffset();
-        double imgLen = en.GetImageLength();
-        double imgHei = en.GetImageHeight();
-        Image enImg = en.GetImage();
+        double imgY = en.getImageYOffset();
+        double imgLen = en.getImageLength();
+        double imgHei = en.getImageHeight();
+        Image enImg = en.getImage();
 
         // Draw the enemy image
-        if (en.GetHeadingX() == 1.0) {
-            imgX = en.GetImageXOffset();
+        if (en.getHeadingX() == 1.0) {
+            imgX = en.getImageXOffset();
             drawImage(enImg, imgX, imgY, imgLen, imgHei);
         } else {
-            imgX = en.GetImageXOffsetNegative();
+            imgX = en.getImageXOffsetNegative();
             drawImage(enImg, imgX, imgY, -imgLen, imgHei);
         }
 
@@ -802,12 +835,12 @@ public class Main extends GameEngine {
 
     public void drawEnemyCollider(Enemy en) {
         // Retrieve the enemy collision fields
-        double xPosCol = en.GetColliderBodyXOffset();
-        double yPosCol = en.GetColliderBodyYOffset();
-        double len = en.GetLength();
-        double hei = en.GetHeight();
-        double xPos = en.GetXPos();
-        double yPos = en.GetYPos();
+        double xPosCol = en.getColliderBodyXOffset();
+        double yPosCol = en.getColliderBodyYOffset();
+        double len = en.getLength();
+        double hei = en.getHeight();
+        double xPos = en.getXPos();
+        double yPos = en.getYPos();
 
         // Calculate the collision offsets
         double x1 = xPos + xPosCol;
@@ -826,11 +859,11 @@ public class Main extends GameEngine {
     }
 
     public void drawEnemyHeadCollider(Enemy en) {
-        double xH = en.GetColliderHeadXOffset();
-        double yH = en.GetColliderHeadYOffset();
-        double rH = en.GetColliderHeadRadius();
-        double x = en.GetXPos();
-        double y = en.GetYPos();
+        double xH = en.getColliderHeadXOffset();
+        double yH = en.getColliderHeadYOffset();
+        double rH = en.getColliderHeadRadius();
+        double x = en.getXPos();
+        double y = en.getYPos();
 
         double x1 = x + xH;
         double y1 = y + yH;
@@ -857,25 +890,25 @@ public class Main extends GameEngine {
 //        final int enemyLarge = 100;
         int selectSize = this.randSys.nextInt(100);
 
-        int playAreaWidth = this.env.GetPlayAreaWidth();
-        int playAreaHeight = this.env.GetPlayAreaHeight();
-        double playAreaXOffset = this.env.GetEnvironmentXOffset();
-        double playAreaYOffset = this.env.GetEnvironmentYOffset();
+        int playAreaWidth = this.env.getPlayAreaWidth();
+        int playAreaHeight = this.env.getPlayAreaHeight();
+        double playAreaXOffset = this.env.getEnvironmentXOffset();
+        double playAreaYOffset = this.env.getEnvironmentYOffset();
 
         Enemy en;
         if (selectSize < enemySmall) { // spawn a small fish
             en = new Enemy(this.enemyFish1, 0, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
             // TODO: Match these offset values to the actual image sizes
-//            en.SetHeadOffset();
-            en.SetImageOffsets(-32,-32,64,64);
+//            en.setHeadOffset();
+            en.setImageOffsets(-32,-32,64,64);
         } else if (selectSize < enemyMedium) { // spawn a medium fish
             en = new Enemy(this.enemyFish2, 1, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
             // TODO: Match these offset values to the actual image sizes
-            en.SetImageOffsets(-32,-32,64,64);
+            en.setImageOffsets(-32,-32,64,64);
         } else { // spawn a large fish
             en = new Enemy(this.enemyFish3, 2, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
             // TODO: Match these offset values to the actual image sizes
-            en.SetImageOffsets(-32,-32,64,64);
+            en.setImageOffsets(-32,-32,64,64);
         }
 
         this.enemies.add(en);
@@ -888,15 +921,15 @@ public class Main extends GameEngine {
         }
 
 //        System.out.println("Create shark.");
-        int playAreaWidth = env.GetPlayAreaWidth();
-        int playAreaHeight = env.GetPlayAreaHeight();
-        double playAreaXOffset = env.GetEnvironmentXOffset();
-        double playAreaYOffset = env.GetEnvironmentYOffset();
+        int playAreaWidth = env.getPlayAreaWidth();
+        int playAreaHeight = env.getPlayAreaHeight();
+        double playAreaXOffset = env.getEnvironmentXOffset();
+        double playAreaYOffset = env.getEnvironmentYOffset();
 
         Enemy shk = new Enemy(this.shark, 3, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
-        shk.SetRandomVelocity(400, 400);
-        shk.SetYHeading(0.0);
-        shk.SetChanceToLeaveEnvironment(100);
+        shk.setRandomVelocity(400, 400);
+        shk.setYHeading(0.0);
+        shk.setChanceToLeaveEnvironment(100);
         this.sharkEnemies.add(shk);
     }
 
@@ -931,22 +964,22 @@ public class Main extends GameEngine {
     }
     public void updateEnvironment() {
         if (gameState == 4) {
-            this.env.EnvironmentLevelCompleteCheck();
+            this.env.environmentLevelCompleteCheck();
 
             boolean wasPaused = false;
 
             if (this.escKey) {
-                if (this.env.GetIsPaused()) {
-                    this.env.SetIsPaused(false);
+                if (this.env.getIsPaused()) {
+                    this.env.setIsPaused(false);
                     wasPaused = true;
                 } else {
-                    this.env.SetIsPaused(true);
+                    this.env.setIsPaused(true);
                 }
             }
 
             // Level is complete keep the game paused
-            if (this.env.GetIsLevelComplete()) {
-                this.env.SetIsPaused(true);
+            if (this.env.getIsLevelComplete()) {
+                this.env.setIsPaused(true);
                 this.gameState = 6;
             }
 
@@ -963,7 +996,7 @@ public class Main extends GameEngine {
 
     public void UpdateTimer(boolean wasPaused) {
         // return if paused
-        if (this.env.GetIsPaused()) { return; }
+        if (this.env.getIsPaused()) { return; }
 
 
         // fields for paused timer
@@ -974,8 +1007,8 @@ public class Main extends GameEngine {
             double beforePause;
             double timeDelay;
 
-            beforePause = this.env.GetTimer();
-            double afterPause = Math.round(((newTime - this.env.GetBaseTime()) / 1000.0) * 100.0) / 100.0;
+            beforePause = this.env.getTimer();
+            double afterPause = Math.round(((newTime - this.env.getBaseTime()) / 1000.0) * 100.0) / 100.0;
             timeDelay = (afterPause - beforePause);
 
             // Set the pausable timer
@@ -983,10 +1016,10 @@ public class Main extends GameEngine {
         }
 
         // Set the global timer
-        this.env.SetTimer(newTime);
+        this.env.setTimer(newTime);
 
         // Time attack counter processing
-        if (this.env.GetIsTimeAttack()) { this.env.SetCountDownCurrentTimer(this.env.GetCountDownTimerWOffset()); }
+        if (this.env.getIsTimeAttack()) { this.env.setCountDownCurrentTimer(this.env.getCountDownTimerWOffset()); }
     }
 
     public void drawEnvironment() {
@@ -998,7 +1031,7 @@ public class Main extends GameEngine {
     public void drawEnvironmentLayerTop() {
         if (gameState == 4) {
             this.env.drawHUD();
-            boolean timeAttack = this.env.GetIsTimeAttack();
+            boolean timeAttack = this.env.getIsTimeAttack();
             this.env.drawTimer(timeAttack);
             this.env.drawScore();
             this.env.drawGrowth();
