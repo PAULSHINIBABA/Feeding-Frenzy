@@ -21,6 +21,11 @@ public class Environment {
     private int defaultGrowthThresholdL = 2;
     private int defaultTargetGoal = 3;
     private int currentLevel;
+    private int requiredGrowth;
+    private int maxLevel;
+    private double timeAttackLevel;
+    private double minTimeAttackLevel;
+    private double defaultTimeAttackLevel;
     // The score is determined by the number of enemy fish eaten by the player fish.
     // 1 small fish = 1 point
     // 1 medium fish = 2 points
@@ -40,6 +45,8 @@ public class Environment {
     private int growthThresholdLarge;
     private int currentGoal;
     private int targetGoal;
+    private int levelImageCap;
+    private Image[] levelImages;
     private Image levelImage;
     private double imageOriginX;
     private double imageOriginY;
@@ -67,8 +74,11 @@ public class Environment {
     private int[] enemiesEaten;
     private boolean hardMode;
 
-    public Environment(GameEngine engine, boolean isTimeAttack) {
+    public Environment(GameEngine engine, Image[] levelImages, boolean isTimeAttack) {
         this.engine = engine;
+        levelImageCap = levelImages.length;
+//        this.levelImages = new Image[levelImageCap];
+        this.levelImages = levelImages;
 
         isPaused = true;
         levelComplete = false;
@@ -117,9 +127,11 @@ public class Environment {
     //-------------------------------------------------------
     // Setters
     //-------------------------------------------------------
-    public void setEnvironmentImage(Image levelImage) {
+    public void setEnvironmentImage(Image levelImage, int index) throws IllegalArgumentException {
         if (levelImage == null) { throw new IllegalArgumentException("Cannot set the environment image to null"); }
-        this.levelImage = levelImage;
+        if ((index < 0) || (index >= levelImageCap)) { throw new IllegalArgumentException("Index to set image is out of range"); }
+//        this.levelImage = levelImage;
+        levelImages[index] = levelImage;
     }
     public void setEnvironmentWidth(int width) { imageWidth = width; }
     public void setEnvironmentHeight(int height) { imageHeight = height; }
@@ -219,6 +231,11 @@ public class Environment {
         enemiesEaten[size] += 1;
     }
     public void setCurrentLevel(int level) { currentLevel = level; }
+    public void setCurrentRequiredGrowth(int requiredGrowth) { this.requiredGrowth = requiredGrowth; }
+    public void setMaxLevel(int maxLevel) { this.maxLevel = maxLevel; }
+    public void setCurrentTimeAttackLevel(double timeAttackLevel) { this.timeAttackLevel = timeAttackLevel; }
+    public void setMinTimeAttackLevel(double minTimeAttackLevel) { this.minTimeAttackLevel = minTimeAttackLevel; }
+    public void setDefaultTimeAttackLevel(double defaultTimeAttackLevel) { this.defaultTimeAttackLevel = defaultTimeAttackLevel; }
     public void setHardMode(boolean mode) { hardMode = mode; }
     public void setIsLevelComplete(boolean state) { levelComplete = state; }
     public void setEndLevel(boolean state) { endLevel = state; }
@@ -232,7 +249,11 @@ public class Environment {
     public int getGrowthThresholdLarge() { return growthThresholdLarge; }
     public int getCurrentGoal() { return currentGoal; }
     public int getTargetGoal() { return targetGoal; }
-    public Image getEnvironment() { return levelImage; }
+//    public Image getEnvironment() { return levelImage; }
+    public Image getEnvironmentAtIndex(int index) throws IllegalArgumentException {
+        if ((index < 0) || (index >= levelImageCap)) { throw new IllegalArgumentException("The index to get the image is out of range"); }
+        return levelImages[index];
+    }
     public int getEnvironmentWidth() { return imageWidth;}
     public int getEnvironmentHeight() { return imageHeight; }
     public double getEnvironmentOriginX() { return imageOriginX; }
@@ -272,6 +293,11 @@ public class Environment {
         return enemiesEaten[size];
     }
     public int getCurrentLevel() { return currentLevel; }
+    public int getRequiredGrowth() { return requiredGrowth; }
+    public int getMaxLevel() { return maxLevel; }
+    public double getCurrentTimeAttackLevel() { return timeAttackLevel; }
+    public double getMinTimeAttackLevel() { return minTimeAttackLevel; }
+    public double getDefaultTimeAttackLevel() { return defaultTimeAttackLevel; }
     public boolean getHardMode() { return hardMode; }
 
 
@@ -279,22 +305,62 @@ public class Environment {
     // Other Methods
     //-------------------------------------------------------
     public void initEnvironment() {
-        levelImage = engine.loadImage("Assignment2/assets/image/background/background5.png");
+//        levelImage = engine.loadImage("Assignment2/assets/image/background/background5.png");
 
         setBaseTime(engine.getTime());
     }
     public void drawEnvironment() {
         engine.saveCurrentTransform();
-//        System.out.println("x:" + getEnvironmentXOffset() +
-//                "\ty:" + getEnvironmentYOffset() +
-//                "\tw:" + getPlayAreaWidth() +
-//                "\th:" + getPlayAreaHeight());
 
-        engine.drawImage(levelImage,
-                getEnvironmentXOffset(),
-                getEnvironmentYOffset(),
-                getPlayAreaWidth(),
-                getPlayAreaHeight());
+        if (!isTimeAttack) {
+            System.out.println("current level: " + currentLevel + "\tmaxLevel: " + maxLevel);
+            if (requiredGrowth > ((maxLevel / 3) * 2)) {
+                // Last third of levels
+                engine.drawImage(levelImages[2],
+                        getEnvironmentXOffset(),
+                        getEnvironmentYOffset(),
+                        getPlayAreaWidth(),
+                        getPlayAreaHeight());
+            } else if (requiredGrowth > (maxLevel / 3)) {
+                // Second third of levels
+                engine.drawImage(levelImages[0],
+                        getEnvironmentXOffset(),
+                        getEnvironmentYOffset(),
+                        getPlayAreaWidth(),
+                        getPlayAreaHeight());
+            } else {
+                engine.drawImage(levelImages[1],
+                        getEnvironmentXOffset(),
+                        getEnvironmentYOffset(),
+                        getPlayAreaWidth(),
+                        getPlayAreaHeight());
+            }
+        } else {
+            System.out.println("current time attack level: " + timeAttackLevel + "\tdefault - minTime: " + (defaultTimeAttackLevel - minTimeAttackLevel));
+            if (timeAttackLevel < ((defaultTimeAttackLevel - minTimeAttackLevel) / 3)) {
+                // Last third of levels
+                engine.drawImage(levelImages[2],
+                        getEnvironmentXOffset(),
+                        getEnvironmentYOffset(),
+                        getPlayAreaWidth(),
+                        getPlayAreaHeight());
+            } else if (timeAttackLevel < (((defaultTimeAttackLevel - minTimeAttackLevel) / 3) * 2)) {
+                // Second third of levels
+                engine.drawImage(levelImages[0],
+                        getEnvironmentXOffset(),
+                        getEnvironmentYOffset(),
+                        getPlayAreaWidth(),
+                        getPlayAreaHeight());
+            } else {
+                engine.drawImage(levelImages[1],
+                        getEnvironmentXOffset(),
+                        getEnvironmentYOffset(),
+                        getPlayAreaWidth(),
+                        getPlayAreaHeight());
+            }
+        }
+
+
 
         engine.restoreLastTransform();
     }

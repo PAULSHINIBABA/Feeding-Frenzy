@@ -20,10 +20,9 @@ public class Enemy {
     private final int MIN_SIZE = 0;
     private final int MAX_SIZE = 3;
     private final double EDGE_OFFSET = 1.0;
-    private double colliderDefaultBodyLength = 32.0; // This needs to match the image dimension x
+    private double colliderDefaultBodyLength = 64.0; // This needs to match the image dimension x
     private double colliderDefaultBodyHeight = 32.0; // This needs to match the image dimension y
-    private final double COLLIDER_BODY_X_SCALE = 1.0;
-    private final double COLLIDER_BODY_Y_SCALE = 0.5;
+    private final double SIZE_0 = 1.0;
     private final double SIZE_1 = 1.5;
     private final double SIZE_2 = 2.0;
     private final double SIZE_3 = 2.5;
@@ -46,7 +45,6 @@ public class Enemy {
     // Use the head collider below when "eating" the player
     private double colliderHeadXOffset;
     private double colliderHeadYOffset;
-    private double colliderHeadRadius;
 
     // Use the body collider below when being "eaten" by the player
     private double colliderBodyXOffset;
@@ -121,7 +119,7 @@ public class Enemy {
         }
 
         // Set the head collider offset
-        setHeadOffset();
+        setHeadOffset((colliderBodyLength / 2.0), (colliderBodyHeight / 2.0), (colliderBodyHeight / 2.0));
 
         // Set chance to leave the environment
         leaveEnvironmentChance = 33; // The default value
@@ -134,14 +132,13 @@ public class Enemy {
         if (image == null) { throw new IllegalArgumentException("The enemy image cannot be null"); }
         this.image = image;
     }
-
     public void setSize(int size) throws IllegalArgumentException {
         if ((size < MIN_SIZE) || (size > MAX_SIZE)) { throw new IllegalArgumentException("The enemy size must be greater than " + MIN_SIZE + " and less than " + MAX_SIZE); }
         this.size = size;
 
         // Define the enemy colliders based on the size
         switch (this.size) {
-            case 0 -> setColliderOffsets(1.0);
+            case 0 -> setColliderOffsets(SIZE_0);
             case 1 -> setColliderOffsets(SIZE_1);
             case 2 -> setColliderOffsets(SIZE_2);
             case 3 -> setColliderOffsets(SIZE_4); // Set this to the shark
@@ -152,44 +149,36 @@ public class Enemy {
         }
 
         // Set up the image offset
-        setImageOffsets();
+        setImageOffsets(colliderBodyXOffset, colliderBodyYOffset, colliderBodyLength, colliderBodyHeight);
     }
-
     public void setXPos(double xPos) { this.xPos = xPos; }
     public void setYPos(double yPos) { this.yPos = yPos; }
-
     public void setRandomXPos(int frameWidth, double frameXOffset) {
         // Randomly assigning a position
         boolean enterLeft = RANDOM_VALUE.nextBoolean();
         if (enterLeft) { setXPos( frameXOffset - (colliderBodyLength + EDGE_OFFSET) ); }
-        else { setXPos( frameXOffset + frameWidth + EDGE_OFFSET + colliderBodyLength ); }
+        else { setXPos( frameXOffset + frameWidth + colliderBodyLength + EDGE_OFFSET ); }
     }
-
     public void setRandomYPos(int frameHeight, double frameYOffset) {
-        setYPos(frameYOffset + EDGE_OFFSET + RANDOM_VALUE.nextDouble(frameHeight - (2 * EDGE_OFFSET)));
+        setYPos(frameYOffset + EDGE_OFFSET + colliderBodyYOffset + RANDOM_VALUE.nextDouble(frameHeight - (2 * (EDGE_OFFSET + colliderBodyYOffset))));
     }
-
     public void setPos(double xPos, double yPos) {
         this.xPos = xPos;
         this.yPos = yPos;
     }
-
     public void setVelocity(double velocity) throws IllegalArgumentException {
         if (velocity < 0.0) { throw new IllegalArgumentException("The velocity cannot be less than 0.0"); }
         this.velocity = velocity;
     }
-
     public void setRandomVelocity(double value, double range) throws IllegalArgumentException {
         if (value < 0.0) { throw new IllegalArgumentException("The velocity cannot be less than 0.0"); }
         if (range < 0.0) { throw new IllegalArgumentException("The velocity range cannot be less than 0.0"); }
         velocity = value + RANDOM_VALUE.nextDouble(range);
     }
-
     public void setVelocityRange(double velocityRange) throws IllegalArgumentException {
         if (velocityRange < 0.0) { throw new IllegalArgumentException("The velocity range cannot be less than 0.0"); }
         this.velocityRange = velocityRange;
     }
-
     public void setXHeading(double xHeading) {
         headingXDirection = xHeading;
     }
@@ -215,40 +204,30 @@ public class Enemy {
         colliderDefaultBodyLength = w;
         colliderDefaultBodyHeight = h;
     }
-
     public void setColliderOffsets(double scale) {
-        colliderBodyLength = colliderDefaultBodyLength * COLLIDER_BODY_X_SCALE * scale;
-        colliderBodyHeight = colliderDefaultBodyHeight * COLLIDER_BODY_Y_SCALE * scale;
-        colliderBodyXOffset = xPos - (colliderBodyLength / 2);
-        colliderBodyYOffset = yPos - (colliderBodyHeight / 2);
-    }
-
-    // Set the image offsets based on the collider sizes.
-    // If the offset is wrong, set them individually using:
-    // - setImageBodyXOffset
-    // - setImageBodyYOffset
-    // - setImageBodyLength
-    // - setImageBodyHeight
-    // or to set them all at once use:
-    // - setImageOffsets(double x, double y, double l, double h)
-    public void setImageOffsets() {
-        // Assuming the image and collider box are equal sizes, set the following
-        imageBodyLength = colliderBodyLength;
-        imageBodyHeight = colliderBodyHeight;
-        imageBodyXOffset = colliderBodyXOffset;
-        imageBodyYOffset = colliderBodyYOffset;
-
+        colliderBodyLength = colliderDefaultBodyLength * scale;
+        colliderBodyHeight = colliderDefaultBodyHeight * scale;
+        colliderBodyXOffset = colliderBodyLength / 2;
+        colliderBodyYOffset = colliderBodyHeight / 2;
     }
 
     // This will set the offset of the image from the object origin
     // The x,y value provided should be negative to have the image center in the object center.
     // The imageBodyXOffset is the left side of the image.
     // The imageBodyYOffset is the top side of the image.
-    public void setImageBodyXOffset(double x) { imageBodyXOffset = xPos + x; }
-    public void setImageBodyYOffset(double y) { imageBodyYOffset = yPos + y; }
+    public void setImageBodyXOffset(double x) { imageBodyXOffset = x; }
+    public void setImageBodyYOffset(double y) { imageBodyYOffset = y; }
     public void setImageBodyLength(double l) { imageBodyLength = l; }
     public void setImageBodyHeight(double h) { imageBodyHeight = h; }
 
+    // Set the image offsets based on the collider sizes.
+    // If the offset is wrong, set them individually using:
+    // - imageBodyXOffset
+    // - imageBodyYOffset
+    // - imageBodyLength
+    // - imageBodyHeight
+    // or to set them all at once use:
+    // - setImageOffsets(double x, double y, double l, double h)
     public void setImageOffsets(double x, double y, double l, double h) {
         imageBodyXOffset = x;
         imageBodyYOffset = y;
@@ -264,24 +243,12 @@ public class Enemy {
     public void setHeadXOffset(double x) {
         colliderHeadXOffset = x;
     }
-    public void setHeadYOffset(double y) {
-        colliderHeadYOffset = y;
-    }
-    public void setHeadRadius(double r) {
-        colliderHeadRadius = r;
-    }
-    public void setHeadOffset() {
-        if (headingXDirection == -1.0) {
-            setHeadOffset(colliderBodyXOffset, 0, colliderBodyHeight/2);
-        } else {
-            setHeadOffset((colliderBodyXOffset + colliderBodyLength), 0, colliderBodyHeight/2);
-        }
-    }
+    public void setHeadYOffset(double y) { colliderHeadYOffset = y; }
     public void setHeadOffset(double x, double y, double r) {
         setHeadXOffset(x);
         setHeadYOffset(y);
-        setHeadRadius(r);
     }
+
 
     //-------------------------------------------------------
     // Getters
@@ -302,11 +269,8 @@ public class Enemy {
     public double getColliderBodyHeight() { return colliderBodyHeight; }
     public double getColliderHeadXOffset() { return colliderHeadXOffset; }
     public double getColliderHeadYOffset() { return colliderHeadYOffset; }
-    public double getColliderHeadRadius() { return colliderHeadRadius; }
-    public double getImageXOffset() { return xPos + imageBodyXOffset; }
-    public double getImageXOffsetNegative() { return xPos - imageBodyXOffset; }
-    public double getImageYOffset() { return yPos + imageBodyYOffset; }
-    public double getImageYOffsetNegative() { return yPos - imageBodyYOffset; }
+    public double getImageXOffset() { return imageBodyXOffset; }
+    public double getImageYOffset() { return imageBodyYOffset; }
     public double getImageLength() { return imageBodyLength; }
     public double getImageHeight() { return imageBodyHeight; }
     public double getDefaultVelocity() { return defaultVelocity; }
@@ -315,10 +279,6 @@ public class Enemy {
     //-------------------------------------------------------
     // Other methods
     //-------------------------------------------------------
-    public void updateColliderHeadXOffset() {
-        if (headingXDirection == -1.0) { setHeadXOffset(colliderBodyXOffset); }
-        else { setHeadXOffset((colliderBodyXOffset + colliderBodyLength)); }
-    }
 
     // TODO: consider other enemy behaviours can be added once the main parts work.
 }

@@ -13,20 +13,36 @@ import java.awt.*;
 public class myfish {
     private final double SPEED_ACCELERATION_DEFAULT = 250.0;
     private final double MAX_SPEED_DEFAULT = 150.0;
-    private double mposition_x,mposition_y;
+    private final double SPEED_DECELERATION_DEFAULT = 1.0;
+    private final double SIZE_0 = 1.0;
+    private final double SIZE_1 = 1.15;
+    private final double SIZE_2 = 1.3;
+    private final double SIZE_3 = 1.45;
+    private final double SIZE_4 = 1.6;
+    private final double SIZE_UNDEFINED = 0.5;
+    private double defaultWidth;
+    private double defaultHeight;
+    private double defaultImageWidth;
+    private double defaultImageHeight;
+    private double offsetX;
+    private double offsetY;
     private double myfishspeed_x;
     private double myfishspeed_y;
+    private double previousSpeedX;
+    private double previousSpeedY;
+    private double originX;
+    private double originY;
     private double speedAcceleration;
+    private double speedDeceleration;
     private double maxSpeed;
     private double myfish_w;
     private double myfish_h;
-    private double fishImageX;
-    private double fishImageY;
+    private double fishImageOffsetX;
+    private double fishImageOffsetY;
     private double fishImageWidth;
     private double fishImageHeight;
     private double fishHeadColliderXOffset;
     private double fishHeadColliderYOffset;
-    private double fishHeadColliderRadius;
     private boolean facingLeft;
     private int playerSize;
     private boolean isAlive;
@@ -34,27 +50,37 @@ public class myfish {
     // Constructor
     public myfish(double x, double y, double w, double h) {
         speedAcceleration = SPEED_ACCELERATION_DEFAULT;
+        speedDeceleration = 1.0;
         maxSpeed = MAX_SPEED_DEFAULT;
 
-        myfish_w = w;
-        myfish_h = h;
-        mposition_x = x;
-        mposition_y = y;
+        originX = x + (w / 2.0);
+        originY = y + (h / 2.0);
+
+        defaultWidth = w;
+        defaultHeight = h;
+        myfish_w = defaultWidth;
+        myfish_h = defaultHeight;
+        offsetX = myfish_w / 2.0;
+        offsetY = myfish_h / 2.0;
         myfishspeed_y = 0.0;
         myfishspeed_x = 0.0;
+        previousSpeedX = 0.0;
+        previousSpeedY = 0.0;
 
-        fishImageX = x;
-        fishImageY = y;
-        fishImageWidth = w;
-        fishImageHeight = h;
+        defaultImageWidth = w;
+        defaultImageHeight = h;
+        fishImageWidth = defaultImageWidth;
+        fishImageHeight = defaultImageHeight;
+        fishImageOffsetX = fishImageWidth / 2.0;
+        fishImageOffsetY = fishImageHeight / 2.0;
+
 
         playerSize = 0;
         isAlive = true;
         facingLeft = true;
 
-        fishHeadColliderXOffset = myfish_w / 2.0;
-        fishHeadColliderYOffset = myfish_h / 2.0;
-        fishHeadColliderRadius = fishHeadColliderYOffset;
+        fishHeadColliderXOffset = offsetX;
+        fishHeadColliderYOffset = offsetY;
     }
 
 
@@ -66,32 +92,32 @@ public class myfish {
         myfish_w = w;
         myfish_h = l;
     }
-//    public void setFishLength(double length) { myfish_w = length; }
-//    public void setFishHeight(double height) { myfish_h = height; }
+    public void setFishHeadColliderXOffset(double x) { fishHeadColliderXOffset = x; }
+    public void setFishHeadColliderYOffset(double y) { fishHeadColliderYOffset = y; }
+//    public void setFishHeadColliderRadius(double r) { fishHeadColliderRadius = r; }
     public void setFishHeadColliderParameters(double x, double y, double r) {
         fishHeadColliderXOffset = x;
         fishHeadColliderYOffset = y;
-        fishHeadColliderRadius = r;
     }
-//    public void setFishHeadColliderXOffset(double x) { fishHeadColliderXOffset = x; }
-//    public void setFishHeadColliderYOffset(double y) { fishHeadColliderYOffset = y; }
-//    public void setFishHeadColliderRadius(double r) { fishHeadColliderRadius = r; }
     public void setSize(int size) {
         playerSize = size;
     }
     public void setIsAlive(boolean isAlive) {
         this.isAlive = isAlive;
     }
-    public void setXPos(double x) { mposition_x = x; }
-    public void setYPos(double y) { mposition_y = y; }
+    public void setXPos(double x) { originX = x; }
+    public void setYPos(double y) { originY = y; }
     public void setXVel(double xv) { myfishspeed_x = xv; }
     public void setYVel(double yv) { myfishspeed_y = yv; }
     public void setFacingLeft(boolean facing) { facingLeft = facing; }
     public void setImageParameters(double x, double y, double w, double h) {
-        fishImageX = x;
-        fishImageY = y;
-        fishImageWidth = w;
-        fishImageHeight = h;
+        defaultImageWidth = w;
+        defaultImageHeight = h;
+
+        fishImageOffsetX = x;
+        fishImageOffsetY = y;
+        fishImageWidth = defaultImageWidth;
+        fishImageHeight = defaultImageHeight;
     }
 
 
@@ -99,15 +125,8 @@ public class myfish {
     //**************************************************
     // Getters
     //**************************************************
-    public double getFishHeadColliderXOffset() {
-        return fishHeadColliderXOffset;
-    }
-    public double getFishHeadColliderYOffset() {
-        return fishHeadColliderYOffset;
-    }
-    public double getFishHeadColliderRadius() {
-        return fishHeadColliderRadius;
-    }
+    public double getFishHeadColliderXOffset() { return fishHeadColliderXOffset; }
+    public double getFishHeadColliderYOffset() { return fishHeadColliderYOffset; }
     public int getSize() {
         return playerSize;
     }
@@ -115,30 +134,26 @@ public class myfish {
         return isAlive;
     }
     public boolean getFacingLeft() { return facingLeft; }
-    public double getXPos() { return mposition_x; }
-    public double getYPos() { return mposition_y; }
+    public double getXPos() { return originX; }
+    public double getYPos() { return originY; }
     public double getWidth() { return myfish_w; }
     public double getHeight() { return myfish_h; }
     public double getXVel() { return myfishspeed_x; }
     public double getYVel() { return myfishspeed_y; }
-    public double getImageX() { return fishImageX; }
-    public double getImageY() { return fishImageY; }
+    public double getImageOffsetX() { return fishImageOffsetX; }
+    public double getImageOffsetY() { return fishImageOffsetY; }
     public double getImageWidth() { return fishImageWidth; }
     public double getImageHeight() { return fishImageHeight; }
     public double getMaxSpeed() { return maxSpeed; }
+    public double getOffsetX() { return offsetX; }
+    public double getOffsetY() { return offsetY; }
 
 
 
     //**************************************************
     // Other methods
     //**************************************************
-    public void increaseSize() {
-        increaseSize(1);
-    }
-    public void increaseSize(int size) {
-        playerSize += size;
-    }
-    public Rectangle getmyfishRec() { return new Rectangle((int) mposition_x, (int) mposition_y, (int)myfish_w, (int)myfish_h); }
+    public Rectangle getmyfishRec() { return new Rectangle( (int)(originX - offsetX), (int)(originY - offsetY), (int)myfish_w, (int)myfish_h ); }
     public void updatemyfish(double dt,
                              boolean up,
                              boolean down,
@@ -149,48 +164,58 @@ public class myfish {
                              double windowW,
                              double windowH) {
 
+        boolean isMoving = false;
         if (up) {
-            myfishspeed_y -= speedAcceleration * dt; // Update the speed
+            isMoving = true;
+            myfishspeed_y -= speedAcceleration  * dt; // Update the speed
             if (myfishspeed_y < -maxSpeed) { myfishspeed_y = -maxSpeed; } // Limit the speed
         }
         if (down) {
-            myfishspeed_y += speedAcceleration * dt; // Update the speed
+            isMoving = true;
+            myfishspeed_y += speedAcceleration  * dt; // Update the speed
             if (myfishspeed_y > maxSpeed) { myfishspeed_y = maxSpeed; } // Limit the speed
         }
         if (left) {
-            myfishspeed_x -= speedAcceleration * dt; // Update the speed
+            isMoving = true;
+            myfishspeed_x -= speedAcceleration  * dt; // Update the speed
             if (myfishspeed_x < -maxSpeed) { myfishspeed_x = -maxSpeed; } // Limit the speed
         }
         if (right) {
-            myfishspeed_x += speedAcceleration * dt; // Update the speed
+            isMoving = true;
+            myfishspeed_x += speedAcceleration  * dt; // Update the speed
             if (myfishspeed_x > maxSpeed) { myfishspeed_x = maxSpeed; } // Limit the speed
+        }
+
+        // Decelerate the player
+        if (!isMoving) {
+            if (myfishspeed_x > SPEED_DECELERATION_DEFAULT) { myfishspeed_x -= SPEED_DECELERATION_DEFAULT; }
+            else if (myfishspeed_x < -SPEED_DECELERATION_DEFAULT) { myfishspeed_x += SPEED_DECELERATION_DEFAULT; }
+
+            if (myfishspeed_y > SPEED_DECELERATION_DEFAULT) { myfishspeed_y -= SPEED_DECELERATION_DEFAULT; }
+            else if (myfishspeed_y < -SPEED_DECELERATION_DEFAULT) { myfishspeed_y += SPEED_DECELERATION_DEFAULT; }
         }
 
         // Normalize the speed
         double[] normalizedSpeed = normalizeSpeed(myfishspeed_x, myfishspeed_y);
 
-        // Update the position based on the speed
-        mposition_x += normalizedSpeed[0] * dt;
-        mposition_y += normalizedSpeed[1] * dt;
-        fishImageX = mposition_x + (myfish_w / 2.0) - (fishImageWidth / 2.0);
-        fishImageY = mposition_y + (myfish_h / 2.0) - (fishImageHeight / 2.0);
-
-        System.out.println("maxSpeed: " + maxSpeed + "\tspeedAcceleration:" + speedAcceleration);
+        // Update the position based on the speed normalized
+        originX += normalizedSpeed[0] * dt;
+        originY += normalizedSpeed[1] * dt;
 
         // Edge detection
-        if (mposition_x < windowX) {
-            mposition_x = windowX;
+        if ((originX - offsetX) < windowX) {
+            originX = windowX + offsetX;
             myfishspeed_x = 0;
-        } else if (mposition_x + myfish_w > (windowW + windowX)) {
-            mposition_x = (windowW + windowX) - myfish_w;
+        } else if (originX + offsetX > (windowW + windowX)) {
+            originX = (windowW + windowX) - offsetX;
             myfishspeed_x = 0;
         }
 
-        if (mposition_y < windowY) {
-            mposition_y = windowY;
+        if ((originY - offsetY) < windowY) {
+            originY = windowY + offsetY;
             myfishspeed_y = 0;
-        } else if (mposition_y + myfish_h > (windowY + windowH)) {
-            mposition_y = (windowY + windowH) - myfish_h;
+        } else if ((originY + offsetY) > (windowY + windowH)) {
+            originY = (windowY + windowH) - offsetY;
             myfishspeed_y = 0;
         }
     }
@@ -216,5 +241,37 @@ public class myfish {
     public void resetSpeed() {
         speedAcceleration = SPEED_ACCELERATION_DEFAULT;
         maxSpeed = MAX_SPEED_DEFAULT;
+    }
+    public void updateOffsets() {
+        offsetX = myfish_w / 2.0;
+        offsetY = myfish_h / 2.0;
+        fishImageOffsetX = fishImageWidth / 2.0;
+        fishImageOffsetY = fishImageHeight / 2.0;
+    }
+    public void updateSize() {
+        switch (playerSize) {
+            case 0 -> {
+                myfish_w = defaultWidth * SIZE_0;
+                myfish_h = defaultHeight * SIZE_0;
+                fishImageWidth = defaultImageWidth * SIZE_0;
+                fishImageHeight = defaultImageHeight * SIZE_0;
+            }
+            case 1 -> {
+                myfish_w = defaultWidth * SIZE_1;
+                myfish_h = defaultHeight * SIZE_1;
+                fishImageWidth = defaultImageWidth * SIZE_1;
+                fishImageHeight = defaultImageHeight * SIZE_1;
+            }
+            case 2 -> {
+                myfish_w = defaultWidth * SIZE_2;
+                myfish_h = defaultHeight * SIZE_2;
+                fishImageWidth = defaultImageWidth * SIZE_2;
+                fishImageHeight = defaultImageHeight * SIZE_2;
+            }
+            default -> {
+                System.out.println("ERROR: Updating player fish size!");
+            }
+        }
+        updateOffsets();
     }
 }
