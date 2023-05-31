@@ -1,11 +1,11 @@
 /*
- * Author: Paul
+ * Author: Paul (Zeju Fan)
  * ID:
  *
- * Co-Author: Robert Tubman (Minor tweaking to merge with team code)
+ * Co-Author: Robert Tubman (Major refactoring to merge with team code)
  * ID: 11115713
- * Co-Author: Lucass (Minor tweaks)
- * ID:
+ * Co-Author: Lucass (Minor refactoring)
+ * ID: 21008041
  */
 
 package Assignment2;
@@ -145,7 +145,7 @@ public class LoadingPage {
     }
     public void drawLine(){
         if (canDrawLine) {
-            engine.changeColor(0, 0, 0);
+            engine.changeColor(0, 0, 50);
             engine.drawText(linePosX, linePosY + gameStartPromptHeight, gameStartPrompt, "a", gameStartPromptHeight);
 
 //            engine.changeColor(255, 0, 0);

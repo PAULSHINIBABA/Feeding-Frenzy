@@ -15,7 +15,6 @@ import java.awt.*;
 public class CheckoutPage {
     // Final fields
     private int enemyTypes;
-    // TODO: implement the number and types of enemies eaten
     private int[] enemiesEaten;
     private double enemiesEatenXOffset;
     private double enemiesEatenYOffset;
@@ -168,7 +167,7 @@ public class CheckoutPage {
         drawReturnToMainMenuButton();
         drawNextLevelButton();
         drawCheckoutLine();
-        drawButtonColliders();
+//        drawButtonColliders();
     }
     public void drawBackground() {
         engine.drawImage(background, imageX, imageY, backgroundWidth, backgroundHeight);

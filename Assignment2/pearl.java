@@ -24,7 +24,7 @@ public class pearl {
         time_visible = 0;
         timesEaten = 0;
     }
-    public void updatepearl(double dt,
+    public boolean updatepearl(double dt,
                             Rectangle myfishrec,
                             double fishspeed_x,
                             double fishspeed_y,
@@ -42,11 +42,14 @@ public class pearl {
         //check collision with fish
         if (isvisible() && myfishrec.intersects(new Rectangle(new Rectangle((int) getpositionx(), (int) getpositiony(), getwidth(), getheight()))))
         {
-            fishspeed_x *= 1.5;//increase speed
-            fishspeed_y *= 1.5;
+            // Both of these being set was redundant
+//            fishspeed_x *= 1.5; // increase speed
+//            fishspeed_y *= 1.5;
             setvisible(false);
             timesEaten += 1;
+            return true;
         }
+        return false;
     }
 
     //-------------------------------------------------------

@@ -1,8 +1,8 @@
 /*
- * Author: Lucass
+ * Author: Lucass (Xidi Kuang)
  * ID:
  *
- * Co-Author: Robert Tubman (Minor tweaking to merge with team code)
+ * Co-Author: Robert Tubman (Minor refactoring to merge with team code)
  * ID: 11115713
  */
 

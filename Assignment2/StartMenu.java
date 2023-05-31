@@ -1,8 +1,8 @@
 /*
- * Author: Paul
+ * Author: Paul (Zeju Fan)
  * ID:
  *
- * Co-Author: Robert Tubman (Tweaked to merge with team code)
+ * Co-Author: Robert Tubman (Major refactoring to merge with team code)
  * ID: 11115713
  * Co-Author: Lucass (Minor tweaks)
  * ID:
@@ -22,9 +22,6 @@ import java.io.IOException;
 public class StartMenu {
     // TODO: Should remove all the "Magic number" fields in the methods in the class
     private final GameEngine engine;
-    private Clip musicClip;
-    private boolean isMusicPlaying = true;
-
     // Image of the background
     private Image background;
     private Image title;
@@ -32,28 +29,29 @@ public class StartMenu {
     private int titleYPos;
     private int titleWidth;
     private int titleHeight;
-    private Image musicButton;
-    private int musicButtonXPos;
-    private int musicButtonYPos;
-    private int musicButtonRadius;
-    private int musicButtonImageWidth;
-    private int musicButtonImageHeight;
-    private File soundFile;
     private final int buttonImagesLength;
     private final Image[] buttonImages;
     private int windowWidth;
     private int windowHeight;
 
     // Variables for mouse click position
-//    private final int[] BUTTON_X_POSITIONS = {260, 420, 260, 420, 60};
     private final int[] BUTTON_X_POSITIONS;
-//    private final int[] BUTTON_Y_POSITIONS = {250, 340, 420, 500, 650};
     private final int[] BUTTON_Y_POSITIONS;
-//    private int buttonOffset;
     private int buttonWidth;
     private int buttonHeight;
-    private GameEngine.AudioClip music;
-    private float volume;
+
+    // Refactored into AudioHandler Class
+//    private Clip musicClip;
+//    private boolean isMusicPlaying = true;
+//    private Image musicButton;
+//    private int musicButtonXPos;
+//    private int musicButtonYPos;
+//    private int musicButtonRadius;
+//    private int musicButtonImageWidth;
+//    private int musicButtonImageHeight;
+//    private File soundFile;
+//    private GameEngine.AudioClip music;
+//    private float volume;
 
     // Constructor
     public StartMenu(GameEngine engine,
@@ -102,16 +100,16 @@ public class StartMenu {
         titleXPos = (this.windowWidth / 2) - (titleWidth / 2);
         titleYPos = this.windowHeight / div16;
 
-        this.musicButton = musicButton;
-        volume = 1.0f;
+        // Refactored into AudioHandler Class
+//        this.musicButton = musicButton;
+//        volume = 1.0f;
 //        musicButtonXPos = 475;
 //        musicButtonYPos = 475;
-        musicButtonRadius = 25;
-        musicButtonImageWidth = 50;
-        musicButtonImageHeight = 50;
-        musicButtonXPos = this.windowWidth - musicButtonRadius - buttonOffset;
-        musicButtonYPos = this.windowHeight - musicButtonRadius - buttonOffset;
-
+//        musicButtonRadius = 25;
+//        musicButtonImageWidth = 50;
+//        musicButtonImageHeight = 50;
+//        musicButtonXPos = this.windowWidth - musicButtonRadius - buttonOffset;
+//        musicButtonYPos = this.windowHeight - musicButtonRadius - buttonOffset;
 //        init();
     }
 
@@ -121,8 +119,10 @@ public class StartMenu {
     //-------------------------------------------------------
     public void setTitleXPosition(int x) { titleXPos = x; }
     public void setTitleYPosition(int y) { titleYPos = y; }
-    public void setMusicButtonXPosition(int x) { musicButtonXPos = x; }
-    public void setMusicButtonYPosition(int y) { musicButtonYPos = y; }
+
+    // Refactored into AudioHandler Class
+//    public void setMusicButtonXPosition(int x) { musicButtonXPos = x; }
+//    public void setMusicButtonYPosition(int y) { musicButtonYPos = y; }
     public void setButtonsXPositions(int[] newButtonPositions) throws IllegalArgumentException {
         if ((newButtonPositions.length > buttonImagesLength) || newButtonPositions.length < buttonImagesLength) {
             throw new IllegalArgumentException("The new buttons x positions array length is incorrect");
@@ -147,15 +147,17 @@ public class StartMenu {
         }
         BUTTON_Y_POSITIONS[index] = y;
     }
-    public void setMusicFile(String audioPath) {
-        try {
-            soundFile = new File(audioPath);
 
-        } catch(Exception e) {
-            e.printStackTrace();
-
-        }
-    }
+    // Refactored into AudioHandler Class
+//    public void setMusicFile(String audioPath) {
+//        try {
+//            soundFile = new File(audioPath);
+//
+//        } catch(Exception e) {
+//            e.printStackTrace();
+//
+//        }
+//    }
 
 
     //-------------------------------------------------------
@@ -163,8 +165,10 @@ public class StartMenu {
     //-------------------------------------------------------
     public int getTitleXPos() { return titleXPos; }
     public int getTitleYPos() { return titleYPos; }
-    public int getMusicButtonXPos() { return musicButtonXPos; }
-    public int getMusicButtonYPos() { return musicButtonYPos; }
+
+    // Refactored into AudioHandler Class
+//    public int getMusicButtonXPos() { return musicButtonXPos; }
+//    public int getMusicButtonYPos() { return musicButtonYPos; }
     public int getButtonsXPositionAt(int index) throws IllegalArgumentException {
         if (index < 0 || index >= buttonImagesLength) {
             throw new IllegalArgumentException("Index for buttons x position is out of bounds");
@@ -183,10 +187,10 @@ public class StartMenu {
     //-------------------------------------------------------
     // Other methods
     //-------------------------------------------------------
-    public String menuMouseClicked(MouseEvent e) {
+    public String menuMouseClicked(double mouseX, double mouseY) {
         System.out.println(" > ");
-        double mouseX = e.getX();
-        double mouseY = e.getY();
+//        double mouseX = e.getX();
+//        double mouseY = e.getY();
 
         // Handle menu button clicks
         for (int i = 0; i < buttonImagesLength; i++) {
@@ -209,6 +213,7 @@ public class StartMenu {
                 case 2: // Settings/Options?
                     if (clickButton(mouseX, mouseY, buttonX, buttonY, buttonW, buttonH)) {
                         System.out.println(" > Settings");
+                        return "settings";
                     }
                     break;
                 case 3: // Quit
@@ -235,14 +240,15 @@ public class StartMenu {
             }
         }
 
+        // Refactored into AudioHandler Class
         // Handle music button toggle
 //        double musicButtonX = 475;
 //        double musicButtonY = 475;
 //        double musicButtonRadius = 25;
-        if (clickButton(mouseX, mouseY, musicButtonXPos, musicButtonYPos, musicButtonRadius)) {
-            System.out.println(" > Music toggle");
-            toggleMusic();
-        }
+//        if (clickButton(mouseX, mouseY, musicButtonXPos, musicButtonYPos, musicButtonRadius)) {
+//            System.out.println(" > Music toggle");
+//            toggleMusic();
+//        }
 
         return "nothing";
     }
@@ -283,14 +289,17 @@ public class StartMenu {
 //            engine.drawImage(buttonImages[i], buttonX - buttonOffset, buttonY - buttonOffset, buttonWidth, buttonHeight);
             engine.drawImage(buttonImages[i], buttonX, buttonY, buttonWidth, buttonHeight);
         }
+
+        // Refactored into INGAMEMENU Class
 //        engine.drawImage(musicButton,musicButtonXPos,musicButtonYPos,musicButtonImageWidth,musicButtonImageHeight);
-        engine.drawImage(musicButton,
-                musicButtonXPos - musicButtonRadius,
-                musicButtonYPos - musicButtonRadius,
-                musicButtonImageWidth,
-                musicButtonImageHeight);
+//        engine.drawImage(musicButton,
+//                musicButtonXPos - musicButtonRadius,
+//                musicButtonYPos - musicButtonRadius,
+//                musicButtonImageWidth,
+//                musicButtonImageHeight);
     }
 
+    // Debug method to visualize the collider locations
     public void drawButtonsColliders() {
         for (int i = 0; i < buttonImagesLength; i++) {
             int buttonX = BUTTON_X_POSITIONS[i];
@@ -316,50 +325,10 @@ public class StartMenu {
                     buttonX + buttonW,
                     buttonY + buttonH);
         }
+
+        // Refactored into INGAMEMENU Class
 //        engine.drawCircle(musicButtonXPos + (musicButtonImageWidth / 2.0), musicButtonYPos + (musicButtonImageHeight / 2.0), musicButtonRadius);
-        engine.drawCircle(musicButtonXPos, musicButtonYPos, musicButtonRadius);
-    }
-
-    // Initialize the music file to play on the StartMenu
-    public void initMusic(String audioPath) {
-        try {
-            music = engine.loadAudio(audioPath);
-//            //import the music file
-//            soundFile = new File(audioPath);
-//            AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
-//
-//            //get the music format
-//            AudioFormat format = audioIn.getFormat();
-//            DataLine.Info info = new DataLine.Info(Clip.class, format);
-//
-//            musicClip = (Clip) AudioSystem.getLine(info);
-//            musicClip.open(audioIn);
-
-        } catch(Exception e) {
-            e.printStackTrace();
-
-        }
-    }
-
-    // Play/Pause the music
-    public void playMusic(){
-//        musicClip.start();
-        engine.startAudioLoop(music, volume);
-    }
-    public void pauseMusic(){
-//        musicClip.stop();
-        engine.stopAudioLoop(music);
-    }
-
-
-    // Toggle the music
-    public void toggleMusic() {
-        if (isMusicPlaying) {
-            pauseMusic();
-        } else {
-            playMusic();
-        }
-        isMusicPlaying = !isMusicPlaying;
+//        engine.drawCircle(musicButtonXPos, musicButtonYPos, musicButtonRadius);
     }
 
     // Draw all the StartMenu components
@@ -367,8 +336,46 @@ public class StartMenu {
         drawBackground();
         drawTitle();
         drawButton();
-
-        // TODO: REMOVE BEFORE SUBMISSION
-//        drawButtonsColliders();
     }
+
+//    // Refactored into AudioHandler Class
+//    // Initialize the music file to play on the StartMenu
+//    public void initMusic(String audioPath) {
+//        try {
+//            music = engine.loadAudio(audioPath);
+////            //import the music file
+////            soundFile = new File(audioPath);
+////            AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
+////
+////            //get the music format
+////            AudioFormat format = audioIn.getFormat();
+////            DataLine.Info info = new DataLine.Info(Clip.class, format);
+////
+////            musicClip = (Clip) AudioSystem.getLine(info);
+////            musicClip.open(audioIn);
+//
+//        } catch(Exception e) {
+//            e.printStackTrace();
+//
+//        }
+//    }
+//    // Play/Pause the music
+//    public void playMusic(){
+////        musicClip.start();
+//        engine.startAudioLoop(music, volume);
+//    }
+//    public void pauseMusic(){
+////        musicClip.stop();
+//        engine.stopAudioLoop(music);
+//    }
+//    // Toggle the music
+//    public void toggleMusic() {
+//        if (isMusicPlaying) {
+//            pauseMusic();
+//        } else {
+//            playMusic();
+//        }
+//        isMusicPlaying = !isMusicPlaying;
+//    }
+
 }

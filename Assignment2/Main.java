@@ -2,11 +2,13 @@
  * Author: Robert Tubman
  * ID: 11115713
  *
- * Co-Author: Lucass
- * ID:
+ * Co-Author: Lucass (Xidi Kuang)
+ * ID: 21008041
  *
  * The Main Class which contains the entry point.
  * As well as the code to wrap all the classes together to make the game run.
+ *
+ * Reference for Explosion sound: * https://mixkit.co/free-sound-effects/explosion/
  */
 
 package Assignment2;
@@ -25,6 +27,7 @@ public class Main extends GameEngine {
     public void init() {
         InitSystem();
         initMenu();
+        initInGameMenu();
         initCheckout();
         initEnvironment();
         initPlayer();
@@ -32,14 +35,16 @@ public class Main extends GameEngine {
         initEnemies();
     }
     public void update(double dt) {
+        updateSystem(dt);
         updateMenu(dt);
-        updateCheckout();
+        updateCheckout(dt);
+        updateInGameMenu(dt);
 
         // While in-game, if the level is complete stop processing
         if (env.getIsLevelComplete()) { return; }
-        updateEnvironment();
+        updateEnvironment(dt);
 
-        // The environment processing for the pause is still occurring above
+        // Don't process game events if paused
         if (env.getIsPaused()) { return; }
 
         updatePlayer(dt);
@@ -47,6 +52,7 @@ public class Main extends GameEngine {
         updateEnemies(dt);
     }
     public void paintComponent() {
+        // The bottom most layer
         drawMenu();
         drawCheckout();
 
@@ -58,6 +64,9 @@ public class Main extends GameEngine {
         drawPlayer(); // Then draw the player
 
         drawEnvironmentLayerTop();
+
+        // The top most layer
+        drawInGameMenu();
     }
 
 
@@ -67,9 +76,15 @@ public class Main extends GameEngine {
     // "nothing"; no game state change was clicked
     // "single_player"; single player game state change was clicked
     // "time_attack"; time attack game state change was clicked
+    // "settings"; settings button was clicked
+    // "quit"; quit button was clicked
+    // "help"; help button was clicked
+    // "main_menu"; go back to main menu was clicked
+    // "next_level"; go to next level was clicked
+    // "restart"; restart level was clicked
     String gameStateString;
-    final String assetPathImage = "Assignment2/assets/image/";
-    final String assetPathAudio = "Assignment2/assets/audio/";
+    final String assetPathImage = "Assignment2/assets/image/"; // Asset paths
+    final String assetPathAudio = "Assignment2/assets/audio/"; // Asset paths
 
     // gameState = 0; Main menu
     // gameState = 1; Loading page
@@ -79,20 +94,57 @@ public class Main extends GameEngine {
     // gameState = 5; Environment(Time Attack)
     // gameState = 6; Checkout page
     int gameState;
-    boolean isSinglePlayer;
-    Random randSys;
-    int width;
-    int height;
+    boolean isSinglePlayer; // State for single player mode
+    Random randSys; // Random number generator
+    int width; // Screen width
+    int height; // Screen height
+    AudioHandler ah; // Audio handler class, to handle all the audio
+    int audioMusicCap; // Field to set the max music capacity
+    int audioSFXCap; // Field to set the max sound effects (sfx) capacity
+    String[] audioMusicPaths; // Paths for the music assets
+    String[] audioSFXPaths; // Paths for the sfx assets
+    float overAllVolume; // Base volume for most audio files
+    float inGameVolume; // Adjusted volume for a particularly loud audio file
 
     public void InitSystem() {
+        // Handle the audio I/O
+        audioMusicCap = 3;
+        audioSFXCap = 11;
+        audioMusicPaths = new String[audioMusicCap];
+        audioSFXPaths = new String[audioSFXCap];
+        overAllVolume = 0.9f;
+        inGameVolume = 0.5f;
+
+        audioMusicPaths[0] = assetPathAudio + "music/track_light_positive_modern_T2.wav";
+        audioMusicPaths[1] = assetPathAudio + "music/track_light_positive_disco_T2_Loop.wav";
+        audioMusicPaths[2] = assetPathAudio + "music/track_ambience_underwater_T.wav";
+
+        audioSFXPaths[0] = assetPathAudio + "sfx/sfx_bite1_T.wav";
+        audioSFXPaths[1] = assetPathAudio + "sfx/sfx_bite2_T.wav";
+        audioSFXPaths[2] = assetPathAudio + "sfx/sfx_click1_T.wav";
+        audioSFXPaths[3] = assetPathAudio + "sfx/sfx_click2_T.wav";
+        audioSFXPaths[4] = assetPathAudio + "sfx/sfx_click3_T.wav";
+        audioSFXPaths[5] = assetPathAudio + "sfx/sfx_jingle_up_long1_T.wav";
+        audioSFXPaths[6] = assetPathAudio + "sfx/sfx_jingle_up_short1_T.wav";
+        audioSFXPaths[7] = assetPathAudio + "sfx/sfx_pop1_T.wav";
+        audioSFXPaths[8] = assetPathAudio + "sfx/sfx_splash1_T.wav";
+        audioSFXPaths[9] = assetPathAudio + "sfx/sfx_trumpet_down1_T.wav";
+        audioSFXPaths[10] = assetPathAudio + "sfx/sfx_explosion_T.wav";
+
+        ah = new AudioHandler(this, audioMusicCap, audioSFXCap);
+        ah.setAudioMusicClips(audioMusicPaths);
+        ah.setAudioSFXClips(audioSFXPaths);
+
+        ah.setCurrentMusic(0);
+        ah.setVolume(1.0f);
+        ah.startCurrentAudioMusic();
+
         // System random field
         randSys = new Random();
 
         // System window size
         width = 1200;
         height = 900;
-//        width = 500;
-//        height = 500;
 
         // Set the window
         setWindowSize(width, height);
@@ -103,6 +155,10 @@ public class Main extends GameEngine {
 
         // Single player mode default
         isSinglePlayer = true;
+    }
+
+    public void updateSystem(double dt) {
+        mouseHandler();
     }
 
     public void colliderCheck() {
@@ -128,6 +184,10 @@ public class Main extends GameEngine {
                 // If the player can eat the enemy (based on size equality)
                 if (myfish.getSize() >= enSize) {
                     // Player was equal to or greater than the enemy
+
+                    // Play bite sfx
+                    playAudioSFX(0, 1.0f);
+
                     // Get the score based on enemy size
                     int eatScore = enSize + 1;
                     env.setEatEnemyBySize(enSize);
@@ -147,7 +207,19 @@ public class Main extends GameEngine {
         // Remove enemies in the removal list
         removeEnemies(enemies, removalValues);
     }
-
+    // Set the volume to play sfx
+    public void playAudioSFX(int index, float volume) {
+        ah.setVolume(volume);
+        ah.playAudioSFX(index);
+    }
+    // Set the volume to restart music
+    public void restartMusicLoop(int index, float volume) {
+        ah.stopCurrentAudioMusic();
+        ah.setVolume(volume);
+        ah.setCurrentMusic(index);
+        ah.startCurrentAudioMusic();
+    }
+    // Grow the player size (to allow eating more enemy types)
     public void growPlayerSize() {
         // Get the players current goal state
         int currentGoal = env.getCurrentGoal();
@@ -183,24 +255,55 @@ public class Main extends GameEngine {
 
 
 
-
     //-------------------------------------------------------
     // Mouse Handler
     //-------------------------------------------------------
     public double mouseX;
     public double mouseY;
     boolean mouse1Pressed = false;
+    int mousePressedCount = 0;
 
     // MousePressed Event Handler
     public void mousePressed(MouseEvent e) {
         if(e.getButton() == MouseEvent.BUTTON1) {
-            if (gameState == 0) {
-                gameStateString = sm.menuMouseClicked(e);
+            System.out.println("Setting mouse1Pressed to true");
+            mouse1Pressed = true;
+            System.out.println(mouse1Pressed);
+        }
+    }
 
-            } else if (gameState == 6) {
-                gameStateString = chkpg.checkClickTarget(mouseX, mouseY);
+    public void mouseHandler() {
+        if (mouse1Pressed) {
+            System.out.println("Mouse 1 Pressed");
+            if (mousePressedCount == 0) {
+                // Play the mouse click sfx
+                playAudioSFX(7, 1.2f);
 
+                // Process mouse state
+                if (gameState == 0) {
+                    System.out.println("Game state = 0");
+                    gameStateString = sm.menuMouseClicked(mouseX, mouseY);
+//                    fromMainMenu = true;
+
+                } else if (gameState == 2) {
+                    System.out.println("Game state = 2");
+                    gameStateString = inGameMenuFromMain.inGameMenuMouseClicked(mouseX, mouseY);
+
+                }  else if (gameState == 4) {
+                    if (env.getIsPaused()) {
+                        System.out.println("Game state = 4 and paused");
+                        gameStateString = inGameMenu.inGameMenuMouseClicked(mouseX, mouseY);
+//                        fromMainMenu = false;
+
+                    }
+                } else if (gameState == 6) {
+                    gameStateString = chkpg.checkClickTarget(mouseX, mouseY);
+
+                }
             }
+            mousePressedCount += 1;
+        } else {
+            mousePressedCount = 0;
         }
     }
 
@@ -276,16 +379,16 @@ public class Main extends GameEngine {
     Image[] loadingTips = new Image[LOADING_TIPS_LENGTH];
 
     public void initMenu() {
-        titleWidth = 300;
-        titleHeight = 150;
+        titleWidth = 500;
+        titleHeight = (int)(titleWidth * 0.3);
 
         startMenuBackground = loadImage(assetPathImage + "background/background1.png");
-        startTitle = loadImage(assetPathImage + "icon/icon_title1.png");
-        buttonIcons[0] = loadImage(assetPathImage + "icon/icon_start2.png");
-        buttonIcons[1] = loadImage(assetPathImage + "icon/icon_time_attack2.png");
-        buttonIcons[2] = loadImage(assetPathImage + "icon/icon_settings1.png");
-        buttonIcons[3] = loadImage(assetPathImage + "icon/icon_quit1.png");
-        buttonIcons[4] = loadImage(assetPathImage + "icon/icon_help2.png");
+        startTitle = loadImage(assetPathImage + "icon/icon_title_x2.png");
+        buttonIcons[0] = loadImage(assetPathImage + "icon/icon_start_x1.png");
+        buttonIcons[1] = loadImage(assetPathImage + "icon/icon_time_attack_x1.png");
+        buttonIcons[2] = loadImage(assetPathImage + "icon/icon_settings_x1.png");
+        buttonIcons[3] = loadImage(assetPathImage + "icon/icon_quit_x1.png");
+        buttonIcons[4] = loadImage(assetPathImage + "icon/icon_help_x1.png");
         musicButton = loadImage(assetPathImage + "icon/icon_music1.png");
 
         sm = new StartMenu(this,
@@ -299,8 +402,8 @@ public class Main extends GameEngine {
                 width,
                 height);
 
-        sm.initMusic(assetPathAudio + "music/track_light_positive_modern.wav");
-        sm.playMusic();
+//        sm.initMusic(assetPathAudio + "music/track_light_positive_modern.wav");
+//        sm.playMusic();
 
         loadingImage = loadImage(assetPathImage + "background/background2.png");
         loadingTips[0] = loadImage(assetPathImage + "tip/icon_tip1.png");
@@ -321,12 +424,30 @@ public class Main extends GameEngine {
     public void updateMenu(double dt) {
         if (gameState == 0) {
             if (Objects.equals(gameStateString, "single_player")) {
+                // Reset the music
+                restartMusicLoop(2, 1.0f);
+//                ah.stopCurrentAudioMusic();
+//                ah.setCurrentMusic(2);
+//                ah.setVolume(1.0f);
+//                ah.startCurrentAudioMusic();
+
                 gameState = 1; // Go to LoadingPage
                 env.setIsTimeAttack(false); // Set the environment to single player mode
 
             } else if (Objects.equals(gameStateString, "time_attack")) {
+                // Reset the music
+                restartMusicLoop(2, 1.0f);
+//                ah.stopCurrentAudioMusic();
+//                ah.setCurrentMusic(2);
+//                ah.setVolume(1.0f);
+//                ah.startCurrentAudioMusic();
+
                 gameState = 1; // Go to LoadingPage
                 env.setIsTimeAttack(true); // Set the environment to time attack mode
+
+            } else if (Objects.equals(gameStateString, "settings")) {
+                // TODO: Set a different state to draw the settings page separately
+                gameState = 2; // Go to Settings page
             }
         } else if (gameState == 1) {
             lp.startLoading();
@@ -334,6 +455,16 @@ public class Main extends GameEngine {
             // TODO: add this back in so the player can't skip the loading page
 //            if (spaceKey && (lp.getProgress() >= 1.0)) {
             if (spaceKey) {
+                // Play the splash sound sfx
+                playAudioSFX(8, 1.0f);
+
+                // Reset the music
+                restartMusicLoop(1, inGameVolume);
+//                ah.stopCurrentAudioMusic();
+//                ah.setVolume((inGameVolume));
+//                ah.setCurrentMusic(1);
+//                ah.startCurrentAudioMusic();
+
                 // Set to the game play area instance
                 gameState = 4;
                 env.setBaseTime(getTime());
@@ -347,6 +478,177 @@ public class Main extends GameEngine {
         else if (gameState == 1) { lp.drawAll(); }
     }
 
+
+    //-------------------------------------------------------
+    // In Game Menu methods
+    //-------------------------------------------------------
+    INGAMEMENU inGameMenu;
+    INGAMEMENU inGameMenuFromMain;
+    Image inGameMenuBackground;
+    Image inGameMenuBackIcon;
+    Image inGameMenuMusicButton;
+    Image inGameMenuHardModeButton;
+    Image inGameMenuMainMenu;
+    Image inGameMenuTimeAttackTime;
+    Image inGameMenuGrowthTarget;
+    double backgroundX;
+    double backgroundY;
+    double backGroundWidth;
+    double backGroundHeight;
+//    boolean fromMainMenu;
+    public void initInGameMenu() {
+        inGameMenuBackground = loadImage(assetPathImage + "background/background4.png");
+        inGameMenuBackIcon = loadImage(assetPathImage + "icon/icon_return2.png");
+        inGameMenuMusicButton = loadImage(assetPathImage + "icon/icon_music1.png");
+        inGameMenuHardModeButton = loadImage(assetPathImage + "icon/icon_shark_x2.png");
+        inGameMenuMainMenu = loadImage(assetPathImage + "icon/icon_main_menu_x1.png");
+        inGameMenuTimeAttackTime = loadImage(assetPathImage + "icon/icon_time_attack_time_x2.png");
+        inGameMenuGrowthTarget = loadImage(assetPathImage + "icon/icon_growth_target_x2.png");
+
+        backGroundWidth = width / 3.0;
+        backGroundHeight = height / 2.0;
+        backgroundX = ((width/2.0) - (backGroundWidth/2.0));
+        backgroundY = ((height/2.0) - (backGroundHeight/2.0));
+//        fromMainMenu = true;
+
+        inGameMenu = new INGAMEMENU(this, backGroundWidth, backGroundHeight, false);
+        inGameMenu.setImages(inGameMenuBackground,
+                inGameMenuBackIcon,
+                inGameMenuMusicButton,
+                inGameMenuHardModeButton,
+                inGameMenuMainMenu,
+                inGameMenuTimeAttackTime,
+                inGameMenuGrowthTarget);
+        inGameMenu.setBackgroundParameters(backgroundX, backgroundY, backGroundWidth, backGroundHeight);
+        int buttonOffset = 50;
+        inGameMenu.setButtonSize(buttonOffset);
+        inGameMenu.setButtonOffset(buttonOffset);
+        inGameMenu.setBackIconParameters();
+        inGameMenu.setMusicButtonParameters();
+
+        inGameMenu.setHardModeParameters();
+//        inGameMenu.setGrowthTargetParameters();
+//        inGameMenu.setTimeAttackTimeParameters();
+//        inGameMenu.setGrowthTargetParameters();
+        inGameMenu.setToMainMenuParameters();
+
+        inGameMenuFromMain = new INGAMEMENU(this, width, height, true);
+        inGameMenuFromMain.setImages(inGameMenuBackground,
+                inGameMenuBackIcon,
+                inGameMenuMusicButton,
+                inGameMenuHardModeButton,
+                inGameMenuMainMenu,
+                inGameMenuTimeAttackTime,
+                inGameMenuGrowthTarget);
+        inGameMenuFromMain.setBackgroundParameters(0, 0, width, height);
+        inGameMenuFromMain.setBackIconParameters();
+        inGameMenuFromMain.setMusicButtonParameters();
+
+//        inGameMenuFromMain.setHardModeParameters();
+//        inGameMenuFromMain.setGrowthTargetParameters();
+//        inGameMenuFromMain.setTimeAttackTimeParameters();
+//        inGameMenuFromMain.set();
+    }
+    public void updateInGameMenu(double dt) {
+        if (gameState == 2) {
+            processInGameMenu();
+        }
+        if (gameState == 4) {
+            if (env.getIsPaused()) {
+                processInGameMenu();
+            }
+        }
+    }
+
+    public void processInGameMenu() {
+        switch(gameStateString) {
+            case "main_menu":
+                System.out.println("Main menu");
+
+                if (gameState == 4) {
+                    // Go back to main menu
+                    restartMusicLoop(0, overAllVolume);
+                }
+
+                // Reset game state
+                finalReset();
+                env.setRestartLevel(false);
+                gameState = 0;
+                resetGameLevel();
+                break;
+
+            case "toggle_music":
+                System.out.println("Toggle music");
+                if (!ah.getPauseMusic()) {
+                    ah.stopCurrentAudioMusic();
+                    ah.setPauseMusic(true);
+                } else {
+                    ah.setPauseMusic(false);
+                    ah.startCurrentAudioMusic();
+                }
+                break;
+
+            // Should add other menu adjustments here
+            case "back_to_game":
+                System.out.println("Back to game");
+                byPassUnpause = true;
+                break;
+
+            // Should add other menu adjustments here
+            case "hard_mode":
+                System.out.println("Toggling hard mode");
+                env.setHardMode(!env.getHardMode());
+                inGameMenu.setIsHardMode(env.getHardMode());
+                inGameMenuFromMain.setIsHardMode(env.getHardMode());
+                System.out.println("setting hard mode to " + env.getHardMode());
+                break;
+
+            // Should add other menu adjustments here
+            case "growth_target":
+                System.out.println("Toggling growth target max");
+                currentGoalRangeIndex += 1;
+                if (currentGoalRangeIndex >= targetGoalRanges.length) { currentGoalRangeIndex = 0; }
+
+                goalMaximum = targetGoalRanges[currentGoalRangeIndex];
+                targetGoal = defaultTarget + (targetGoalIncrement * level);
+                env.setTargetGoal(targetGoal);
+                growthThresholdM = (int)(targetGoal / 3.0);
+                growthThresholdL = (int)((targetGoal / 3.0) * 2.0);
+                env.setGrowthThresholdLarge(growthThresholdL);
+                env.setGrowthThresholdMedium(growthThresholdM);
+
+                inGameMenuFromMain.setGrowthTargetValue(goalMaximum);
+                break;
+
+            // Should add other menu adjustments here
+            case "time_attack_time":
+                System.out.println("Toggling available time");
+                currentTargetTimeRangeIndex += 1;
+                if (currentTargetTimeRangeIndex >= targetTimeRanges.length) { currentTargetTimeRangeIndex = 0; }
+
+                defaultTime = targetTimeRanges[currentTargetTimeRangeIndex];
+                targetTime = defaultTime - (targetTimeAdjuster * env.getCurrentLevel());
+                env.setCountDownTimer(targetTime);
+
+                inGameMenuFromMain.setTimeAttackTimeValue(defaultTime);
+                break;
+
+            default:
+                break;
+
+        }
+        gameStateString = "nothing";
+    }
+    public void drawInGameMenu() {
+        if (gameState == 2) {
+            inGameMenuFromMain.drawInGameMenu();
+        }
+        if (gameState == 4) {
+            if (env.getIsPaused()) {
+                inGameMenu.drawInGameMenu();
+            }
+        }
+    }
 
     //-------------------------------------------------------
     // CheckoutPage methods
@@ -376,7 +678,7 @@ public class Main extends GameEngine {
 
         setCheckoutPage = false;
     }
-    public void updateCheckout() {
+    public void updateCheckout(double dt) {
         if (gameState == 6) {
             if (!setCheckoutPage) {
                 // Checkout page should load.
@@ -391,12 +693,26 @@ public class Main extends GameEngine {
 
             if (gameStateString == "main_menu") {
                 System.out.println("Main menu");
+                // Reset the music
+                restartMusicLoop(0, overAllVolume);
+//                ah.stopCurrentAudioMusic();
+//                ah.setVolume(overAllVolume);
+//                ah.setCurrentMusic(0);
+//                ah.startCurrentAudioMusic();
+
+                // Reset the game state
                 finalReset();
                 env.setRestartLevel(false);
                 gameState = 0;
 
             } else if (gameStateString == "next_level") {
                 System.out.println("Next level");
+                // Play splash sfx
+                playAudioSFX(8, 1.0f);
+                // Reset the music
+                restartMusicLoop(1, inGameVolume);
+
+                // Reset the game state
                 finalReset();
                 if (!env.getRestartLevel()) { nextLevel(); }
                 env.setRestartLevel(false);
@@ -404,6 +720,12 @@ public class Main extends GameEngine {
 
             } else if (gameStateString == "restart") {
                 System.out.println("Restart");
+                // Play splash sfx
+                playAudioSFX(8, 1.0f);
+                // Reset the music
+                restartMusicLoop(1, inGameVolume);
+
+                // Reset the game state
                 finalReset();
                 env.setRestartLevel(false);
                 gameState = 4;
@@ -430,9 +752,17 @@ public class Main extends GameEngine {
     Image boomimage;
     Image starfishimage;
     public void initPlayer() {
-        myfish = new myfish( (width / 2.0), (height / 2.0) );
-        myfish.setFishLength( 60 );
-        myfish.setFishHeight( 40 );
+        double fishX = (width / 2.0);
+        double fishY = (height / 2.0);
+        double fishW = 60;
+        double fishH = 40;
+        myfish = new myfish(fishX, fishY, fishW, fishH);
+        double fishImageW = fishW * 1.5;
+        double fishImageH = fishH * 1.5;
+        myfish.setImageParameters((fishX + (fishW / 2.0) - (fishImageW / 2.0)),
+                (fishY + (fishH / 2.0) - (fishImageH / 2.0)),
+                fishImageW,
+                fishImageH);
 
         myFishImage = loadImage(assetPathImage + "entity/entity_player1.png");
     }
@@ -480,9 +810,9 @@ public class Main extends GameEngine {
         // Decide which image to draw based on direction
         Image currentFishImage = myFishImage;
         if (myfish.getFacingLeft()) {
-            drawImage(currentFishImage, myfish.getXPos() + myfish.getWidth(), myfish.getYPos(), -myfish.getWidth(), myfish.getHeight());
+            drawImage(currentFishImage, myfish.getImageX() + myfish.getImageWidth(), myfish.getImageY(), -myfish.getImageWidth(), myfish.getImageHeight());
         } else {
-            drawImage(currentFishImage, myfish.getXPos(),  myfish.getYPos(), myfish.getWidth(), myfish.getHeight());
+            drawImage(currentFishImage, myfish.getImageX(),  myfish.getImageY(), myfish.getImageWidth(), myfish.getImageHeight());
         }
 
         drawPlayerCollider(); // TODO: Remove before submitting
@@ -548,14 +878,24 @@ public class Main extends GameEngine {
         double randSpeed = rand(100);
         if(!env.getIsLevelComplete()) {
             //update pearl
-            pearl.updatepearl(dt,
+            double fishXSpeed = myfish.getXVel();
+            double fishYSpeed = myfish.getYVel();
+            if (pearl.updatepearl(dt,
                     myfish.getmyfishRec(),
-                    myfish.getXVel(),
-                    myfish.getYVel(),
+                    fishXSpeed,
+                    fishYSpeed,
                     rand(areaW),
                     rand(areaH),
                     spawnOffsetWidth,
-                    spawnOffsetHeight);
+                    spawnOffsetHeight)) {
+
+                playAudioSFX(1, 1.0f);
+                playAudioSFX(7, 1.0f);
+
+                double speedVal = 25.0;
+                myfish.incrementMaxSpeed(speedVal);
+                myfish.incrementAccelerationSpeed(speedVal);
+            }
 
             //update starfish
             if (starfish.updatestarfish(dt,
@@ -568,8 +908,14 @@ public class Main extends GameEngine {
                     areaW,
                     areaH)) {
 
+                // Play bite sound
+                playAudioSFX(1, 1.0f);
+                // Play power up sfx
+                playAudioSFX(6, 1.0f);
+
                 // Update the environment score
                 env.addScore(20);
+
             }
 
             if (boom.updateboom(dt,
@@ -581,7 +927,9 @@ public class Main extends GameEngine {
                     randSpeed,
                     areaW,
                     areaH)) {
-
+                playAudioSFX(10, 1.2f);
+//                ah.setVolume(1.2f);
+//                ah.playAudioSFX(10);
                 myfish.setIsAlive(false);
                 env.setEndLevel();
             }
@@ -732,6 +1080,9 @@ public class Main extends GameEngine {
                 myfish.getHeight())) {
 
             if (en.getSize() > myfish.getSize()) {
+                // Play was bitten sound
+                if (myfish.getIsAlive()) { playAudioSFX(0, 1.0f); }
+
                 myfish.setIsAlive(false);
                 env.setEndLevel();
             }
@@ -801,7 +1152,10 @@ public class Main extends GameEngine {
         }
     }
 
-    public void removeAllEnemies(ArrayList<Enemy> enemies) { enemies.clear(); }
+    public void removeAllEnemies(ArrayList<Enemy> enemies, ArrayList<Enemy> sharkEnemies) {
+        enemies.clear();
+        sharkEnemies.clear();
+    }
 
     // The method to spawn an enemy on click
     public void SpawnEnemy() {
@@ -914,16 +1268,21 @@ public class Main extends GameEngine {
         if (selectSize < enemySmall) { // spawn a small fish
             size = 0;
             en = new Enemy(enemyFish[0], size, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
-            en.setImageOffsets(-enemyWidth,-enemyHeight,enemyWidth * 2,enemyHeight * 2);
+//            en.setImageOffsets(-enemyWidth,-enemyHeight,enemyWidth * 2,enemyHeight * 2);
+
         } else if (selectSize < enemyMedium) { // spawn a medium fish
             size = 1;
             en = new Enemy(enemyFish[1], size, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
-            en.setImageOffsets(-enemyWidth,-enemyHeight,enemyWidth * 2,enemyHeight * 2);
+//            en.setImageOffsets(-enemyWidth,-enemyHeight,enemyWidth * 2,enemyHeight * 2);
+
         } else { // spawn a large fish
             size = 2;
             en = new Enemy(enemyFish[2], size, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
-            en.setImageOffsets(-enemyWidth,-enemyHeight,enemyWidth * 2,enemyHeight * 2);
+//            en.setImageOffsets(-enemyWidth,-enemyHeight,enemyWidth * 2,enemyHeight * 2);
+
         }
+        en.setImageOffsets(-enemyWidth,-enemyHeight,enemyWidth * 2,enemyHeight * 2);
+        en.setHeadRadius((en.getColliderHeadRadius() * 0.65));
         enemies.add(en);
     }
 
@@ -948,7 +1307,12 @@ public class Main extends GameEngine {
     Environment env;
     int targetGoal;
     int targetGoalIncrement;
+    int defaultTarget;
     int goalMaximum;
+    int currentGoalRangeIndex;
+    int[] targetGoalRanges;
+    int currentTargetTimeRangeIndex;
+    double[] targetTimeRanges;
     double targetTime;
     double targetTimeAdjuster;
     double timeMinimum;
@@ -958,52 +1322,109 @@ public class Main extends GameEngine {
     int growthThresholdM;
     int growthThresholdL;
     int level = 0;
+    int escKeyCount;
+    boolean byPassUnpause;
 
     public void initEnvironment() {
-        goalMaximum = 50;
-        timeMinimum = 10.0;
-        defaultTime = 60.0;
+        targetGoalRanges = new int[6];
+        targetGoalRanges[0] = 50;
+        targetGoalRanges[1] = 60;
+        targetGoalRanges[2] = 70;
+        targetGoalRanges[3] = 80;
+        targetGoalRanges[4] = 90;
+        targetGoalRanges[5] = 100;
+        currentGoalRangeIndex = 0;
+
+        targetTimeRanges = new double[7];
+        targetTimeRanges[0] = 30.0;
+        targetTimeRanges[1] = 45.0;
+        targetTimeRanges[2] = 60.0;
+        targetTimeRanges[3] = 75.0;
+        targetTimeRanges[4] = 90.0;
+        targetTimeRanges[5] = 105.0;
+        targetTimeRanges[6] = 120.0;
+        currentTargetTimeRangeIndex = 2;
+
+        goalMaximum = targetGoalRanges[currentGoalRangeIndex]; // Defaults at 50 points max
+        timeMinimum = 15.0;
+        defaultTime = targetTimeRanges[currentTargetTimeRangeIndex]; // Defaults at 60.o seconds
+        defaultTarget = 10;
         targetGoalIncrement = 5;
         targetTimeAdjuster = 5.0;
         singlePlayerComplete = false;
         timeAttackComplete = false;
-        
-        targetGoal = 10 + (targetGoalIncrement * level);
-        if (targetGoal > goalMaximum) { targetGoal = goalMaximum; }
-        targetTime = 10.0 - (targetTimeAdjuster * level); // TODO: Make this start at 60.0
-        if (targetTime < timeMinimum) { targetTime = timeMinimum; }
-
-        growthThresholdM = (int)(targetGoal / 3.0);
-        growthThresholdL = (int)((targetGoal / 3.0) * 2.0);
+        escKeyCount = 0;
+        byPassUnpause = false;
 
         env = new Environment(this, !isSinglePlayer);
         env.setEnvironmentPlayWidth(width);
         env.setEnvironmentPlayHeight(height);
+        env.setCurrentLevel(0);
+
+        targetGoal = defaultTarget + (targetGoalIncrement * env.getCurrentLevel());
+        targetTime = defaultTime - (targetTimeAdjuster * env.getCurrentLevel());
+        growthThresholdM = (int)(targetGoal / 3.0);
+        growthThresholdL = (int)((targetGoal / 3.0) * 2.0);
+
         env.setTargetGoal(targetGoal);
         env.setCountDownTimer(targetTime);
         env.setGrowthThresholdLarge(growthThresholdL);
         env.setGrowthThresholdMedium(growthThresholdM);
         env.setHardMode(false);
+
+        // The inGameMenu has been set before this, so can set the target values to show in the settings page
+        inGameMenu.setIsHardMode(env.getHardMode());
+        inGameMenuFromMain.setIsHardMode(env.getHardMode());
+
+        // The inGameMenuFromMain has been set before this, so can set the target values to show in the settings page
+        inGameMenuFromMain.setGrowthTargetValue(goalMaximum);
+        inGameMenuFromMain.setTimeAttackTimeValue(defaultTime);
     }
-    public void updateEnvironment() {
+    public void updateEnvironment(double dt) {
         if (gameState == 4) {
             // Check if the level is complete
             env.environmentLevelCompleteCheck();
 
             // Check for the pausing of the game
             boolean wasPaused = false;
-            if (escKey) {
-                if (env.getIsPaused()) {
-                    env.setIsPaused(false);
-                    wasPaused = true;
-                } else {
-                    env.setIsPaused(true);
+            // Only use the bypass unpause in specific situations. Such as from the overlay settings menu
+            if (escKey || byPassUnpause) {
+                // Trigger only once per press
+                if (escKeyCount == 0) {
+                    // Handle paused case
+                    if (env.getIsPaused()) {
+                        env.setIsPaused(false);
+                        wasPaused = true;
+                    } else {
+                        env.setIsPaused(true);
+                        drawInGameMenu();
+                    }
                 }
+                escKeyCount += 1;
+                byPassUnpause = false;
+
+            } else {
+                escKeyCount = 0;
             }
 
             // Level is complete keep the game paused
             if (env.getIsLevelComplete() || env.getEndLevel()) {
                 env.setIsPaused(true);
+
+                // Reset the music
+                restartMusicLoop(2, overAllVolume);
+//                ah.stopCurrentAudioMusic();
+//                ah.setVolume(overAllVolume);
+//                ah.setCurrentMusic(2);
+//                ah.startCurrentAudioMusic();
+                if (myfish.getIsAlive()) {
+                    // Play winner audio sfx
+                    playAudioSFX(5, 1.0f);
+                } else {
+                    // Play loser audio sfx
+                    playAudioSFX(9, 1.0f);
+                }
+
                 gameState = 6; // Go to CheckoutPage
             }
 
@@ -1014,7 +1435,7 @@ public class Main extends GameEngine {
     public void resetGameLevel() {
 
         // Remove all enemies from the level
-        removeAllEnemies(enemies);
+        removeAllEnemies(enemies, sharkEnemies);
 
         // Reset the spawn timer fields
         enemySpawnTimer = 0.0;
@@ -1043,6 +1464,7 @@ public class Main extends GameEngine {
         myfish.setYVel(0);
         myfish.setIsAlive(true);
         myfish.setSize(0);
+        myfish.resetSpeed();
 
         // Reset the in game display timer
         env.setBaseTime(getTime());
@@ -1066,13 +1488,30 @@ public class Main extends GameEngine {
         starfish.setTimesEaten(0);
     }
 
+    public void resetGameTargets() {
+        // Reset the game level
+        env.setCurrentLevel(0);
+
+        // Reset the target goals
+        targetGoal = defaultTarget + (targetGoalIncrement * env.getCurrentLevel());
+        growthThresholdM = (int)(targetGoal / 3.0);
+        growthThresholdL = (int)((targetGoal / 3.0) * 2.0);
+        env.setTargetGoal(targetGoal);
+        env.setGrowthThresholdLarge(growthThresholdL);
+        env.setGrowthThresholdMedium(growthThresholdM);
+
+        // Reset the target time
+        targetTime = defaultTime - (targetTimeAdjuster * env.getCurrentLevel());
+        env.setCountDownTimer(targetTime);
+    }
+
     public void nextLevel() {
         // Increment level
         env.setCurrentLevel(env.getCurrentLevel() + 1);
 
         // Increment the target goal for the level
-        targetGoal = targetGoal + (targetGoalIncrement * env.getCurrentLevel());
-        if (targetGoal >= goalMaximum * 0.66) { env.setHardMode(true); }
+        targetGoal = defaultTarget + (targetGoalIncrement * env.getCurrentLevel());
+//        if (targetGoal >= goalMaximum * 0.66) { env.setHardMode(true); }
         if (targetGoal > goalMaximum) {
             // If the goal exceeds the maximum then set to the maximum
             targetGoal = goalMaximum;
@@ -1080,18 +1519,22 @@ public class Main extends GameEngine {
             // If the game is not time attack, then single player is complete
             if (!env.getIsTimeAttack()) { singlePlayerComplete = true; }
         }
+        // Update the growth thresholds
+        growthThresholdM = (int)(targetGoal / 3.0);
+        growthThresholdL = (int)((targetGoal / 3.0) * 2.0);
+
         // Set the target goal for the level
         env.setTargetGoal(targetGoal);
+        env.setGrowthThresholdLarge(growthThresholdL);
+        env.setGrowthThresholdMedium(growthThresholdM);
 
         if (env.getIsTimeAttack()) {
             // Reset the time attack timer
             env.setCountDownCurrentTimer(0.0);
 
             // If the game is time attack decrement the target time
-            targetTime -= targetTimeAdjuster;
-            if (targetTime < defaultTime * 0.33) {
-                env.setHardMode(true);
-            }
+            targetTime = defaultTime - (targetTimeAdjuster * env.getCurrentLevel());
+//            if (targetTime < defaultTime * 0.33) { env.setHardMode(true); }
             // If the target time goes below the minimum, then time attack is complete
             if (targetTime < timeMinimum) {
                 targetTime = timeMinimum;
