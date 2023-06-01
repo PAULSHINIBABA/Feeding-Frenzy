@@ -53,8 +53,10 @@ public class myfish {
         speedDeceleration = 1.0;
         maxSpeed = MAX_SPEED_DEFAULT;
 
-        originX = x + (w / 2.0);
-        originY = y + (h / 2.0);
+//        originX = x + (w / 2.0);
+//        originY = y + (h / 2.0);
+        originX = x;
+        originY = y;
 
         defaultWidth = w;
         defaultHeight = h;
@@ -159,10 +161,12 @@ public class myfish {
                              boolean down,
                              boolean left,
                              boolean right,
-                             double windowX,
-                             double windowY,
-                             double windowW,
-                             double windowH) {
+                             double x,
+                             double y,
+                             double ox,
+                             double oy,
+                             double w,
+                             double h) {
 
         boolean isMoving = false;
         if (up) {
@@ -196,6 +200,7 @@ public class myfish {
         }
 
         // Normalize the speed
+        // TODO: Not working, fix
         double[] normalizedSpeed = normalizeSpeed(myfishspeed_x, myfishspeed_y);
 
         // Update the position based on the speed normalized
@@ -203,19 +208,33 @@ public class myfish {
         originY += normalizedSpeed[1] * dt;
 
         // Edge detection
-        if ((originX - offsetX) < windowX) {
-            originX = windowX + offsetX;
+//        if ((originX - offsetX) < windowX) {
+//            originX = windowX + offsetX;
+//            myfishspeed_x = 0;
+//        } else if (originX + offsetX > (windowW + windowX)) {
+//            originX = (windowW + windowX) - offsetX;
+//            myfishspeed_x = 0;
+//        }
+        if ((originX - offsetX) < -(ox - (w / 2.0))) {
+            originX = -(ox - (w / 2.0)) + offsetX;
             myfishspeed_x = 0;
-        } else if (originX + offsetX > (windowW + windowX)) {
-            originX = (windowW + windowX) - offsetX;
+        } else if ((originX + offsetX) > (ox + (w / 2.0))) {
+            originX = ox + (w / 2.0) - offsetX;
             myfishspeed_x = 0;
         }
 
-        if ((originY - offsetY) < windowY) {
-            originY = windowY + offsetY;
+//        if ((originY - offsetY) < windowY) {
+//            originY = windowY + offsetY;
+//            myfishspeed_y = 0;
+//        } else if ((originY + offsetY) > (windowY + windowH)) {
+//            originY = (windowY + windowH) - offsetY;
+//            myfishspeed_y = 0;
+//        }
+        if ((originY - offsetY) < -(oy - (h / 2.0))) {
+            originY = -(oy - (h / 2.0)) + offsetY;
             myfishspeed_y = 0;
-        } else if ((originY + offsetY) > (windowY + windowH)) {
-            originY = (windowY + windowH) - offsetY;
+        } else if ((originY + offsetY) > (oy + (h / 2.0))) {
+            originY = (oy + (h / 2.0)) - offsetY;
             myfishspeed_y = 0;
         }
     }

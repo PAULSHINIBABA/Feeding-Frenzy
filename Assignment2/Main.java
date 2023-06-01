@@ -36,6 +36,7 @@ public class Main extends GameEngine {
         initEnemies();
     }
     public void update(double dt) {
+        System.out.println("");
         updateSystem(dt);
         updateMenu(dt);
         updateCheckout(dt);
@@ -50,10 +51,13 @@ public class Main extends GameEngine {
         if (env.getIsPaused()) { return; }
 
         updatePlayer(dt);
-        updateItems(dt);
-        updateEnemies(dt);
+        // TODO: Re-add these
+//        updateItems(dt);
+//        updateEnemies(dt);
     }
     public void paintComponent() {
+//        changeColor(0,0,0);
+        changeBackgroundColor(0,0,0);
         // The bottom most layer
         drawMenu();
         drawCheckout();
@@ -61,15 +65,19 @@ public class Main extends GameEngine {
 
         drawEnvironment();
 
-        drawEnemies(enemies); // Draw enemy first
-        drawEnemies(sharkEnemies); // Draw shark enemy next
-        drawItems(); // Then draw items
+        // TODO: Re-add these
+//        drawEnemies(enemies); // Draw enemy first
+//        drawEnemies(sharkEnemies); // Draw shark enemy next
+//        drawItems(); // Then draw items
         drawPlayer(); // Then draw the player
 
         drawEnvironmentLayerTop();
 
         // The top most layer
         drawInGameMenu();
+
+        changeColor(255,0,255);
+        drawCircle(200,200,2);
     }
 
 
@@ -170,15 +178,15 @@ public class Main extends GameEngine {
     public void colliderCheck() {
         // Get the player head x collider
         double px;
-        if (myfish.getFacingLeft()) { px = myfish.getXPos() - myfish.getOffsetX(); }
-        else { px = myfish.getXPos() + myfish.getOffsetX(); }
+        if (myfish.getFacingLeft()) { px = myfish.getXPos() - myfish.getFishHeadColliderXOffset(); }
+        else { px = myfish.getXPos() + myfish.getFishHeadColliderXOffset(); }
 
         // Check if the enemy is at the head
         ArrayList<Enemy> removalValues = new ArrayList<Enemy>();
         for (Enemy en : enemies) {
             // Check players head to enemies body collisionF
             if (calcDistPointToSquare(px,
-                    (myfish.getYPos()),
+                    (myfish.getYPos() + myfish.getFishHeadColliderYOffset()),
                     (en.getXPos() - en.getColliderBodyXOffset()),
                     (en.getYPos() - en.getColliderBodyYOffset()),
                     en.getColliderBodyLength(),
@@ -727,16 +735,18 @@ public class Main extends GameEngine {
     public void initPlayer() {
         double fishW = 60;
         double fishH = 40;
-        double fishX = (width / 2.0);
-        double fishY = fishH * 3;
+        double fishX = (width / 2.0); // starting x
+        double fishY = fishH * 3; // starting y
         myfish = new myfish(fishX, fishY, fishW, fishH);
-        myfish.setYVel(175);
+        myfish.setYVel(0);
         double fishImageW = fishW * 1.5;
         double fishImageH = fishH * 1.5;
         myfish.setImageParameters((fishImageW / 2.0),
                 (fishImageH / 2.0),
                 fishImageW,
                 fishImageH);
+        myfish.setFishHeadColliderXOffset((fishW / 2.0) -12);
+        myfish.setFishHeadColliderYOffset(8);
 
         myFishImage = loadImage(assetPathImage + "entity/entity_player1.png");
     }
@@ -745,7 +755,9 @@ public class Main extends GameEngine {
             if (spaceKey) {
                 myfish.setIsAlive(true);
                 env.setCurrentGoal(env.getCurrentGoal() + 1);
+//                env.setIsLevelComplete(true);
             } // TODO: CHEAT for debug, remove when done
+
 
             // Player is dead don't process the player
             if (!myfish.getIsAlive()) { return; }
@@ -759,21 +771,44 @@ public class Main extends GameEngine {
             }
 
             // playArea fields
-            double playAreaX = env.getPlayAreaX();
-            double playAreaY = env.getPlayAreaY();
-            double playAreaWidth = env.getPlayAreaWidth();
-            double playAreaHeight = env.getPlayAreaHeight();
+            double playAreaX = env.getPlayAreaOriginX() - env.getPlayAreaOffsetX();
+            double playAreaY = env.getPlayAreaOriginY() - env.getPlayAreaOffsetY();
+            double playAreaWidth = env.getEnvironmentGlobalPlayAreaWidth();
+            double playAreaHeight = env.getEnvironmentGlobalPlayAreaHeight();
+//            double playAreaX = env.getPlayAreaOriginX();
+//            double playAreaY = env.getPlayAreaOriginY();
+//            double playAreaWidth = env.getEnvironmentGlobalPlayAreaWidth();
+//            double playAreaHeight = env.getEnvironmentGlobalPlayAreaHeight();
+
+//            System.out.println("pax:" + playAreaX + "\tpay:" + playAreaY + "\tpaw:" + playAreaWidth + "\tpal:" + playAreaHeight);
 
             // Fish moves within the playArea bounds
+//            myfish.updatemyfish(dt,
+//                    upKey,
+//                    downKey,
+//                    leftKey,
+//                    rightKey,
+//                    playAreaX,
+//                    playAreaY,
+//                    playAreaWidth,
+//                    playAreaHeight);
+            double x = env.getWindowToGlobalOriginOffsetX();
+            double y = env.getWindowToGlobalOriginOffsetY();
+            double ox = env.getGlobalOriginX();
+            double oy = env.getGlobalOriginY();
+            double w = env.getGlobalWidth();
+            double h = env.getGlobalHeight();
             myfish.updatemyfish(dt,
                     upKey,
                     downKey,
                     leftKey,
                     rightKey,
-                    playAreaX,
-                    playAreaY,
-                    playAreaWidth,
-                    playAreaHeight);
+                    x,
+                    y,
+                    ox,
+                    oy,
+                    w,
+                    h);
         }
     }
     public void drawPlayer() {
@@ -787,15 +822,25 @@ public class Main extends GameEngine {
         // Decide which image to draw based on direction
         Image currentFishImage = myFishImage;
         if (myfish.getFacingLeft()) {
+//            drawImage(currentFishImage,
+//                    (myfish.getXPos() + myfish.getImageOffsetX()),
+//                    (myfish.getYPos() - myfish.getImageOffsetY()),
+//                    -myfish.getImageWidth(),
+//                    myfish.getImageHeight());
             drawImage(currentFishImage,
-                    (myfish.getXPos() + myfish.getImageOffsetX()),
-                    (myfish.getYPos() - myfish.getImageOffsetY()),
+                    (env.getPlayAreaOriginX() + myfish.getImageOffsetX()),
+                    (env.getPlayAreaOriginY() - myfish.getImageOffsetY()),
                     -myfish.getImageWidth(),
                     myfish.getImageHeight());
         } else {
+//            drawImage(currentFishImage,
+//                    (myfish.getXPos() - myfish.getImageOffsetX()),
+//                    (myfish.getYPos() - myfish.getImageOffsetY()),
+//                    myfish.getImageWidth(),
+//                    myfish.getImageHeight());
             drawImage(currentFishImage,
-                    (myfish.getXPos() - myfish.getImageOffsetX()),
-                    (myfish.getYPos() - myfish.getImageOffsetY()),
+                    (env.getPlayAreaOriginX() - myfish.getImageOffsetX()),
+                    (env.getPlayAreaOriginY() - myfish.getImageOffsetY()),
                     myfish.getImageWidth(),
                     myfish.getImageHeight());
         }
@@ -807,31 +852,31 @@ public class Main extends GameEngine {
         // Draw the collider box
         changeColor(0,255,0);
         // top
-        drawLine((myfish.getXPos() - myfish.getOffsetX()),
-                (myfish.getYPos() - myfish.getOffsetY()),
-                (myfish.getXPos() + myfish.getOffsetX()),
-                (myfish.getYPos() - myfish.getOffsetY()));
+        drawLine((env.getPlayAreaOriginX() - myfish.getOffsetX()),
+                (env.getPlayAreaOriginY() - myfish.getOffsetY()),
+                (env.getPlayAreaOriginX() + myfish.getOffsetX()),
+                (env.getPlayAreaOriginY() - myfish.getOffsetY()));
         // bottom
-        drawLine((myfish.getXPos() - myfish.getOffsetX()),
-                (myfish.getYPos() + myfish.getOffsetY()),
-                (myfish.getXPos() + myfish.getOffsetX()),
-                (myfish.getYPos() + myfish.getOffsetY()));
+        drawLine((env.getPlayAreaOriginX() - myfish.getOffsetX()),
+                (env.getPlayAreaOriginY() + myfish.getOffsetY()),
+                (env.getPlayAreaOriginX() + myfish.getOffsetX()),
+                (env.getPlayAreaOriginY() + myfish.getOffsetY()));
         // left
-        drawLine((myfish.getXPos() - myfish.getOffsetX()),
-                (myfish.getYPos() - myfish.getOffsetY()),
-                (myfish.getXPos() - myfish.getOffsetX()),
-                (myfish.getYPos() + myfish.getOffsetY()));
+        drawLine((env.getPlayAreaOriginX() - myfish.getOffsetX()),
+                (env.getPlayAreaOriginY() - myfish.getOffsetY()),
+                (env.getPlayAreaOriginX() - myfish.getOffsetX()),
+                (env.getPlayAreaOriginY() + myfish.getOffsetY()));
         // right
-        drawLine((myfish.getXPos() + myfish.getOffsetX()),
-                (myfish.getYPos() - myfish.getOffsetY()),
-                (myfish.getXPos() + myfish.getOffsetX()),
-                (myfish.getYPos() + myfish.getOffsetY()));
+        drawLine((env.getPlayAreaOriginX() + myfish.getOffsetX()),
+                (env.getPlayAreaOriginY() - myfish.getOffsetY()),
+                (env.getPlayAreaOriginX() + myfish.getOffsetX()),
+                (env.getPlayAreaOriginY() + myfish.getOffsetY()));
 
         changeColor(255,0,0);
         double fishX;
-        double fishY = myfish.getYPos();
-        if (myfish.getFacingLeft()) { fishX = myfish.getXPos() - myfish.getOffsetX(); }
-        else { fishX = myfish.getXPos() + myfish.getOffsetX(); }
+        double fishY = env.getPlayAreaOriginY() + myfish.getFishHeadColliderYOffset();
+        if (myfish.getFacingLeft()) { fishX = env.getPlayAreaOriginX() - myfish.getFishHeadColliderXOffset(); }
+        else { fishX = env.getPlayAreaOriginX() + myfish.getFishHeadColliderXOffset(); }
         drawCircle(fishX, fishY, 2);
     }
 
@@ -854,10 +899,9 @@ public class Main extends GameEngine {
     }
     public void updateItems(double dt) {
         // Set the pearl x,y pos
-        double areaW = env.getPlayAreaWidth();
-        double areaH = env.getPlayAreaHeight();
-        double spawnOffsetWidth = env.getHUDWidth();
-        double spawnOffsetHeight = env.getHUDHeight();
+        double spawnOffEdgeOffsetPearl = pearl.getwidth() / 2.0;
+        double pearlAreaW = env.getEnvironmentGlobalPlayAreaWidth() - spawnOffEdgeOffsetPearl;
+        double pearlAreaH = env.getEnvironmentGlobalPlayAreaHeight() - spawnOffEdgeOffsetPearl;
 
         double randSpeed = rand(100);
         if(!env.getIsLevelComplete()) {
@@ -868,10 +912,10 @@ public class Main extends GameEngine {
                     myfish.getmyfishRec(),
                     fishXSpeed,
                     fishYSpeed,
-                    rand(areaW),
-                    rand(areaH),
-                    spawnOffsetWidth,
-                    spawnOffsetHeight)) {
+                    rand(pearlAreaW),
+                    rand(pearlAreaH),
+                    spawnOffEdgeOffsetPearl,
+                    spawnOffEdgeOffsetPearl)) {
 
                 // Play bite sfx
                 playAudioSFX(1, 1.0f);
@@ -883,16 +927,22 @@ public class Main extends GameEngine {
                 myfish.incrementAccelerationSpeed(speedVal);
             }
 
+            double spawnOffEdgeOffsetStarfish = starfish.getwidth() / 2.0;
+            double starfishSpawnWidthMax = env.getEnvironmentGlobalPlayAreaWidth();
+            double starfishSpawnHeightMax = env.getEnvironmentGlobalPlayAreaHeight();
+            double starfishAreaW = starfishSpawnWidthMax - spawnOffEdgeOffsetStarfish;
+            double starfishAreaH = starfishSpawnHeightMax - spawnOffEdgeOffsetStarfish;
+
             //update starfish
             if (starfish.updatestarfish(dt,
                     myfish.getmyfishRec(),
-                    rand(areaW),
-                    rand(areaH),
-                    spawnOffsetWidth,
-                    spawnOffsetHeight,
+                    rand(starfishAreaW),
+                    rand(starfishAreaH),
+                    spawnOffEdgeOffsetStarfish,
+                    spawnOffEdgeOffsetStarfish,
                     randSpeed,
-                    areaW,
-                    areaH)) {
+                    starfishSpawnWidthMax,
+                    starfishSpawnHeightMax)) {
 
                 // Play bite sound
                 playAudioSFX(1, 1.0f);
@@ -903,15 +953,23 @@ public class Main extends GameEngine {
                 env.addScore(20);
             }
 
+            double spawnOffEdgeOffsetBomb = starfish.getwidth() / 2.0;
+            double bombSpawnWidthMax = env.getEnvironmentGlobalPlayAreaWidth();
+            double bombSpawnHeightMax = env.getEnvironmentGlobalPlayAreaHeight();
+            double bombAreaW = bombSpawnWidthMax - spawnOffEdgeOffsetStarfish;
+            double bombAreaH = bombSpawnHeightMax - spawnOffEdgeOffsetStarfish;
+
+//            double envOrgX = env.environment
+
             if (boom.updateboom(dt,
                     myfish.getmyfishRec(),
-                    rand(areaW),
-                    rand(areaH),
-                    spawnOffsetWidth,
-                    spawnOffsetHeight,
+                    rand(bombAreaW),
+                    rand(bombAreaH),
+                    spawnOffEdgeOffsetBomb,
+                    spawnOffEdgeOffsetBomb,
                     randSpeed,
-                    areaW,
-                    areaH)) {
+                    bombSpawnWidthMax,
+                    bombSpawnHeightMax)) {
 
                 // Play explosion sfx
                 playAudioSFX(10, 1.2f);
@@ -919,6 +977,7 @@ public class Main extends GameEngine {
                 myfish.setIsAlive(false);
                 env.setEndLevel();
             }
+
         }
     }
     public void drawItems() {
@@ -1094,8 +1153,11 @@ public class Main extends GameEngine {
         int chanceRemoveEnemy = randSys.nextInt(100);
         boolean removeEnemy = (chanceRemoveEnemy < en.getChanceToLeaveEnvironment());
 
-        double playAreaXOffset = env.getEnvironmentXOffset();
-        double playAreaYOffset = env.getEnvironmentYOffset();
+        // TODO: Fix this
+//        double playAreaXOffset = env.getEnvironmentXOffset();
+//        double playAreaYOffset = env.getEnvironmentYOffset();
+        double playAreaXOffset = 0;
+        double playAreaYOffset = 0;
 
         double bodyLengthOffset =  en.getColliderBodyLength() / 2;
         double bodyHeightOffset =  en.getColliderBodyHeight() / 2;
@@ -1236,37 +1298,73 @@ public class Main extends GameEngine {
         final int enemyMedium = 78; // 45 + 33
         int selectSize = randSys.nextInt(100);
 
-        int playAreaWidth = env.getPlayAreaWidth();
-        int playAreaHeight = env.getPlayAreaHeight();
-        double playAreaXOffset = env.getEnvironmentXOffset();
-        double playAreaYOffset = env.getEnvironmentYOffset();
+//        double playAreaWidth = env.getPlayAreaWidth();
+//        double playAreaHeight = env.getPlayAreaHeight();
+//        double playAreaXOffset = env.getEnvironmentXOffset();
+//        double playAreaYOffset = env.getEnvironmentYOffset();
+
+        double globalPlayAreaWidth = env.getEnvironmentGlobalPlayAreaWidth();
+        double globalPlayAreaHeight = env.getEnvironmentGlobalPlayAreaHeight();
+        double globalPlayAreaX = env.getEnvironmentGlobalPlayAreaX();
+        double globalPlayAreaY = env.getEnvironmentGlobalPlayAreaY();
+        double globalPlayAreaOffsetX = env.getEnvironmentGlobalPlayAreaOffsetX();
+        double globalPlayAreaOffsetY = env.getEnvironmentGlobalPlayAreaOffsetY();
 
         Enemy en;
         int size;
+        int headOffsetTemp;
+        Image tempImage;
         if (selectSize < enemySmall) { // spawn a small fish
             size = 0;
-            en = new Enemy(enemyFish[0], size, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
-            en.setHeadYOffset(10);
-
+            headOffsetTemp = 10;
+            tempImage = enemyFish[0];
+//            en = new Enemy(enemyFish[0],
+//                    size,
+//                    (globalPlayAreaX - globalPlayAreaOffsetX),
+//                    (globalPlayAreaY - globalPlayAreaOffsetY),
+//                    globalPlayAreaWidth,
+//                    globalPlayAreaHeight);
+//            en.setHeadYOffset(10);
         } else if (selectSize < enemyMedium) { // spawn a medium fish
             size = 1;
-            en = new Enemy(enemyFish[1], size, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
-            en.setHeadYOffset(0);
-
+            headOffsetTemp = 0;
+            tempImage = enemyFish[1];
+//            en = new Enemy(enemyFish[1], size, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
+//            en.setHeadYOffset(0);
         } else { // spawn a large fish
             size = 2;
-            en = new Enemy(enemyFish[2], size, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
-            en.setHeadYOffset(0);
-
+            headOffsetTemp = 0;
+            tempImage = enemyFish[2];
+//            en = new Enemy(enemyFish[2], size, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
+//            en.setHeadYOffset(0);
         }
+        en = new Enemy(tempImage,
+                size,
+                (globalPlayAreaX - globalPlayAreaOffsetX),
+                (globalPlayAreaY - globalPlayAreaOffsetY),
+                globalPlayAreaWidth,
+                globalPlayAreaHeight);
+        en.setHeadYOffset(headOffsetTemp);
         enemies.add(en);
     }
 
     public void createShark() {
         if (sharkEnemies.size() >= maxShark) { return; }
 
+        double globalPlayAreaWidth = env.getEnvironmentGlobalPlayAreaWidth();
+        double globalPlayAreaHeight = env.getEnvironmentGlobalPlayAreaHeight();
+        double globalPlayAreaX = env.getEnvironmentGlobalPlayAreaX();
+        double globalPlayAreaY = env.getEnvironmentGlobalPlayAreaY();
+        double globalPlayAreaOffsetX = env.getEnvironmentGlobalPlayAreaOffsetX();
+        double globalPlayAreaOffsetY = env.getEnvironmentGlobalPlayAreaOffsetY();
+
         // The shark should be the largest size
-        Enemy shk = new Enemy(shark, 3, env.getEnvironmentXOffset(), env.getEnvironmentYOffset(), env.getPlayAreaWidth(), env.getPlayAreaHeight());
+        Enemy shk = new Enemy(shark,
+                3,
+                (globalPlayAreaX - globalPlayAreaOffsetX),
+                (globalPlayAreaY - globalPlayAreaOffsetY),
+                globalPlayAreaWidth,
+                globalPlayAreaHeight);
 
         // The shark should be very fast, ie (400 + range(400))
         shk.setRandomVelocity(400, 400);
@@ -1406,6 +1504,19 @@ public class Main extends GameEngine {
                 gameState = 6; // Go to CheckoutPage
             }
             UpdateTimer(wasPaused);
+            if (!env.getIsPaused()) {
+                // TODO: WIP, fix to make sure the environment updates to player coordinates
+//                env.updateCurrentGlobalPlayerCoordinates(myfish.getXPos() + (myfish.getWidth() * 2.5), myfish.getYPos() - (myfish.getHeight()));
+                System.out.println("\tfx:" + myfish.getXPos() + "\tfy:" + myfish.getYPos());
+                env.updateWindowToGlobalOriginOffsets(myfish.getXPos(), myfish.getYPos());
+//                if (myfish.getSize() == 0) {
+//                    env.updateCurrentGlobalPlayerCoordinates(myfish.getXPos() + (myfish.getWidth() * 2.5), myfish.getYPos() - (myfish.getHeight()));
+//                } else if (myfish.getSize() == 1) {
+//                    env.updateCurrentGlobalPlayerCoordinates(myfish.getXPos() + (myfish.getWidth() * 2.2), myfish.getYPos() - (myfish.getHeight()));
+//                } else if (myfish.getSize() == 2) {
+//                    env.updateCurrentGlobalPlayerCoordinates(myfish.getXPos() + (myfish.getWidth() * 1.0), myfish.getYPos());
+//                }
+            }
         }
     }
 
@@ -1437,7 +1548,7 @@ public class Main extends GameEngine {
         myfish.setXPos(width / 2.0);
         myfish.setYPos(myfish.getHeight() * 3);
         myfish.setXVel(0);
-        myfish.setYVel(175);
+        myfish.setYVel(0);
         myfish.setIsAlive(true);
         myfish.setSize(0);
         myfish.resetSpeed();
@@ -1463,7 +1574,7 @@ public class Main extends GameEngine {
         starfish.setTimesEaten(0);
         myfish.setSize(0);
         myfish.updateSize();
-        myfish.setYVel(175);
+        myfish.setYVel(0);
     }
 
     public void resetGameTargets() {
