@@ -30,12 +30,12 @@ public class starfish {
         starfishspeed_y=-50+randspeed;
     }
     public void starfishmove(double dt,double Window_w,double Window_h, double offsetX, double offsetY){
-        starfishpos_x+=starspeed_x*dt;
-        starfishpos_y+=starfishspeed_y*dt;
-        if (starfishpos_x<offsetX || starfishpos_x + starfish_w > (offsetX + Window_w)){
-            starspeed_x*=-1; // reverse direction
+        starfishpos_x += starspeed_x * dt;
+        starfishpos_y += starfishspeed_y * dt;
+        if (starfishpos_x < offsetX || starfishpos_x + starfish_w > (Window_w - offsetX)){
+            starspeed_x *= -1; // reverse direction
         }
-        if (starfishpos_y<offsetY || starfishpos_y + starfish_h > (offsetY + Window_h)){
+        if (starfishpos_y < offsetY || starfishpos_y + starfish_h > (Window_h - offsetY)){
             starfishspeed_y*=-1; // reverse direction
         }
     }
@@ -54,7 +54,7 @@ public class starfish {
             setvisible(true);
             resettimevis();
         }
-        starfishmove(dt,Window_w,Window_h, offsetX, offsetY);
+        starfishmove(dt, Window_w, Window_h, offsetX, offsetY);
 
         if (isvisible()&&myfishrec.intersects(new Rectangle(new Rectangle((int)getpositionx(),(int)getpositiony(),getwidth(),getheight())))){
             setvisible(false);

@@ -65,7 +65,7 @@ public class Enemy {
     // - The enemy size
     // - The frameWidth
     // - The frameHeight
-    public Enemy(Image image, int size, double frameXOffset, double frameYOffset, int frameWidth, int frameHeight) throws IllegalArgumentException {
+    public Enemy(Image image, int size, double frameXOffset, double frameYOffset, double frameWidth, double frameHeight) throws IllegalArgumentException {
         this(image, size, 0.0, 0.0, 0.0, 0.0, 0.0, frameXOffset, frameYOffset, frameWidth, frameHeight);
     }
     public Enemy(Image image,
@@ -77,8 +77,8 @@ public class Enemy {
                  double yHeading,
                  double frameXOffset,
                  double frameYOffset,
-                 int frameWidth,
-                 int frameHeight) throws IllegalArgumentException {
+                 double frameWidth,
+                 double frameHeight) throws IllegalArgumentException {
         // Initialize the randomizing variable
         RANDOM_VALUE = new Random();
 
@@ -153,13 +153,13 @@ public class Enemy {
     }
     public void setXPos(double xPos) { this.xPos = xPos; }
     public void setYPos(double yPos) { this.yPos = yPos; }
-    public void setRandomXPos(int frameWidth, double frameXOffset) {
+    public void setRandomXPos(double frameWidth, double frameXOffset) {
         // Randomly assigning a position
         boolean enterLeft = RANDOM_VALUE.nextBoolean();
         if (enterLeft) { setXPos( frameXOffset - (colliderBodyLength + EDGE_OFFSET) ); }
         else { setXPos( frameXOffset + frameWidth + colliderBodyLength + EDGE_OFFSET ); }
     }
-    public void setRandomYPos(int frameHeight, double frameYOffset) {
+    public void setRandomYPos(double frameHeight, double frameYOffset) {
         setYPos(frameYOffset + EDGE_OFFSET + colliderBodyYOffset + RANDOM_VALUE.nextDouble(frameHeight - (2 * (EDGE_OFFSET + colliderBodyYOffset))));
     }
     public void setPos(double xPos, double yPos) {
@@ -185,7 +185,7 @@ public class Enemy {
     public void setYHeading(double yHeading) {
         headingYDirection = yHeading;
     }
-    public void setSidedXHeading(int frameWidth) {
+    public void setSidedXHeading(double frameWidth) {
         // If the heading is undefined, then choose based on spawn edge
         if (xPos < (frameWidth / 2.0)) { setXHeading(1.0); } // Head right
         else { setXHeading(-1.0); } // Head left

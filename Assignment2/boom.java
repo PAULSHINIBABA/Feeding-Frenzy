@@ -24,18 +24,17 @@ public class boom {
     }
     public void randomboom(double randx, double randy,double randspeed){
         setposition(randx,randy);
-        boomspeed_x=-50+randspeed;
-        boomspeed_y=-50+randspeed;
+        boomspeed_x = -50+randspeed;
+        boomspeed_y = -50+randspeed;
     }
     public void boommove(double dt,double Window_w,double Window_h, double offsetX, double offsetY){
-        boompos_x+=boomspeed_x*dt;
-        boompos_y+=boomspeed_y*dt;
-        if (boompos_x<offsetX || boompos_x + boom_w > (offsetX + Window_w)){
-            boomspeed_x*=-1; // reverse direction
-        }
-        if (boompos_y<offsetY || boompos_y + boom_h > (offsetY + Window_h)){
-            boomspeed_y*=-1; // reverse direction
-        }
+        boompos_x += boomspeed_x * dt;
+        boompos_y += boomspeed_y * dt;
+
+        // reverse direction
+        if (boompos_x < offsetX || boompos_x + boom_w > (Window_w - offsetX)) { boomspeed_x *= -1; }
+        // reverse direction
+        if (boompos_y < offsetY || boompos_y + boom_h > (Window_h - offsetY)) { boomspeed_y *= -1; }
     }
 //    public boolean updateboom(double dt, Rectangle myfishrec, boolean gamestart, double randx, double randy, double randspeed, double Window_w, double Window_h){
     public boolean updateboom(double dt,
@@ -48,14 +47,16 @@ public class boom {
                               double Window_w,
                               double Window_h){
         updatetimevis(dt);
-        if (!isvisible()&&gettimevis()>5){
+
+        if (!isvisible() && gettimevis() > 5){
             randomboom((offsetX + randx),(offsetY + randy),randspeed);
             setvisible(true);
             resettimevis();
         }
-        boommove(dt,Window_w,Window_h, offsetX, offsetY);
 
-        if (isvisible()&&myfishrec.intersects(new Rectangle(new Rectangle((int)getpositionx(),(int)getpositiony(),getwidth(),getheight())))){
+        boommove(dt, Window_w, Window_h, offsetX, offsetY);
+
+        if (isvisible() && myfishrec.intersects( new Rectangle( new Rectangle( (int)getpositionx(),(int)getpositiony(),getwidth(),getheight() ) ) )){
             setvisible(false);
             return true;
         }
@@ -84,10 +85,10 @@ public class boom {
         return boom_h;
     }
     public void updatetimevis(double dt){
-        time_visible+=dt;
+        time_visible += dt;
     }
     public void resettimevis(){
-        time_visible=0;
+        time_visible = 0;
     }
     public double gettimevis(){
         return time_visible;
