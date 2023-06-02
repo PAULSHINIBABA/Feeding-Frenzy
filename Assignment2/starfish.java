@@ -19,15 +19,18 @@ public class starfish extends Item {
     // Constructor
     public starfish(GameEngine engine, Image starfishImage) { super(engine, starfishImage); }
 
-    // Upodate the starfish parameters
+    // Update the starfish with this function
+    // Handles the spawning, movement, and its state
     public boolean updatestarfish(double dt,
                                   double globalW,
                                   double globalH,
                                   double playerW,
                                   double playerH) {
+        // Update the visibility timer
         updateTimeVisible(dt);
         double delayTime = 5;
 
+        // Retrieve the game boundaries
         double[] environmentBoundary = new double[4];
         Random nr = new Random();
         environmentBoundary[0] = getPlayAreaCOMX() + getWindowToGlobalCOMOffsetX(); // Left edge
@@ -35,30 +38,45 @@ public class starfish extends Item {
         environmentBoundary[2] = getPlayAreaCOMY() + getWindowToGlobalCOMOffsetY(); // Top edge
         environmentBoundary[3] = getPlayAreaCOMY() + getWindowToGlobalCOMOffsetY() + globalH; // Bottom edge
 
+        // Check whether the starfish should be processed
         if(!getIsVisible() && getTimeVisible() >= delayTime) {
+            // Generate and save the random spawn location
             setSavedRandomPos(nr.nextDouble((environmentBoundary[1] - environmentBoundary[0])), nr.nextDouble((environmentBoundary[3] - environmentBoundary[2])));
-
+            // Randomize the speed of the starfish
             randomSpeed();
+            // Set the position of the starfish to spawn
             setPos(getSavedRandomPosX(), getSavedRandomPosY());
-
+            // Set the starfish to visible
             setVisible(true);
+            // Reset the visibility timer for when it can next be re-seen
             resetTimeVisible();
-        } else { moveItem(dt, globalW, globalH); }
 
-        // Create new collider for the player based on player parameters
+        } else {
+            // Update the movement of the starfish
+            moveItem(dt, globalW, globalH);
+        }
+
+        // Define the collider parameters for the player based on player parameters
         double px = (-getWindowToGlobalCOMOffsetX()) - (playerW / 2.0);
         double py = (-getWindowToGlobalCOMOffsetY()) - (playerH / 2.0);
+        // Define the collider parameters for the starfish
         double stx = getXPos();
         double sty = getYPos();
 
-        //check collision with fish
+        // Create the rectangles to check for a collision
         Rectangle playerCollider = new Rectangle((int)px, (int)py, (int)playerW, (int)playerH);
         Rectangle starfishRect = new Rectangle((int)stx, (int)sty, (int)getWidth(), (int)getHeight());
+
+        // Check for a collision with the player
         if (getIsVisible() && playerCollider.intersects(new Rectangle(starfishRect))) {
+            // There was a collision, set the starfish to not be visible
             setVisible(false);
+            // Increment the times the starfish was eaten
             setTimesEaten(getTimesEaten() + 1);
+            // Return true for further collision with starfish handling
             return true;
         }
+        // There was no collision with the starfish
         return false;
     }
 }

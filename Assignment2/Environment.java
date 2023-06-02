@@ -334,6 +334,10 @@ public class Environment {
     public void setGlobalHeight(double height) { globalHeight = height; }
     public void setWindowToGlobalOriginOffsetX(double originOffset) { windowToGlobalCOMOffsetX = originOffset; }
     public void setWindowToGlobalOriginOffsetY(double originOffset) { windowToGlobalCOMOffsetY = originOffset; }
+    public void setWindowToGlobalCOMOffsetX(double x, double y) {
+        windowToGlobalCOMOffsetX = -x;
+        windowToGlobalCOMOffsetY = -y;
+    }
 
 
     //-------------------------------------------------------
@@ -640,9 +644,5 @@ public class Environment {
     public void updateCurrentGlobalPlayerCoordinates(double px, double py) {
         currentPlayerGlobalX = -px;
         currentPlayerGlobalY = -py;
-    }
-    public void windowToGlobalCOMOffsetX(double x, double y) {
-        windowToGlobalCOMOffsetX = -x;
-        windowToGlobalCOMOffsetY = -y;
     }
 }

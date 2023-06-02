@@ -53,8 +53,6 @@ public class myfish {
         speedDeceleration = 1.0;
         maxSpeed = MAX_SPEED_DEFAULT;
 
-//        originX = x + (w / 2.0);
-//        originY = y + (h / 2.0);
         originX = x;
         originY = y;
 
@@ -76,7 +74,6 @@ public class myfish {
         fishImageOffsetX = fishImageWidth / 2.0;
         fishImageOffsetY = fishImageHeight / 2.0;
 
-
         playerSize = 0;
         isAlive = true;
         facingLeft = true;
@@ -84,7 +81,6 @@ public class myfish {
         fishHeadColliderXOffset = offsetX;
         fishHeadColliderYOffset = offsetY;
     }
-
 
 
     //**************************************************
@@ -96,7 +92,6 @@ public class myfish {
     }
     public void setFishHeadColliderXOffset(double x) { fishHeadColliderXOffset = x; }
     public void setFishHeadColliderYOffset(double y) { fishHeadColliderYOffset = y; }
-//    public void setFishHeadColliderRadius(double r) { fishHeadColliderRadius = r; }
     public void setFishHeadColliderParameters(double x, double y, double r) {
         fishHeadColliderXOffset = x;
         fishHeadColliderYOffset = y;
@@ -121,7 +116,6 @@ public class myfish {
         fishImageWidth = defaultImageWidth;
         fishImageHeight = defaultImageHeight;
     }
-
 
 
     //**************************************************
@@ -149,7 +143,6 @@ public class myfish {
     public double getMaxSpeed() { return maxSpeed; }
     public double getOffsetX() { return offsetX; }
     public double getOffsetY() { return offsetY; }
-
 
 
     //**************************************************
@@ -205,14 +198,7 @@ public class myfish {
         originX += normalizedSpeed[0] * dt;
         originY += normalizedSpeed[1] * dt;
 
-        // Edge detection
-//        if ((originX - offsetX) < windowX) {
-//            originX = windowX + offsetX;
-//            myfishspeed_x = 0;
-//        } else if (originX + offsetX > (windowW + windowX)) {
-//            originX = (windowW + windowX) - offsetX;
-//            myfishspeed_x = 0;
-//        }
+        // Check for collision with the game environment boundaries
         if ((originX - offsetX) < -(ox - (w / 2.0))) {
             originX = -(ox - (w / 2.0)) + offsetX;
             myfishspeed_x = 0;
@@ -221,13 +207,6 @@ public class myfish {
             myfishspeed_x = 0;
         }
 
-//        if ((originY - offsetY) < windowY) {
-//            originY = windowY + offsetY;
-//            myfishspeed_y = 0;
-//        } else if ((originY + offsetY) > (windowY + windowH)) {
-//            originY = (windowY + windowH) - offsetY;
-//            myfishspeed_y = 0;
-//        }
         if ((originY - offsetY) < -(oy - (h / 2.0))) {
             originY = -(oy - (h / 2.0)) + offsetY;
             myfishspeed_y = 0;

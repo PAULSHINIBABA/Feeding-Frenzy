@@ -855,7 +855,7 @@ public class Main extends GameEngine {
         boomimage = loadImage(assetPathImage + "item/item_bomb1.png");
         starfishimage = loadImage(assetPathImage + "item/item_starfish1.png");
         pearl = new pearl(this, pearlimage);
-        boom = new boom();
+        boom = new boom(this, boomimage);
         starfish = new starfish(this, starfishimage);
     }
     public void updateItems(double dt) {
@@ -868,30 +868,30 @@ public class Main extends GameEngine {
             if (rangeY < 0) { rangeY *= -1.0; }
 
             if (rangeX > 0 && rangeY > 0) {
-//                pearl.setPlayAreaCOM(env.getVisibleAreaCOMX(), env.getVisibleAreaCOMY());
-//                pearl.windowToGlobalCOMOffset(myfish.getXPos(), myfish.getYPos());
-//
-//                //update pearl
-//                if (pearl.updatepearl(dt,
-//                        env.getGlobalWidth(),
-//                        env.getGlobalHeight(),
-//                        (2 * myfish.getOffsetX()),
-//                        (2 * myfish.getOffsetY()))) {
-//
-//                    // Play bite sfx
-//                    playAudioSFX(1, 1.0f);
-//                    // Play pop sfx
-//                    playAudioSFX(7, 1.0f);
-//
-//                    double speedVal = 25.0;
-//                    myfish.incrementMaxSpeed(speedVal);
-//                    myfish.incrementAccelerationSpeed(speedVal);
-//                }
+                pearl.setPlayAreaCOM(env.getVisibleAreaCOMX(), env.getVisibleAreaCOMY());
+                pearl.setWindowToGlobalCOMOffset(myfish.getXPos(), myfish.getYPos());
+
+                // Update the pearl
+                if (pearl.updatepearl(dt,
+                        env.getGlobalWidth(),
+                        env.getGlobalHeight(),
+                        (2 * myfish.getOffsetX()),
+                        (2 * myfish.getOffsetY()))) {
+
+                    // Play bite sfx
+                    playAudioSFX(1, 1.0f);
+                    // Play pop sfx
+                    playAudioSFX(7, 1.0f);
+
+                    double speedVal = 25.0;
+                    myfish.incrementMaxSpeed(speedVal);
+                    myfish.incrementAccelerationSpeed(speedVal);
+                }
 
                 starfish.setPlayAreaCOM(env.getVisibleAreaCOMX(), env.getVisibleAreaCOMY());
-                starfish.windowToGlobalCOMOffset(myfish.getXPos(), myfish.getYPos());
+                starfish.setWindowToGlobalCOMOffset(myfish.getXPos(), myfish.getYPos());
 
-                //update starfish
+                // Update the starfish
                 if (starfish.updatestarfish(dt,
                         env.getGlobalWidth(),
                         env.getGlobalHeight(),
@@ -906,33 +906,24 @@ public class Main extends GameEngine {
                     // Update the environment score
                     env.addScore(20);
                 }
+
+                boom.setPlayAreaCOM(env.getVisibleAreaCOMX(), env.getVisibleAreaCOMY());
+                boom.setWindowToGlobalCOMOffset(myfish.getXPos(), myfish.getYPos());
+
+                // Update the bomb
+                if (boom.updateboom(dt,
+                        env.getGlobalWidth(),
+                        env.getGlobalHeight(),
+                        (2 * myfish.getOffsetX()),
+                        (2 * myfish.getOffsetY()))) {
+
+                    // Play explosion sfx
+                    playAudioSFX(10, 1.2f);
+
+                    myfish.setIsAlive(false);
+                    env.setEndLevel();
+                }
             }
-
-//            double spawnOffEdgeOffsetBomb = starfish.getwidth() / 2.0;
-//            double bombSpawnWidthMax = env.getEnvironmentGlobalPlayAreaWidth();
-//            double bombSpawnHeightMax = env.getEnvironmentGlobalPlayAreaHeight();
-//            double bombAreaW = bombSpawnWidthMax - spawnOffEdgeOffsetStarfish;
-//            double bombAreaH = bombSpawnHeightMax - spawnOffEdgeOffsetStarfish;
-//
-////            double envOrgX = env.environment
-//
-//            if (boom.updateboom(dt,
-//                    myfish.getmyfishRec(),
-//                    rand(bombAreaW),
-//                    rand(bombAreaH),
-//                    spawnOffEdgeOffsetBomb,
-//                    spawnOffEdgeOffsetBomb,
-//                    randSpeed,
-//                    bombSpawnWidthMax,
-//                    bombSpawnHeightMax)) {
-//
-//                // Play explosion sfx
-//                playAudioSFX(10, 1.2f);
-//
-//                myfish.setIsAlive(false);
-//                env.setEndLevel();
-//            }
-
         }
     }
     public void drawItems() {
@@ -942,18 +933,14 @@ public class Main extends GameEngine {
             drawboom();
         }
     }
-
     public void drawboom(){
-        if (boom.isvisible()){
-            drawImage(boomimage,
-                    boom.getpositionx(),
-                    boom.getpositiony(),
-                    boom.getwidth(),
-                    boom.getheight());
+        if (boom.getIsVisible()) {
+            boom.drawItem();
+            boom.drawItemColliders();
         }
     }
     public void drawstarfish() {
-        if (starfish.getIsVisible()){
+        if (starfish.getIsVisible()) {
             starfish.drawItem();
             starfish.drawItemColliders();
         }
@@ -1490,7 +1477,7 @@ public class Main extends GameEngine {
                 // TODO: WIP, fix to make sure the environment updates to player coordinates
 //                env.updateCurrentGlobalPlayerCoordinates(myfish.getXPos() + (myfish.getWidth() * 2.5), myfish.getYPos() - (myfish.getHeight()));
 //                System.out.println("\tfx:" + myfish.getXPos() + "\tfy:" + myfish.getYPos());
-                env.windowToGlobalCOMOffsetX(myfish.getXPos(), myfish.getYPos());
+                env.setWindowToGlobalCOMOffsetX(myfish.getXPos(), myfish.getYPos());
 //                if (myfish.getSize() == 0) {
 //                    env.updateCurrentGlobalPlayerCoordinates(myfish.getXPos() + (myfish.getWidth() * 2.5), myfish.getYPos() - (myfish.getHeight()));
 //                } else if (myfish.getSize() == 1) {
@@ -1517,8 +1504,10 @@ public class Main extends GameEngine {
         pearl.resetTimeVisible();
 
         // Reset the bomb
-        boom.setvisible(false);
-        boom.resettimevis();
+//        boom.setvisible(false);
+//        boom.resettimevis();
+        boom.setVisible(false);
+        boom.resetTimeVisible();
 
         // Reset the starfish
         starfish.setVisible(false);
