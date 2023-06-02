@@ -62,10 +62,10 @@ public class Environment {
     // An array for the level backgrounds
     private Image[] levelImages;
     // The image parameters are for defining the background image location and size
-//    private double imageOriginX;
-//    private double imageOriginY;
-//    private double imageYOffset;
-//    private double imageXOffset;
+    private double imageOriginX;
+    private double imageOriginY;
+    private double imageYOffset;
+    private double imageXOffset;
 //    private double imageWidth;
 //    private double imageHeight;
     // The hud parameters are for the feedback on player progress, tied to the screen width and height
@@ -178,12 +178,12 @@ public class Environment {
         environmentBoundaryY2 = 0.0;
 
         // Set the image fields
-//        imageOriginX = hudWidth + (visibleAreaWidth / 2.0);
-//        imageOriginY = hudHeight + (visibleAreaHeight / 2.0);
+        imageOriginX = hudWidth + (visibleAreaWidth / 2.0);
+        imageOriginY = hudHeight + (visibleAreaHeight / 2.0);
 //        imageWidth = visibleAreaWidth;
 //        imageHeight = visibleAreaHeight;
-//        imageXOffset = imageOriginX - (visibleAreaWidth / 2.0);
-//        imageYOffset = imageOriginY - (visibleAreaHeight / 2.0);
+        imageXOffset = imageOriginX - (visibleAreaWidth / 2.0);
+        imageYOffset = imageOriginY - (visibleAreaHeight / 2.0);
 
         setGrowthThresholdLarge(0);
         setGrowthThresholdMedium(0);
@@ -357,8 +357,8 @@ public class Environment {
 //    public double getEnvironmentHeight() { return imageHeight; }
 //    public double getEnvironmentOriginX() { return imageOriginX; }
 //    public double getEnvironmentOriginY() { return imageOriginY; }
-//    public double getEnvironmentXOffset() { return imageXOffset; }
-//    public double getEnvironmentYOffset() { return imageYOffset; }
+    public double getEnvironmentXOffset() { return imageXOffset; }
+    public double getEnvironmentYOffset() { return imageYOffset; }
     public boolean getIsPaused() { return isPaused; }
     public double getHUDWidth() { return hudWidth; }
     public double getHUDHeight() { return hudHeight; }

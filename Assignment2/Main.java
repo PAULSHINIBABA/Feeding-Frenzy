@@ -53,7 +53,7 @@ public class Main extends GameEngine {
         updatePlayer(dt);
         // TODO: Re-add these
         updateItems(dt);
-//        updateEnemies(dt);
+        updateEnemies(dt);
     }
     public void paintComponent() {
 //        changeColor(0,0,0);
@@ -66,8 +66,8 @@ public class Main extends GameEngine {
         drawEnvironment();
 
         // TODO: Re-add these
-//        drawEnemies(enemies); // Draw enemy first
-//        drawEnemies(sharkEnemies); // Draw shark enemy next
+        drawEnemies(enemies); // Draw enemy first
+        drawEnemies(sharkEnemies); // Draw shark enemy next
         drawItems(); // Then draw items
         drawPlayer(); // Then draw the player
 
@@ -75,9 +75,6 @@ public class Main extends GameEngine {
 
         // The top most layer
         drawInGameMenu();
-
-//        changeColor(255,0,255);
-//        drawCircle(200,200,2);
     }
 
 
@@ -1002,7 +999,9 @@ public class Main extends GameEngine {
     int enemyHeight;
     public void initEnemies() {
         // Define the maximum enemy spawns based on screen dimensions
-        maxEnemies = width / 100;
+        // TODO: Add this back
+//        maxEnemies = width / 100;
+        maxEnemies = 1;
         maxShark = width / 500;
 
         // Instantiate the enemy arraylists
@@ -1037,112 +1036,58 @@ public class Main extends GameEngine {
     }
 
     public void updateEnemies(double dt) {
-        // Spawn enemy fish
-        SpawnEnemy();
+        if (gameState == 4) {
+            // Spawn enemy fish
+            SpawnEnemy();
 
-        // Process the normal enemies
-        ArrayList<Enemy> removalValues = new ArrayList<Enemy>();
-        if (enemies.size() > 0) {
-            for (Enemy en : enemies) {
-                // Update the enemy positions
-                updateEnemyPosition(dt, en, true);
-                // Check if the player has been bitten
-                checkEnemyBitePlayer(en);
-                // Check if enemy moves out of bounds
-                checkEnemyBounds(en, removalValues);
+            // Process the normal enemies
+            ArrayList<Enemy> removalValues = new ArrayList<Enemy>();
+            if (enemies.size() > 0) {
+                for (Enemy en : enemies) {
+                    // Update the enemy positions
+                    en.updateEnemyPosition(dt, true);
+                    // Check if the player has been bitten
+                    if (en.checkEnemyBitePlayer(myfish)) {
+                        if (en.getSize() > myfish.getSize()) {
+                            // Play bite sfx
+                            if (myfish.getIsAlive()) { playAudioSFX(0, 1.0f); }
+
+                            myfish.setIsAlive(false);
+                            env.setEndLevel();
+                        }
+                    }
+
+                    // Check if enemy moves out of bounds
+                    en.checkEnemyBounds(env, removalValues);
+                }
             }
-        }
-        // Remove the enemies marked for removal
-        removeEnemies(enemies, removalValues);
+            // Remove the enemies marked for removal
+            removeEnemies(enemies, removalValues);
 
-        // Process the shark enemy
-        removalValues = new ArrayList<Enemy>();
-        if (sharkEnemies.size() > 0) {
-            for (Enemy sen : sharkEnemies) {
-                // Update the shark enemy positions
-                updateEnemyPosition(dt, sen, false);
-                // Check if the player has been bitten
-                checkEnemyBitePlayer(sen);
-                // Check if shark enemy moves out of bounds
-                checkEnemyBounds(sen, removalValues);
+            // Process the shark enemy
+            removalValues = new ArrayList<Enemy>();
+            if (sharkEnemies.size() > 0) {
+                for (Enemy sen : sharkEnemies) {
+                    // Update the shark enemy positions
+                    sen.updateEnemyPosition(dt, false);
+                    // Check if the player has been bitten
+                    if (sen.checkEnemyBitePlayer(myfish)) {
+                        if (sen.getSize() > myfish.getSize()) {
+                            // Play bite sfx
+                            if (myfish.getIsAlive()) { playAudioSFX(0, 1.0f); }
+
+                            myfish.setIsAlive(false);
+                            env.setEndLevel();
+                        }
+                    }
+                    // Check if shark enemy moves out of bounds
+                    sen.checkEnemyBounds(env, removalValues);
+                }
             }
-        }
-        // Remove the shark enemies marked for removal
-        removeEnemies(sharkEnemies, removalValues);
-    }
-
-    public void checkEnemyBitePlayer(Enemy en) {
-        // Enemy collider fields
-        double ex;
-        if (en.getHeadingX() == -1.0) { ex = en.getXPos() - en.getColliderHeadXOffset(); }
-        else { ex = en.getXPos() + en.getColliderHeadXOffset(); }
-
-        if (calcDistPointToSquare(ex,
-                (en.getYPos() + en.getColliderHeadYOffset()),
-                (myfish.getXPos() - myfish.getOffsetX()),
-                (myfish.getYPos() - myfish.getOffsetY()),
-                myfish.getWidth(),
-                myfish.getHeight())) {
-
-            if (en.getSize() > myfish.getSize()) {
-                // Play bite sfx
-                if (myfish.getIsAlive()) { playAudioSFX(0, 1.0f); }
-
-                myfish.setIsAlive(false);
-                env.setEndLevel();
-            }
+            // Remove the shark enemies marked for removal
+            removeEnemies(sharkEnemies, removalValues);
         }
     }
-
-    public void updateEnemyPosition(double dt, Enemy en, boolean shouldRandomize) {
-        if (shouldRandomize) { randomizeEnemyMovement(en); }
-
-        double currentVel = en.getVelocity();
-        double newXPos = en.getXPos() + en.getHeadingX() * currentVel * dt;
-        double newYPos = en.getYPos() + en.getHeadingY() * currentVel * dt;
-
-        en.setPos(newXPos, newYPos);
-    }
-
-    public void randomizeEnemyMovement(Enemy en) {
-        // Roll each chance separately
-        int changeChance = 1; // 1% chance
-        // Randomize horizontal direction
-        if (randSys.nextInt(100) < changeChance) { en.setRandomXHeading(); }
-        // Randomize vertical direction
-        if (randSys.nextInt(100) < changeChance) { en.setRandomYHeading(); }
-        // Randomize velocity
-        if (randSys.nextInt(100) < changeChance) { en.setRandomVelocity(en.getDefaultVelocity(),en.getDefaultVelocityRange()); }
-    }
-
-    public void checkEnemyBounds(Enemy en, ArrayList<Enemy> removalValues) {
-        int chanceRemoveEnemy = randSys.nextInt(100);
-        boolean removeEnemy = (chanceRemoveEnemy < en.getChanceToLeaveEnvironment());
-
-        // TODO: Fix this
-//        double playAreaXOffset = env.getEnvironmentXOffset();
-//        double playAreaYOffset = env.getEnvironmentYOffset();
-        double playAreaXOffset = 0;
-        double playAreaYOffset = 0;
-
-        double bodyLengthOffset =  en.getColliderBodyLength() / 2;
-        double bodyHeightOffset =  en.getColliderBodyHeight() / 2;
-
-        // Check horizontal bounds
-        if ((en.getXPos() <= (playAreaXOffset - bodyLengthOffset)) && (en.getHeadingX() == -1.0)) {
-            if (removeEnemy) { removalValues.add(en); }
-            else { en.setXHeading(1.0); }
-        }
-        if ((en.getXPos() >= (playAreaXOffset + env.getPlayAreaWidth() + bodyLengthOffset)) && (en.getHeadingX() == 1.0)) {
-            if (removeEnemy) { removalValues.add(en); }
-            else { en.setXHeading(-1.0); }
-        }
-
-        // Check vertical bounds
-        if (en.getYPos() <= (playAreaYOffset + bodyHeightOffset)) { en.setYHeading(1.0); }
-        if (en.getYPos() >= (playAreaYOffset + env.getPlayAreaHeight() - bodyHeightOffset)) { en.setYHeading(-1.0); }
-    }
-
     public void removeEnemies(ArrayList<Enemy> enemies, ArrayList<Enemy> removalValues) {
         // Remove the enemies that have been selected for removal.
         if (removalValues.size() > 0) {
@@ -1151,12 +1096,10 @@ public class Main extends GameEngine {
             }
         }
     }
-
     public void removeAllEnemies(ArrayList<Enemy> enemies, ArrayList<Enemy> sharkEnemies) {
         enemies.clear();
         sharkEnemies.clear();
     }
-
     // The method to spawn an enemy on click
     public void SpawnEnemy() {
         enemySpawnTimer = env.getCountDownTimerWOffset() - enemySpawnTimerPrevious;
@@ -1176,82 +1119,11 @@ public class Main extends GameEngine {
             }
         }
     }
-
     public void drawEnemies(ArrayList<Enemy> enemies) {
         if (gameState == 4) {
-            for (Enemy en : enemies) {
-                drawEnemy(en);
-                drawEnemyCollider(en);
-                drawEnemyHeadCollider(en);
-            }
+            for (Enemy en : enemies) { en.drawAll(); }
         }
     }
-
-    public void drawEnemy(Enemy en) {
-        double imgOX = en.getXPos();
-        double imgOY = en.getYPos();
-        double imgX = en.getImageXOffset();
-        double imgY = en.getImageYOffset();
-        double imgLen = en.getImageLength();
-        double imgHei = en.getImageHeight();
-        Image enImg = en.getImage();
-
-        // Draw the enemy image
-        if (en.getHeadingX() == -1.0) {
-            drawImage(enImg,
-                    (imgOX + imgX),
-                    (imgOY - imgY),
-                    -imgLen,
-                    imgHei);
-        } else {
-            drawImage(enImg,
-                    (imgOX - imgX),
-                    (imgOY - imgY),
-                    imgLen,
-                    imgHei);
-        }
-    }
-
-    // Debug: Used to show the enemy body colliders
-    public void drawEnemyCollider(Enemy en) {
-        // Retrieve the enemy collision fields
-        double xPos = en.getXPos();
-        double yPos = en.getYPos();
-        double xPosOffset = en.getColliderBodyXOffset();
-        double yPosOffset = en.getColliderBodyYOffset();
-
-        // Calculate the collision offsets
-        double x1 = xPos - xPosOffset;
-        double y1 = yPos - yPosOffset;
-        double x2 = xPos + xPosOffset;
-        double y2 = yPos + yPosOffset;
-
-        // Draw the collision boxes
-        changeColor(0, 255, 0);
-        drawLine(x1,y1,x2,y1); // Collision line
-        drawLine(x1,y2,x2,y2); // Collision line
-        drawLine(x1,y1,x1,y2); // Collision line
-        drawLine(x2,y1,x2,y2); // Collision line
-
-        // Draw the origin
-        changeColor(255, 0, 0);
-        drawSolidCircle(xPos, yPos, 2);
-    }
-
-    // Debug: Used to show the enemy head colliders
-    public void drawEnemyHeadCollider(Enemy en) {
-        double x = en.getXPos();
-        double y = en.getYPos() + en.getColliderHeadYOffset();
-        double xH = en.getColliderHeadXOffset();
-
-        double x1;
-        if (en.getHeadingX() == -1.0) { x1 = x - xH; }
-        else { x1 = x + xH; }
-
-        changeColor(255,0,0);
-        drawCircle(x1, y, 2);
-    }
-
     public void createEnemy() {
         if (enemies.size() >= maxEnemies) { return; }
 
@@ -1276,6 +1148,14 @@ public class Main extends GameEngine {
         double globalPlayAreaOffsetX = env.getGlobalPlayAreaOffsetX();
         double globalPlayAreaOffsetY = env.getGlobalPlayAreaOffsetY();
 
+        // Retrieve the game boundaries
+        double[] envBound = new double[4];
+        Random nr = new Random();
+        envBound[0] = env.getVisibleAreaCOMX() + myfish.getXPos(); // Left edge
+        envBound[1] = env.getVisibleAreaCOMX() + myfish.getXPos() + env.getGlobalWidth(); // Right edge
+        envBound[2] = env.getVisibleAreaCOMY() + myfish.getYPos(); // Top edge
+        envBound[3] = env.getVisibleAreaCOMY() + myfish.getYPos() + env.getGlobalHeight(); // Bottom edge
+
         Enemy en;
         int size;
         int headOffsetTemp;
@@ -1284,36 +1164,34 @@ public class Main extends GameEngine {
             size = 0;
             headOffsetTemp = 10;
             tempImage = enemyFish[0];
-//            en = new Enemy(enemyFish[0],
-//                    size,
-//                    (globalPlayAreaX - globalPlayAreaOffsetX),
-//                    (globalPlayAreaY - globalPlayAreaOffsetY),
-//                    globalPlayAreaWidth,
-//                    globalPlayAreaHeight);
-//            en.setHeadYOffset(10);
         } else if (selectSize < enemyMedium) { // spawn a medium fish
             size = 1;
             headOffsetTemp = 0;
             tempImage = enemyFish[1];
-//            en = new Enemy(enemyFish[1], size, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
-//            en.setHeadYOffset(0);
         } else { // spawn a large fish
             size = 2;
             headOffsetTemp = 0;
             tempImage = enemyFish[2];
-//            en = new Enemy(enemyFish[2], size, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
-//            en.setHeadYOffset(0);
         }
-        en = new Enemy(tempImage,
+
+//        en = new Enemy(this, tempImage, size, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
+//        en = new Enemy(this,
+//                tempImage,
+//                size,
+//                (globalPlayAreaX - globalPlayAreaOffsetX),
+//                (globalPlayAreaY - globalPlayAreaOffsetY),
+//                globalPlayAreaWidth,
+//                globalPlayAreaHeight);
+        en = new Enemy(this,
+                tempImage,
                 size,
-                (globalPlayAreaX - globalPlayAreaOffsetX),
-                (globalPlayAreaY - globalPlayAreaOffsetY),
-                globalPlayAreaWidth,
-                globalPlayAreaHeight);
+                envBound[0],
+                envBound[2],
+                env.getGlobalWidth(),
+                env.getGlobalHeight());
         en.setHeadYOffset(headOffsetTemp);
         enemies.add(en);
     }
-
     public void createShark() {
         if (sharkEnemies.size() >= maxShark) { return; }
 
@@ -1325,7 +1203,8 @@ public class Main extends GameEngine {
         double globalPlayAreaOffsetY = env.getGlobalPlayAreaOffsetY();
 
         // The shark should be the largest size
-        Enemy shk = new Enemy(shark,
+        Enemy shk = new Enemy(this,
+                shark,
                 3,
                 (globalPlayAreaX - globalPlayAreaOffsetX),
                 (globalPlayAreaY - globalPlayAreaOffsetY),

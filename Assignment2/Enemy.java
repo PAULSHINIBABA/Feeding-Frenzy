@@ -11,10 +11,13 @@
 package Assignment2;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Random;
 
 // The enemy class
 public class Enemy {
+    // System fields
+    GameEngine engine;
 
     // Final fields
     private final int MIN_SIZE = 0;
@@ -58,6 +61,12 @@ public class Enemy {
     private double imageBodyLength;
     private double imageBodyHeight;
 
+    //
+//    private double windowToGlobalCOMOffsetX;
+//    private double windowToGlobalCOMOffsetY;
+//    private double playAreaCOMX;
+//    private double playAreaCOMY;
+
 
     // The Enemy class constructor
     // The Enemy requires:
@@ -65,10 +74,11 @@ public class Enemy {
     // - The enemy size
     // - The frameWidth
     // - The frameHeight
-    public Enemy(Image image, int size, double frameXOffset, double frameYOffset, double frameWidth, double frameHeight) throws IllegalArgumentException {
-        this(image, size, 0.0, 0.0, 0.0, 0.0, 0.0, frameXOffset, frameYOffset, frameWidth, frameHeight);
+    public Enemy(GameEngine engine, Image image, int size, double frameXOffset, double frameYOffset, double frameWidth, double frameHeight) throws IllegalArgumentException {
+        this(engine, image, size, 0.0, 0.0, 0.0, 0.0, 0.0, frameXOffset, frameYOffset, frameWidth, frameHeight);
     }
-    public Enemy(Image image,
+    public Enemy(GameEngine engine,
+                 Image image,
                  int size,
                  double velocity,
                  double xPos,
@@ -79,6 +89,7 @@ public class Enemy {
                  double frameYOffset,
                  double frameWidth,
                  double frameHeight) throws IllegalArgumentException {
+        this.engine = engine;
         // Initialize the randomizing variable
         RANDOM_VALUE = new Random();
 
@@ -279,6 +290,117 @@ public class Enemy {
     //-------------------------------------------------------
     // Other methods
     //-------------------------------------------------------
+    public void updateEnemyPosition(double dt, boolean shouldRandomize) {
+        if (shouldRandomize) { randomizeEnemyMovement(); }
+        xPos += headingXDirection * velocity * dt;
+        yPos += headingYDirection * velocity * dt;
+    }
+    public void drawAll() {
+        drawEnemy();
+        drawEnemyCollider();
+        drawEnemyHeadCollider();
+    }
+    public void drawEnemy() {
+        // Draw the enemy image
+        if (headingXDirection == -1.0) {
+            engine.drawImage(image,
+                    (xPos + imageBodyXOffset),
+                    (yPos - imageBodyYOffset),
+                    -imageBodyLength,
+                    imageBodyHeight);
+        } else {
+            engine.drawImage(image,
+                    (xPos - imageBodyXOffset),
+                    (yPos - imageBodyYOffset),
+                    imageBodyLength,
+                    imageBodyHeight);
+        }
+    }
+    // Debug: Used to show the enemy body colliders
+    public void drawEnemyCollider() {
+        // Calculate the collision offsets
+        double x1 = xPos - colliderBodyXOffset;
+        double y1 = yPos - colliderBodyYOffset;
+        double x2 = xPos + colliderBodyXOffset;
+        double y2 = yPos + colliderBodyYOffset;
+
+        // Draw the collision boxes
+        engine.changeColor(0, 255, 0);
+        engine.drawLine(x1,y1,x2,y1); // Collision line
+        engine.drawLine(x1,y2,x2,y2); // Collision line
+        engine.drawLine(x1,y1,x1,y2); // Collision line
+        engine.drawLine(x2,y1,x2,y2); // Collision line
+
+        // Draw the origin
+        engine.changeColor(255, 0, 0);
+        engine.drawSolidCircle(xPos, yPos, 2);
+    }
+    // Debug: Used to show the enemy head colliders
+    public void drawEnemyHeadCollider() {
+        double x = xPos;
+        double y = yPos + colliderHeadYOffset;
+        double xH = colliderHeadXOffset;
+
+        double x1;
+        if (headingXDirection == -1.0) { x1 = x - xH; }
+        else { x1 = x + xH; }
+
+        engine.changeColor(255,0,0);
+        engine.drawCircle(x1, y, 2);
+    }
+    public void randomizeEnemyMovement() {
+        // Roll each chance separately
+//        Random randSys = new Random();
+        int changeChance = 1; // 1% chance
+        // Randomize horizontal direction
+        if (RANDOM_VALUE.nextInt(100) < changeChance) { setRandomXHeading(); }
+        // Randomize vertical direction
+        if (RANDOM_VALUE.nextInt(100) < changeChance) { setRandomYHeading(); }
+        // Randomize velocity
+        if (RANDOM_VALUE.nextInt(100) < changeChance) { setRandomVelocity(getDefaultVelocity(), getDefaultVelocityRange()); }
+    }
+    public boolean checkEnemyBitePlayer(myfish player) {
+        // Enemy collider fields
+        double ex;
+        if (headingXDirection == -1.0) { ex = xPos - colliderHeadXOffset; }
+        else { ex = xPos + colliderHeadXOffset; }
+
+        return calcDistPointToSquare(ex,
+                (yPos + colliderHeadYOffset),
+                (player.getXPos() - player.getOffsetX()),
+                (player.getYPos() - player.getOffsetY()),
+                player.getWidth(),
+                player.getHeight());
+    }
+    public void checkEnemyBounds(Environment env, ArrayList<Enemy> removalValues) {
+//        Random randSys = new Random();
+        boolean removeEnemy = (RANDOM_VALUE.nextInt(100) < getChanceToLeaveEnvironment());
+        if (removeEnemy) {
+//            System.out.println("Adding enemy to remove");
+            removalValues.add(this);
+            return;
+        }
+
+        // TODO: Fix this
+        double playAreaXOffset = env.getEnvironmentXOffset();
+        double playAreaYOffset = env.getEnvironmentYOffset();
+//        double playAreaXOffset = 0;
+//        double playAreaYOffset = 0;
+
+        double bodyLengthOffset =  colliderBodyLength / 2;
+        double bodyHeightOffset =  colliderBodyHeight / 2;
+
+        // Check horizontal bounds
+        if ((xPos <= (playAreaXOffset - bodyLengthOffset)) && (headingXDirection == -1.0)) { headingXDirection = 1.0; }
+        if ((xPos >= (playAreaXOffset + env.getPlayAreaWidth() + bodyLengthOffset)) && (headingXDirection == 1.0)) { headingXDirection = -1.0; }
+        // Check vertical bounds
+        if (yPos <= (playAreaYOffset + bodyHeightOffset)) { headingYDirection = 1.0; }
+        if (yPos >= (playAreaYOffset + env.getPlayAreaHeight() - bodyHeightOffset)) { headingYDirection = -1.0; }
+    }
+    public boolean calcDistPointToSquare(double px, double py, double ex, double ey, double el, double eh) {
+        if ((px >= ex) && (px <= (ex + el)) && (py >= ey) && (py <= (ey + eh))) { return true; }
+        return false;
+    }
 
     // TODO: consider other enemy behaviours can be added once the main parts work.
 }
