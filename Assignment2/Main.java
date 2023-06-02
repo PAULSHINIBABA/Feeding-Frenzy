@@ -755,9 +755,7 @@ public class Main extends GameEngine {
             if (spaceKey) {
                 myfish.setIsAlive(true);
                 env.setCurrentGoal(env.getCurrentGoal() + 1);
-//                env.setIsLevelComplete(true);
             } // TODO: CHEAT for debug, remove when done
-
 
             // Player is dead don't process the player
             if (!myfish.getIsAlive()) { return; }
@@ -770,30 +768,6 @@ public class Main extends GameEngine {
                 growPlayerSize();
             }
 
-            // playArea fields
-//            double playAreaX = env.getVisibleAreaCOMX() - env.getPlayAreaOffsetX();
-//            double playAreaY = env.getVisibleAreaCOMY() - env.getPlayAreaOffsetY();
-//            double playAreaWidth = env.getEnvironmentGlobalPlayAreaWidth();
-//            double playAreaHeight = env.getEnvironmentGlobalPlayAreaHeight();
-//            double playAreaX = env.getPlayAreaOriginX();
-//            double playAreaY = env.getPlayAreaOriginY();
-//            double playAreaWidth = env.getEnvironmentGlobalPlayAreaWidth();
-//            double playAreaHeight = env.getEnvironmentGlobalPlayAreaHeight();
-
-//            System.out.println("pax:" + playAreaX + "\tpay:" + playAreaY + "\tpaw:" + playAreaWidth + "\tpal:" + playAreaHeight);
-
-            // Fish moves within the playArea bounds
-//            myfish.updatemyfish(dt,
-//                    upKey,
-//                    downKey,
-//                    leftKey,
-//                    rightKey,
-//                    playAreaX,
-//                    playAreaY,
-//                    playAreaWidth,
-//                    playAreaHeight);
-//            double x = env.getWindowToGlobalOriginOffsetX();
-//            double y = env.getWindowToGlobalOriginOffsetY();
             double ox = env.getGlobalCOMX();
             double oy = env.getGlobalCOMY();
             double w = env.getGlobalWidth();
@@ -820,22 +794,12 @@ public class Main extends GameEngine {
         // Decide which image to draw based on direction
         Image currentFishImage = myFishImage;
         if (myfish.getFacingLeft()) {
-//            drawImage(currentFishImage,
-//                    (myfish.getXPos() + myfish.getImageOffsetX()),
-//                    (myfish.getYPos() - myfish.getImageOffsetY()),
-//                    -myfish.getImageWidth(),
-//                    myfish.getImageHeight());
             drawImage(currentFishImage,
                     (env.getVisibleAreaCOMX() + myfish.getImageOffsetX()),
                     (env.getVisibleAreaCOMY() - myfish.getImageOffsetY()),
                     -myfish.getImageWidth(),
                     myfish.getImageHeight());
         } else {
-//            drawImage(currentFishImage,
-//                    (myfish.getXPos() - myfish.getImageOffsetX()),
-//                    (myfish.getYPos() - myfish.getImageOffsetY()),
-//                    myfish.getImageWidth(),
-//                    myfish.getImageHeight());
             drawImage(currentFishImage,
                     (env.getVisibleAreaCOMX() - myfish.getImageOffsetX()),
                     (env.getVisibleAreaCOMY() - myfish.getImageOffsetY()),
@@ -892,7 +856,7 @@ public class Main extends GameEngine {
         starfishimage = loadImage(assetPathImage + "item/item_starfish1.png");
         pearl = new pearl(this, pearlimage);
         boom = new boom();
-        starfish = new starfish();
+        starfish = new starfish(this, starfishimage);
     }
     public void updateItems(double dt) {
         if(!env.getIsLevelComplete()) {
@@ -904,57 +868,45 @@ public class Main extends GameEngine {
             if (rangeY < 0) { rangeY *= -1.0; }
 
             if (rangeX > 0 && rangeY > 0) {
-                pearl.setPlayAreaCOM(env.getVisibleAreaCOMX(), env.getVisibleAreaCOMY());
-                pearl.windowToGlobalCOMOffsetX(myfish.getXPos(), myfish.getYPos());
+//                pearl.setPlayAreaCOM(env.getVisibleAreaCOMX(), env.getVisibleAreaCOMY());
+//                pearl.windowToGlobalCOMOffset(myfish.getXPos(), myfish.getYPos());
+//
+//                //update pearl
+//                if (pearl.updatepearl(dt,
+//                        env.getGlobalWidth(),
+//                        env.getGlobalHeight(),
+//                        (2 * myfish.getOffsetX()),
+//                        (2 * myfish.getOffsetY()))) {
+//
+//                    // Play bite sfx
+//                    playAudioSFX(1, 1.0f);
+//                    // Play pop sfx
+//                    playAudioSFX(7, 1.0f);
+//
+//                    double speedVal = 25.0;
+//                    myfish.incrementMaxSpeed(speedVal);
+//                    myfish.incrementAccelerationSpeed(speedVal);
+//                }
 
-                //update pearl
-                if (pearl.updatepearl(dt,
-                        env.getGlobalCOMX(),
-                        env.getGlobalCOMY(),
-                        myfish.getXPos(),
-                        myfish.getYPos(),
+                starfish.setPlayAreaCOM(env.getVisibleAreaCOMX(), env.getVisibleAreaCOMY());
+                starfish.windowToGlobalCOMOffset(myfish.getXPos(), myfish.getYPos());
+
+                //update starfish
+                if (starfish.updatestarfish(dt,
                         env.getGlobalWidth(),
                         env.getGlobalHeight(),
                         (2 * myfish.getOffsetX()),
                         (2 * myfish.getOffsetY()))) {
 
-                    // Play bite sfx
+                    // Play bite sound
                     playAudioSFX(1, 1.0f);
-                    // Play pop sfx
-                    playAudioSFX(7, 1.0f);
+                    // Play power up sfx
+                    playAudioSFX(6, 1.0f);
 
-                    double speedVal = 25.0;
-                    myfish.incrementMaxSpeed(speedVal);
-                    myfish.incrementAccelerationSpeed(speedVal);
+                    // Update the environment score
+                    env.addScore(20);
                 }
             }
-
-
-//            double spawnOffEdgeOffsetStarfish = starfish.getwidth() / 2.0;
-//            double starfishSpawnWidthMax = env.getEnvironmentGlobalPlayAreaWidth();
-//            double starfishSpawnHeightMax = env.getEnvironmentGlobalPlayAreaHeight();
-//            double starfishAreaW = starfishSpawnWidthMax - spawnOffEdgeOffsetStarfish;
-//            double starfishAreaH = starfishSpawnHeightMax - spawnOffEdgeOffsetStarfish;
-//
-//            //update starfish
-//            if (starfish.updatestarfish(dt,
-//                    myfish.getmyfishRec(),
-//                    rand(starfishAreaW),
-//                    rand(starfishAreaH),
-//                    spawnOffEdgeOffsetStarfish,
-//                    spawnOffEdgeOffsetStarfish,
-//                    randSpeed,
-//                    starfishSpawnWidthMax,
-//                    starfishSpawnHeightMax)) {
-//
-//                // Play bite sound
-//                playAudioSFX(1, 1.0f);
-//                // Play power up sfx
-//                playAudioSFX(6, 1.0f);
-//
-//                // Update the environment score
-//                env.addScore(20);
-//            }
 
 //            double spawnOffEdgeOffsetBomb = starfish.getwidth() / 2.0;
 //            double bombSpawnWidthMax = env.getEnvironmentGlobalPlayAreaWidth();
@@ -1000,27 +952,16 @@ public class Main extends GameEngine {
                     boom.getheight());
         }
     }
-    public void drawstarfish(){
-        if (starfish.isvisible()){
-            drawImage(starfishimage,
-                    starfish.getpositionx(),
-                    starfish.getpositiony(),
-                    starfish.getwidth(),
-                    starfish.getheight());
+    public void drawstarfish() {
+        if (starfish.getIsVisible()){
+            starfish.drawItem();
+            starfish.drawItemColliders();
         }
     }
-    public void drawpearl(){
-        if (pearl.isvisible()){
-            pearl.drawPearl();
-//            changeColor(Color.white);
-//            drawImage(pearlimage,
-//                    pearl.getpositionx(),
-//                    pearl.getpositiony(),
-//                    pearl.getwidth(),
-//                    pearl.getheight());
-
-            pearl.drawPearlColliders();
-//            pearl.drawCornersFromPearl(env.getGlobalWidth(), env.getGlobalHeight());
+    public void drawpearl() {
+        if (pearl.getIsVisible()) {
+            pearl.drawItem();
+            pearl.drawItemColliders();
         }
     }
 //    public void drawPearlColliders() {
@@ -1104,7 +1045,6 @@ public class Main extends GameEngine {
             shark = loadImage(assetPathImage + "entity/entity_shark1.png");
 
         } catch(Exception e) {
-//            e.printStackTrace();
             System.out.println("Could not find enemy images. Skipping loading the images.");
         }
     }
@@ -1573,18 +1513,17 @@ public class Main extends GameEngine {
 
         // Remove all items from the level
         // Reset the pearl
-        pearl.setvisible(false);
-        pearl.resettimevis();
+        pearl.setVisible(false);
+        pearl.resetTimeVisible();
 
         // Reset the bomb
         boom.setvisible(false);
         boom.resettimevis();
 
         // Reset the starfish
-        starfish.setvisible(false);
-        starfish.resettimevis();
-        starfish.setSpeedX(0.0);
-        starfish.setSpeedY(0.0);
+        starfish.setVisible(false);
+        starfish.resetTimeVisible();
+        starfish.setSpeed(0.0, 0.0);
 
         // Reset the player
         myfish.setXPos(width / 2.0);

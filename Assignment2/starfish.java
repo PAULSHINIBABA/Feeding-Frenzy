@@ -4,110 +4,61 @@
  *
  * Co-Author: Robert Tubman (Minor refactoring to merge with team code)
  * ID: 11115713
+ *
+ * Many of the getter/setter methods were refactored into Item Class because there were duplicate
+ * methods in starfish.java, pearl.java, and boom.java
  */
 
 package Assignment2;
 
 import java.awt.*;
+import java.util.Random;
 
-public class starfish {
-    private double starfishpos_x,starfishpos_y;
-    private double starspeed_x,starfishspeed_y;
-    private int starfish_w,starfish_h;
-    private boolean is_visible;
-    private double time_visible;
-    private int timesEaten;
-    public starfish(){
-        starfish_w=30;
-        starfish_h=30;
-        is_visible=false;
-        time_visible=0;
-        timesEaten = 0;
-    }
-    public void randomstarfish(double randx, double randy,double randspeed){
-        setposition(randx,randy);
-        starspeed_x=-50+randspeed;
-        starfishspeed_y=-50+randspeed;
-    }
-    public void starfishmove(double dt,double Window_w,double Window_h, double offsetX, double offsetY){
-        starfishpos_x += starspeed_x * dt;
-        starfishpos_y += starfishspeed_y * dt;
-        if (starfishpos_x < offsetX || starfishpos_x + starfish_w > (Window_w - offsetX)){
-            starspeed_x *= -1; // reverse direction
-        }
-        if (starfishpos_y < offsetY || starfishpos_y + starfish_h > (Window_h - offsetY)){
-            starfishspeed_y*=-1; // reverse direction
-        }
-    }
+public class starfish extends Item {
+
+    // Constructor
+    public starfish(GameEngine engine, Image starfishImage) { super(engine, starfishImage); }
+
+    // Upodate the starfish parameters
     public boolean updatestarfish(double dt,
-                                  Rectangle myfishrec,
-                                  double randx,
-                                  double randy,
-                                  double offsetX,
-                                  double offsetY,
-                                  double randspeed,
-                                  double Window_w,
-                                  double Window_h){
-        updatetimevis(dt);
-        if (!isvisible()&&gettimevis()>5){
-            randomstarfish((offsetX + randx),(offsetY + randy),randspeed);
-            setvisible(true);
-            resettimevis();
-        }
-        starfishmove(dt, Window_w, Window_h, offsetX, offsetY);
+                                  double globalW,
+                                  double globalH,
+                                  double playerW,
+                                  double playerH) {
+        updateTimeVisible(dt);
+        double delayTime = 5;
 
-        if (isvisible()&&myfishrec.intersects(new Rectangle(new Rectangle((int)getpositionx(),(int)getpositiony(),getwidth(),getheight())))){
-            setvisible(false);
-            timesEaten += 1;
+        double[] environmentBoundary = new double[4];
+        Random nr = new Random();
+        environmentBoundary[0] = getPlayAreaCOMX() + getWindowToGlobalCOMOffsetX(); // Left edge
+        environmentBoundary[1] = getPlayAreaCOMX() + getWindowToGlobalCOMOffsetX() + globalW; // Right edge
+        environmentBoundary[2] = getPlayAreaCOMY() + getWindowToGlobalCOMOffsetY(); // Top edge
+        environmentBoundary[3] = getPlayAreaCOMY() + getWindowToGlobalCOMOffsetY() + globalH; // Bottom edge
+
+        if(!getIsVisible() && getTimeVisible() >= delayTime) {
+            setSavedRandomPos(nr.nextDouble((environmentBoundary[1] - environmentBoundary[0])), nr.nextDouble((environmentBoundary[3] - environmentBoundary[2])));
+
+            randomSpeed();
+            setPos(getSavedRandomPosX(), getSavedRandomPosY());
+
+            setVisible(true);
+            resetTimeVisible();
+        } else { moveItem(dt, globalW, globalH); }
+
+        // Create new collider for the player based on player parameters
+        double px = (-getWindowToGlobalCOMOffsetX()) - (playerW / 2.0);
+        double py = (-getWindowToGlobalCOMOffsetY()) - (playerH / 2.0);
+        double stx = getXPos();
+        double sty = getYPos();
+
+        //check collision with fish
+        Rectangle playerCollider = new Rectangle((int)px, (int)py, (int)playerW, (int)playerH);
+        Rectangle starfishRect = new Rectangle((int)stx, (int)sty, (int)getWidth(), (int)getHeight());
+        if (getIsVisible() && playerCollider.intersects(new Rectangle(starfishRect))) {
+            setVisible(false);
+            setTimesEaten(getTimesEaten() + 1);
             return true;
         }
         return false;
-    }
-
-    //-------------------------------------------------------
-    // Setters
-    //-------------------------------------------------------
-    public void setposition(double x,double y){
-        starfishpos_x=x;
-        starfishpos_y=y;
-    }
-    public void setvisible(boolean visible) {
-        is_visible = visible;
-    }
-    public void setTimesEaten(int timesEaten) { this.timesEaten = timesEaten; }
-    public void setSpeedX(double x) { starspeed_x = x; }
-    public void setSpeedY(double y) { starfishspeed_y = y; }
-
-    //-------------------------------------------------------
-    // Getters
-    //-------------------------------------------------------
-    public double getpositionx(){
-        return starfishpos_x;
-    }
-    public double getpositiony(){
-        return starfishpos_y;
-    }
-    public int getwidth(){
-        return starfish_w;
-    }
-    public int getheight(){
-        return starfish_h;
-    }
-    public double gettimevis(){
-        return time_visible;
-    }
-    public int getTimesEaten() { return timesEaten; }
-
-    //-------------------------------------------------------
-    // Other methods
-    //-------------------------------------------------------
-    public boolean isvisible() {
-        return is_visible;
-    }
-    public void updatetimevis(double dt){
-        time_visible+=dt;
-    }
-    public void resettimevis(){
-        time_visible=0;
     }
 }

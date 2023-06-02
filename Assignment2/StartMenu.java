@@ -4,7 +4,7 @@
  *
  * Co-Author: Robert Tubman (Major refactoring to merge with team code)
  * ID: 11115713
- * Co-Author: Lucass (Minor tweaks)
+ * Co-Author: Lucass (Xidi Kuang) (Minor tweaks)
  * ID:
  */
 
