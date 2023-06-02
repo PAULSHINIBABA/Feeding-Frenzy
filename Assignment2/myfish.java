@@ -161,8 +161,6 @@ public class myfish {
                              boolean down,
                              boolean left,
                              boolean right,
-                             double x,
-                             double y,
                              double ox,
                              double oy,
                              double w,

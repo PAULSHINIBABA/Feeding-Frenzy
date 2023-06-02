@@ -754,6 +754,7 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
 
                 // Set Clip to Loop
                 clip.loop(Clip.LOOP_CONTINUOUSLY);
+                Thread.sleep(10000);
 
                 // Set Loop Clip
                 audioClip.setLoopClip(clip);

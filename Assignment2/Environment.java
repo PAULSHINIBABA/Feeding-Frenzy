@@ -77,17 +77,17 @@ public class Environment {
     private double hudBarThickness;
     private double hudInfoSpacing;
     // The play area (which should be renamed) is the area which is visible to the player
-    private double playAreaOffsetX; // left side offset
-    private double playAreaOffsetY; // top side offset
-    private double playAreaOriginX;
-    private double playAreaOriginY;
-    private double playAreaWidth;
-    private double playAreaHeight;
+    private double visibleAreaOffsetX; // left side offset
+    private double visibleAreaOffsetY; // top side offset
+    private double visibleAreaCOMX;
+    private double visibleAreaCOMY;
+    private double visibleAreaWidth;
+    private double visibleAreaHeight;
     private boolean restartEnvironment;
     private boolean hardMode;
     // The global play area is the actual environment that the player can move around in
-    private double globalPlayAreaOriginX;
-    private double globalPlayAreaOriginY;
+    private double globalPlayAreaCOMX;
+    private double globalPlayAreaCOMY;
     private double globalPlayAreaOffsetX;
     private double globalPlayAreaOffsetY;
     private double globalPlayAreaWidth;
@@ -98,20 +98,24 @@ public class Environment {
     // Window fields
     private double windowWidth;
     private double windowHeight;
-    private double windowOriginX;
-    private double windowOriginY;
+    private double windowCOMX;
+    private double windowCOMY;
     private double windowOffsetX;
     private double windowOffsetY;
     // Global fields
     private double globalWidth;
     private double globalHeight;
-    private double globalOriginX;
-    private double globalOriginY;
+    private double globalCOMX;
+    private double globalCOMY;
     private double globalOffsetX;
     private double globalOffsetY;
     // Offset between global and window
-    private double windowToGlobalOriginOffsetX;
-    private double windowToGlobalOriginOffsetY;
+    private double windowToGlobalCOMOffsetX;
+    private double windowToGlobalCOMOffsetY;
+    private double environmentBoundaryX1;
+    private double environmentBoundaryX2;
+    private double environmentBoundaryY1;
+    private double environmentBoundaryY2;
 
     // The Environment constructor
     public Environment(GameEngine engine, Image[] levelImages, boolean isTimeAttack) {
@@ -129,52 +133,57 @@ public class Environment {
 
         windowWidth = this.engine.width();
         windowHeight = this.engine.height();
-        windowOriginX = windowWidth / 2.0;
-        windowOriginY = windowHeight / 2.0;
+        windowCOMX = windowWidth / 2.0;
+        windowCOMY = windowHeight / 2.0;
         windowOffsetX = windowWidth / 2.0;
         windowOffsetY = windowHeight / 2.0;
         globalWidth = 900;
         globalHeight = (globalWidth / 4) * 3;
-        globalOriginX = globalWidth / 2.0;
-        globalOriginY = globalHeight / 2.0;
+        globalCOMX = globalWidth / 2.0;
+        globalCOMY = globalHeight / 2.0;
         globalOffsetX = globalWidth / 2.0;
         globalOffsetY = globalHeight / 2.0;
         // The player coordinate on global coordinate
-        windowToGlobalOriginOffsetX = 0.0;
-        windowToGlobalOriginOffsetY = 0.0;
+        windowToGlobalCOMOffsetX = 0.0;
+        windowToGlobalCOMOffsetY = 0.0;
 
         // Set the local (visible) play area dimensions
-        playAreaWidth = this.engine.width() - (2 * hudWidth);
-        playAreaHeight = this.engine.height() - (hudHeight - hudWidth); // hudHeight is from the top, hudWidth is taken from the bottom
-        // Set the (visible) play area origin
-        playAreaOriginX = (playAreaWidth / 2.0) + hudWidth;
-        playAreaOriginY = (playAreaHeight / 2.0) + hudHeight;
+        visibleAreaWidth = this.engine.width() - (2 * hudWidth);
+        visibleAreaHeight = this.engine.height() - (hudHeight - hudWidth); // hudHeight is from the top, hudWidth is taken from the bottom
+        // Set the (visible) play area centre of mass
+        visibleAreaCOMX = (visibleAreaWidth / 2.0) + hudWidth;
+        visibleAreaCOMY = (visibleAreaHeight / 2.0) + hudHeight;
         // Set the (visible) play area offsets from origin
-//        playAreaOffsetX = (playAreaWidth / 2.0);
-//        playAreaOffsetY = (playAreaHeight / 2.0);
-        playAreaOffsetX = (this.engine.width() / 2.0);
-        playAreaOffsetY = (this.engine.height() / 2.0);
+//        visibleAreaOffsetX = (visibleAreaWidth / 2.0);
+//        visibleAreaOffsetY = (visibleAreaHeight / 2.0);
+        visibleAreaOffsetX = (visibleAreaWidth / 2.0);
+        visibleAreaOffsetY = (visibleAreaHeight / 2.0);
 
         // Set the global play area dimensions
         globalPlayAreaWidth = 1500; // Arbitrary // TODO: set this in the settings page
         globalPlayAreaHeight = 1000; // Arbitrary // TODO: set this in the settings page
         // Origin center
-        globalPlayAreaOriginX = globalPlayAreaWidth / 2.0;
-        globalPlayAreaOriginY = globalPlayAreaHeight / 2.0;
+        globalPlayAreaCOMX = globalPlayAreaWidth / 2.0;
+        globalPlayAreaCOMY = globalPlayAreaHeight / 2.0;
         // Image display offsets from origin
         globalPlayAreaOffsetX = (globalPlayAreaWidth / 2.0);
         globalPlayAreaOffsetY = (globalPlayAreaHeight / 2.0);
         // The coordinates of the player in global space
-        currentPlayerGlobalX = globalPlayAreaOriginX; // Initially at global origin x
-        currentPlayerGlobalY = globalPlayAreaOriginY; // Initially at global origin y
+        currentPlayerGlobalX = globalPlayAreaCOMX; // Initially at global origin x
+        currentPlayerGlobalY = globalPlayAreaCOMY; // Initially at global origin y
+
+        environmentBoundaryX1 = 0.0;
+        environmentBoundaryX2 = 0.0;
+        environmentBoundaryY1 = 0.0;
+        environmentBoundaryY2 = 0.0;
 
         // Set the image fields
-//        imageOriginX = hudWidth + (playAreaWidth / 2.0);
-//        imageOriginY = hudHeight + (playAreaHeight / 2.0);
-//        imageWidth = playAreaWidth;
-//        imageHeight = playAreaHeight;
-//        imageXOffset = imageOriginX - (playAreaWidth / 2.0);
-//        imageYOffset = imageOriginY - (playAreaHeight / 2.0);
+//        imageOriginX = hudWidth + (visibleAreaWidth / 2.0);
+//        imageOriginY = hudHeight + (visibleAreaHeight / 2.0);
+//        imageWidth = visibleAreaWidth;
+//        imageHeight = visibleAreaHeight;
+//        imageXOffset = imageOriginX - (visibleAreaWidth / 2.0);
+//        imageYOffset = imageOriginY - (visibleAreaHeight / 2.0);
 
         setGrowthThresholdLarge(0);
         setGrowthThresholdMedium(0);
@@ -213,13 +222,13 @@ public class Environment {
 //    public void setEnvironmentOriginY(double y) { imageOriginY = y; }
 //    public void setEnvironmentXOffset(double x) { imageXOffset = x; }
 //    public void setEnvironmentYOffset(double y) { imageYOffset = y; }
-    public void setEnvironmentPlayWidth(int playAreaWidth) throws IllegalArgumentException {
-        if (playAreaWidth < 0) { throw new IllegalArgumentException("Cannot set the play area width to a negative integer"); }
-        this.playAreaWidth = playAreaWidth - (2 * hudWidth);
+    public void setEnvironmentPlayWidth(int visibleAreaWidth) throws IllegalArgumentException {
+        if (visibleAreaWidth < 0) { throw new IllegalArgumentException("Cannot set the play area width to a negative integer"); }
+        this.visibleAreaWidth = visibleAreaWidth - (2 * hudWidth);
     }
-    public void setEnvironmentPlayHeight(int playAreaHeight) throws IllegalArgumentException {
-        if (playAreaHeight < 0) { throw new IllegalArgumentException("Cannot set the play area height to a negative integer"); }
-        this.playAreaHeight = playAreaHeight - hudHeight - hudWidth;
+    public void setEnvironmentPlayHeight(int visibleAreaHeight) throws IllegalArgumentException {
+        if (visibleAreaHeight < 0) { throw new IllegalArgumentException("Cannot set the play area height to a negative integer"); }
+        this.visibleAreaHeight = visibleAreaHeight - hudHeight - hudWidth;
     }
     // Set the score to an integer value. The score cannot be negative.
     public void setScore(int score) throws IllegalArgumentException {
@@ -261,10 +270,10 @@ public class Environment {
     }
 
     public void setIsPaused(boolean paused) { isPaused = paused; }
-    public void setPlayAreaOffsetX(int x) { playAreaOffsetX = x; }
-    public void setPlayAreaOffsetY(int y) { playAreaOffsetY = y; }
-//    public void setPlayAreaWidth(int width) { playAreaWidth = width; }
-//    public void setPlayAreaHeight(int height) { playAreaHeight = height; }
+    public void setPlayAreaOffsetX(int x) { visibleAreaOffsetX = x; }
+    public void setPlayAreaOffsetY(int y) { visibleAreaOffsetY = y; }
+//    public void setPlayAreaWidth(int width) { visibleAreaWidth = width; }
+//    public void setPlayAreaHeight(int height) { visibleAreaHeight = height; }
     public void setHUDWidth(int width) { hudWidth = width; }
     public void setHUDHeight(int height) { hudHeight = height; }
     public void setTimer(double newTime) { timer = (newTime - baseTime) / 1000.0; }
@@ -302,29 +311,29 @@ public class Environment {
     public void setHardMode(boolean mode) { hardMode = mode; }
     public void setIsLevelComplete(boolean state) { levelComplete = state; }
     public void setEndLevel(boolean state) { endLevel = state; }
-    public void setEnvironmentGlobalPlayAreaX(double x) { globalPlayAreaOriginX = x; }
-    public void setEnvironmentGlobalPlayAreaY(double y) { globalPlayAreaOriginY = y; }
-    public void setEnvironmentGlobalPlayAreaOffsetX(double x) { globalPlayAreaOffsetX = x; }
-    public void setEnvironmentGlobalPlayAreaOffsetY(double y) { globalPlayAreaOffsetY = y; }
-    public void setEnvironmentGlobalPlayAreaWidth(double w) { globalPlayAreaWidth = w; }
-    public void setEnvironmentGlobalPlayAreaHeight(double l) { globalPlayAreaHeight = l; }
+    public void setGlobalPlayAreaCOMX(double x) { globalPlayAreaCOMX = x; }
+    public void setGlobalPlayAreaCOMY(double y) { globalPlayAreaCOMY = y; }
+    public void setGlobalPlayAreaOffsetX(double x) { globalPlayAreaOffsetX = x; }
+    public void setGlobalPlayAreaOffsetY(double y) { globalPlayAreaOffsetY = y; }
+    public void setGlobalPlayAreaWidth(double w) { globalPlayAreaWidth = w; }
+    public void setGlobalPlayAreaHeight(double l) { globalPlayAreaHeight = l; }
     public void setCurrentPlayerGlobalX(double px) { currentPlayerGlobalX = px; }
     public void setCurrentPlayerGlobalY(double py) { currentPlayerGlobalY = py; }
-    public void setPlayAreaOriginX(double x) { playAreaOriginX = x; }
-    public void setPlayAreaOriginY(double y) { playAreaOriginY = y; }
+    public void setVisibleAreaCOMX(double x) { visibleAreaCOMX = x; }
+    public void setVisibleAreaCOMY(double y) { visibleAreaCOMY = y; }
 
-    public void setWindowOriginX(double x) { windowOriginX = x; }
-    public void setWindowOriginY(double y) { windowOriginY = y; }
+    public void setWindowCOMX(double x) { windowCOMX = x; }
+    public void setWindowCOMY(double y) { windowCOMY = y; }
     public void setWindowWidth(double width) { windowWidth = width; }
     public void setWindowHeight(double height) { windowHeight = height; }
     public void setGlobalOffsetX(double x) { globalOffsetX = x; }
     public void setGlobalOffsetY(double y) { globalOffsetY = y; }
-    public void setGlobalOriginX(double x) { globalOriginX = x; }
-    public void setGlobalOriginY(double y) { globalOriginY = y; }
+    public void setGlobalCOMX(double x) { globalCOMX = x; }
+    public void setGlobalCOMY(double y) { globalCOMY = y; }
     public void setGlobalWidth(double width) { globalWidth = width; }
     public void setGlobalHeight(double height) { globalHeight = height; }
-    public void setWindowToGlobalOriginOffsetX(double originOffset) { windowToGlobalOriginOffsetX = originOffset; }
-    public void setWindowToGlobalOriginOffsetY(double originOffset) { windowToGlobalOriginOffsetY = originOffset; }
+    public void setWindowToGlobalOriginOffsetX(double originOffset) { windowToGlobalCOMOffsetX = originOffset; }
+    public void setWindowToGlobalOriginOffsetY(double originOffset) { windowToGlobalCOMOffsetY = originOffset; }
 
 
     //-------------------------------------------------------
@@ -349,10 +358,10 @@ public class Environment {
     public boolean getIsPaused() { return isPaused; }
     public double getHUDWidth() { return hudWidth; }
     public double getHUDHeight() { return hudHeight; }
-    public double getPlayAreaOffsetX() { return playAreaOffsetX; }
-    public double getPlayAreaOffsetY() { return playAreaOffsetY; }
-    public double getPlayAreaWidth() { return playAreaWidth; }
-    public double getPlayAreaHeight() { return playAreaHeight; }
+    public double getPlayAreaOffsetX() { return visibleAreaOffsetX; }
+    public double getPlayAreaOffsetY() { return visibleAreaOffsetY; }
+    public double getPlayAreaWidth() { return visibleAreaWidth; }
+    public double getPlayAreaHeight() { return visibleAreaHeight; }
     public double getTimer() { return round2DP(timer); }
     public double getBaseTime() { return round2DP(baseTime); }
     public boolean getIsTimeAttack() { return isTimeAttack; }
@@ -382,35 +391,45 @@ public class Environment {
     public double getMinTimeAttackLevel() { return minTimeAttackLevel; }
     public double getDefaultTimeAttackLevel() { return defaultTimeAttackLevel; }
     public boolean getHardMode() { return hardMode; }
-    public double getEnvironmentGlobalPlayAreaX() { return globalPlayAreaOriginX; }
-    public double getEnvironmentGlobalPlayAreaY() { return globalPlayAreaOriginY; }
-    public double getEnvironmentGlobalPlayAreaOffsetX() { return globalPlayAreaOffsetX; }
-    public double getEnvironmentGlobalPlayAreaOffsetY() { return globalPlayAreaOffsetY; }
-    public double getEnvironmentGlobalPlayAreaWidth() { return globalPlayAreaWidth; }
-    public double getEnvironmentGlobalPlayAreaHeight() { return globalPlayAreaHeight; }
+    public double getGlobalPlayAreaCOMX() { return globalPlayAreaCOMX; }
+    public double getGlobalPlayAreaCOMY() { return globalPlayAreaCOMY; }
+    public double getGlobalPlayAreaOffsetX() { return globalPlayAreaOffsetX; }
+    public double getGlobalPlayAreaOffsetY() { return globalPlayAreaOffsetY; }
+    public double getGlobalPlayAreaWidth() { return globalPlayAreaWidth; }
+    public double getGlobalPlayAreaHeight() { return globalPlayAreaHeight; }
     public double getCurrentPlayerGlobalX() { return currentPlayerGlobalX; }
     public double getCurrentPlayerGlobalY() { return currentPlayerGlobalY; }
-    public double getPlayAreaOriginX() { return playAreaOriginX; }
-    public double getPlayAreaOriginY() { return playAreaOriginY; }
+    public double getVisibleAreaCOMX() { return visibleAreaCOMX; }
+    public double getVisibleAreaCOMY() { return visibleAreaCOMY; }
 
-    public double getWindowOriginX() { return windowOriginX; }
-    public double getWindowOriginY() { return windowOriginY; }
+    public double getWindowCOMX() { return windowCOMX; }
+    public double getWindowCOMY() { return windowCOMY; }
     public double getWindowWidth() { return windowWidth; }
     public double getWindowHeight() { return windowHeight; }
-    public double getGlobalOriginX() { return globalOriginX; }
-    public double getGlobalOriginY() { return globalOriginY; }
+    public double getGlobalCOMX() { return globalCOMX; }
+    public double getGlobalCOMY() { return globalCOMY; }
     public double getGlobalOffsetX() { return globalOffsetX; }
     public double getGlobalOffsetY() { return globalOffsetY; }
     public double getGlobalWidth() { return globalWidth; }
     public double getGlobalHeight() { return globalHeight; }
-    public double getWindowToGlobalOriginOffsetX() { return windowToGlobalOriginOffsetX; }
-    public double getWindowToGlobalOriginOffsetY() { return windowToGlobalOriginOffsetY; }
+    public double getWindowToGlobalOriginOffsetX() { return windowToGlobalCOMOffsetX; }
+    public double getWindowToGlobalOriginOffsetY() { return windowToGlobalCOMOffsetY; }
+    public double getBoundaryX1() { return environmentBoundaryX1; }
+    public double getBoundaryX2() { return environmentBoundaryX2; }
+    public double getBoundaryY1() { return environmentBoundaryY1; }
+    public double getBoundaryY2() { return environmentBoundaryY2; }
 
 
     //-------------------------------------------------------
     // Other Methods
     //-------------------------------------------------------
     public void initEnvironment() { setBaseTime(engine.getTime()); }
+    public void updateEnvironment(double dt) {
+        environmentBoundaryX1 = visibleAreaCOMX + windowToGlobalCOMOffsetX;
+        environmentBoundaryX2 = visibleAreaCOMX + windowToGlobalCOMOffsetX + globalWidth;
+        environmentBoundaryY1 = visibleAreaCOMY + windowToGlobalCOMOffsetY;
+        environmentBoundaryY2 = visibleAreaCOMY + windowToGlobalCOMOffsetY + globalHeight;
+    }
     public void drawEnvironment() {
         engine.changeBackgroundColor(0,0,0);
         engine.clearBackground((int)globalPlayAreaWidth, (int)globalPlayAreaHeight);
@@ -441,27 +460,13 @@ public class Environment {
         }
 
         // Draw the level image
-//        double ix = (currentPlayerGlobalX + globalPlayAreaOffsetX);
-//        double iy = (currentPlayerGlobalY + globalPlayAreaOffsetY);
-//        double iw = globalPlayAreaWidth;
-//        double ih = globalPlayAreaHeight;
-//        engine.drawImage(tempImage,
-//                getEnvironmentXOffset(),
-//                getEnvironmentYOffset(),
-//                getPlayAreaWidth(),
-//                getPlayAreaHeight());
-//        System.out.println("ix:" + ix + "\tiy:" + iy + "\tiw:" + iw + "\tih:" + ih + "\tgx:" + globalPlayAreaOffsetX + "\tgy:" + globalPlayAreaOffsetY);
-//        engine.drawImage(tempImage,
-//                ix,
-//                iy,
-//                iw,
-//                ih);
-        System.out.print("\twtgx:" + windowToGlobalOriginOffsetX + "\twtgy:" + windowToGlobalOriginOffsetY + "\tgw:" + globalWidth + "\tgy:" + globalHeight);
         engine.drawImage(tempImage,
-                playAreaOriginX + windowToGlobalOriginOffsetX,
-                playAreaOriginY + windowToGlobalOriginOffsetY,
+                visibleAreaCOMX + windowToGlobalCOMOffsetX,
+                visibleAreaCOMY + windowToGlobalCOMOffsetY,
                 globalWidth,
                 globalHeight);
+
+        drawEnvironmentCollider();
 
         engine.restoreLastTransform();
     }
@@ -479,6 +484,43 @@ public class Environment {
         engine.drawSolidRectangle(0,(engine.height() - hudWidth), engine.width(), hudWidth);
         // HUD top
         engine.drawSolidRectangle(0,0, engine.width(), hudHeight);
+    }
+
+    public void drawImageShouldBeSize() {
+        double areaX = engine.width() - (2 * hudWidth);
+        double areaY = engine.height() - (hudHeight + hudWidth);
+        double x = hudWidth;
+        double y = hudHeight;
+        double levelOriginX = x + (areaX / 2.0);
+        double levelOriginY = y + (areaY / 2.0);
+
+        double x1 = levelOriginX - (globalWidth / 2.0);
+        double y1 = levelOriginY - (globalHeight / 2.0);
+        double x2 = levelOriginX + (globalWidth / 2.0);
+        double y2 = levelOriginY + (globalHeight / 2.0);
+
+        engine.changeColor(255,0,255);
+        engine.drawLine(x1, y1, x2, y1);
+        engine.drawLine(x1, y2, x2, y2);
+        engine.drawLine(x1, y1, x1, y2);
+        engine.drawLine(x2, y1, x2, y2);
+
+    }
+    public void drawEnvironmentCollider() {
+//        visibleAreaCOMX + windowToGlobalCOMOffsetX,
+//                visibleAreaCOMY + windowToGlobalCOMOffsetY,
+//                globalWidth,
+//                globalHeight);
+        double x1 = visibleAreaCOMX + windowToGlobalCOMOffsetX;
+        double y1 = visibleAreaCOMY + windowToGlobalCOMOffsetY;
+        double x2 = visibleAreaCOMX + windowToGlobalCOMOffsetX + globalWidth;
+        double y2 = visibleAreaCOMY + windowToGlobalCOMOffsetY + globalHeight;
+
+        engine.changeColor(0,255,255);
+        engine.drawLine(x1,y1,x2,y1);
+        engine.drawLine(x1,y2,x2,y2);
+        engine.drawLine(x1,y1,x1,y2);
+        engine.drawLine(x2,y1,x2,y2);
     }
     public void drawTimer(boolean isTimeAttack) {
         double displayTime = getCountDownTimerWOffset();
@@ -599,12 +641,8 @@ public class Environment {
         currentPlayerGlobalX = -px;
         currentPlayerGlobalY = -py;
     }
-    public void updateWindowToGlobalOriginOffsets(double x, double y) {
-//        windowToGlobalOriginOffsetX = -x + (globalWidth / 2.0);
-//        windowToGlobalOriginOffsetY = -y + (globalHeight / 2.0);
-//        windowToGlobalOriginOffsetX = -x + (globalWidth);
-//        windowToGlobalOriginOffsetY = -y + (globalHeight);
-        windowToGlobalOriginOffsetX = -x;
-        windowToGlobalOriginOffsetY = -y;
+    public void windowToGlobalCOMOffsetX(double x, double y) {
+        windowToGlobalCOMOffsetX = -x;
+        windowToGlobalCOMOffsetY = -y;
     }
 }
