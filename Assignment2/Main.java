@@ -29,6 +29,7 @@ public class Main extends GameEngine {
         initMenu();
         initInGameMenu();
         initCheckout();
+        initHelpPage();
         initEnvironment();
         initPlayer();
         initItems();
@@ -39,6 +40,7 @@ public class Main extends GameEngine {
         updateMenu(dt);
         updateCheckout(dt);
         updateInGameMenu(dt);
+        updateHelpPage();
 
         // While in-game, if the level is complete stop processing
         if (env.getIsLevelComplete()) { return; }
@@ -55,6 +57,7 @@ public class Main extends GameEngine {
         // The bottom most layer
         drawMenu();
         drawCheckout();
+        drawHelpPage();
 
         drawEnvironment();
 
@@ -105,6 +108,7 @@ public class Main extends GameEngine {
     String[] audioSFXPaths; // Paths for the sfx assets
     float overAllVolume; // Base volume for most audio files
     float inGameVolume; // Adjusted volume for a particularly loud audio file
+    Image transparentWhiteBackground;
 
     public void InitSystem() {
         // Handle the audio I/O
@@ -155,6 +159,8 @@ public class Main extends GameEngine {
 
         // Single player mode default
         isSinglePlayer = true;
+
+        transparentWhiteBackground = loadImage(assetPathImage + "background/background_w.png");
     }
 
     public void updateSystem(double dt) {
@@ -270,6 +276,9 @@ public class Main extends GameEngine {
 
                 } else if (gameState == 2) {
                     gameStateString = inGameMenuFromMain.inGameMenuMouseClicked(mouseX, mouseY);
+
+                }  else if (gameState == 3) {
+                    gameStateString = hp.inGameMenuMouseClicked(mouseX, mouseY);
 
                 }  else if (gameState == 4) {
                     if (env.getIsPaused()) {
@@ -416,6 +425,10 @@ public class Main extends GameEngine {
 
             } else if (Objects.equals(gameStateString, "settings")) {
                 gameState = 2; // Go to Settings page
+
+            } else if (Objects.equals(gameStateString, "help_page")) {
+                gameState = 3; // Go to help page
+
             }
         } else if (gameState == 1) {
             lp.startLoading();
@@ -440,6 +453,30 @@ public class Main extends GameEngine {
     public void drawMenu() {
         if (gameState == 0) { sm.drawAll(); }
         else if (gameState == 1) { lp.drawAll(); }
+    }
+
+
+    //-------------------------------------------------------
+    // Help page methods
+    //-------------------------------------------------------
+    helppage hp;
+    Image helpPageImage;
+
+    public void initHelpPage() {
+        helpPageImage = loadImage(assetPathImage + "background/background4.png");
+        hp = new helppage(this, helpPageImage, startTitle, backButtonImage, titleWidth, titleHeight, width, height);
+        hp.setWhiteBackgroundImage(transparentWhiteBackground);
+    }
+    public void updateHelpPage() {
+        if (gameState == 3) {
+            if (Objects.equals(gameStateString, "main_menu")) { gameState = 0; }
+            gameStateString = "nothing";
+        }
+    }
+    public void drawHelpPage() {
+        if (gameState == 3) {
+            hp.drawall();
+        }
     }
 
 

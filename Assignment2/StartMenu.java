@@ -233,6 +233,7 @@ public class StartMenu {
                 case 4: // Help menu?
                     if (clickButton(mouseX, mouseY, buttonX, buttonY, buttonW, buttonH)) {
                         System.out.println(" > Help Menu");
+                        return "help_page";
                     }
                     break;
                 default:
