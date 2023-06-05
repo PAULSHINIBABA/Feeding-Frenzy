@@ -951,34 +951,6 @@ public class Main extends GameEngine {
             pearl.drawItemColliders();
         }
     }
-//    public void drawPearlColliders() {
-//        double pearlX = pearl.getXPos();
-//        double pearlY = pearl.getYPos();
-//        double pearlW = pearl.getWidth();
-//        double pearlH = pearl.getHeight();
-//        double x1 = pearlX;
-//        double x2 = pearlX + pearlW;
-//        double y1 = pearlY;
-//        double y2 = pearlY + pearlH;
-//
-//        changeColor(255,0,0);
-//        drawLine(x1, y1, x2, y1);
-//        drawLine(x1, y2, x2, y2);
-//        drawLine(x1, y1, x1, y2);
-//        drawLine(x2, y1, x2, y2);
-//    }
-//    public void drawGameBoundaryColliderTest() {
-//        double boundX1 = env.getBoundaryX1();
-//        double boundX2 = env.getBoundaryX2();
-//        double boundY1 = env.getBoundaryY1();
-//        double boundY2 = env.getBoundaryY2();
-//
-//        changeColor(255,255,0);
-//        drawLine(boundX1, boundY1, boundX2, boundY1);
-//        drawLine(boundX1, boundY2, boundX2, boundY2);
-//        drawLine(boundX1, boundY1, boundX1, boundY2);
-//        drawLine(boundX2, boundY1, boundX2, boundY2);
-//    }
 
     //-------------------------------------------------------
     // Enemy methods
@@ -1039,53 +1011,35 @@ public class Main extends GameEngine {
 
             // Process the normal enemies
             ArrayList<Enemy> removalValues = new ArrayList<Enemy>();
-            if (enemies.size() > 0) {
-                for (Enemy en : enemies) {
-                    en.setPlayAreaCOM(env.getVisibleAreaCOMX(), env.getVisibleAreaCOMY());
-                    en.setWindowToGlobalCOMOffset(myfish.getXPos(), myfish.getYPos());
-
-                    // Update the enemy positions
-                    en.updateEnemyPosition(dt, true);
-                    // Check if the player has been bitten
-                    if (en.checkEnemyBitePlayer(myfish)) {
-                        if (en.getSize() > myfish.getSize()) {
-                            // Play bite sfx
-                            if (myfish.getIsAlive()) { playAudioSFX(0, 1.0f); }
-
-                            myfish.setIsAlive(false);
-                            env.setEndLevel();
-                        }
-                    }
-
-                    // Check if enemy moves out of bounds
-                    en.checkEnemyBounds(env, myfish, removalValues);
-                }
-            }
+            if (enemies.size() > 0) { updateAllEnemies(dt, enemies, removalValues); }
             // Remove the enemies marked for removal
             removeEnemies(enemies, removalValues);
 
             // Process the shark enemy
             removalValues = new ArrayList<Enemy>();
-            if (sharkEnemies.size() > 0) {
-                for (Enemy sen : sharkEnemies) {
-                    // Update the shark enemy positions
-                    sen.updateEnemyPosition(dt, false);
-                    // Check if the player has been bitten
-                    if (sen.checkEnemyBitePlayer(myfish)) {
-                        if (sen.getSize() > myfish.getSize()) {
-                            // Play bite sfx
-                            if (myfish.getIsAlive()) { playAudioSFX(0, 1.0f); }
-
-                            myfish.setIsAlive(false);
-                            env.setEndLevel();
-                        }
-                    }
-                    // Check if shark enemy moves out of bounds
-                    sen.checkEnemyBounds(env, myfish, removalValues);
-                }
-            }
+            if (sharkEnemies.size() > 0) { updateAllEnemies(dt, sharkEnemies, removalValues); }
             // Remove the shark enemies marked for removal
             removeEnemies(sharkEnemies, removalValues);
+        }
+    }
+    public void updateAllEnemies(double dt, ArrayList<Enemy> ens, ArrayList<Enemy> removalValues) {
+        for (Enemy en : ens) {
+            en.setPlayAreaCOM(env.getVisibleAreaCOMX(), env.getVisibleAreaCOMY());
+            en.setWindowToGlobalCOMOffset(myfish.getXPos(), myfish.getYPos());
+            // Update the enemy positions
+            en.updateEnemyPosition(dt, true);
+            // Check if the player has been bitten
+            if (en.checkEnemyBitePlayer(myfish)) {
+                if (en.getSize() > myfish.getSize()) {
+                    // Play bite sfx
+                    if (myfish.getIsAlive()) { playAudioSFX(0, 1.0f); }
+
+                    myfish.setIsAlive(false);
+                    env.setEndLevel();
+                }
+            }
+            // Check if enemy moves out of bounds
+            en.checkEnemyBounds(env, myfish, removalValues);
         }
     }
     public void removeEnemies(ArrayList<Enemy> enemies, ArrayList<Enemy> removalValues) {
@@ -1102,18 +1056,6 @@ public class Main extends GameEngine {
     }
     // The method to spawn an enemy on click
     public void SpawnEnemy() {
-//        if (ctrlKey) {
-//            // Make sure the game bounds are up before spawning items
-//            double rangeX = env.getBoundaryX2() - env.getBoundaryX1();
-//            double rangeY = env.getBoundaryY2() - env.getBoundaryY1();
-//            // Make sure the ranges are positive
-//            if (rangeX < 0) { rangeX *= -1.0; }
-//            if (rangeY < 0) { rangeY *= -1.0; }
-//
-//            if (rangeX > 0 && rangeY > 0) { createEnemy(); }
-//        }
-//        if (shiftKey) { enemies.clear(); }
-
         enemySpawnTimer = env.getCountDownTimerWOffset() - enemySpawnTimerPrevious;
         if (enemySpawnTimer > enemySpawnDelay) {
             createEnemy();
@@ -1185,8 +1127,6 @@ public class Main extends GameEngine {
                 env.getWindowToGlobalOriginOffsetY());
 
         en.setHeadYOffset(headOffsetTemp);
-        en.setSpawnPosition();
-//        en.setChanceToLeaveEnvironment(100);
         enemies.add(en);
     }
     public void createShark() {
@@ -1214,9 +1154,8 @@ public class Main extends GameEngine {
 
         // The shark should be very fast, ie (400 + range(400))
         shk.setRandomVelocity(400, 400);
-        shk.setYHeading(0.0); // Don't move vertically (unless spawning close to the top or bottom)
         shk.setChanceToLeaveEnvironment(100); // The shark will always leave the environment
-        shk.setSpawnPosition();
+        shk.setHeadYOffset(10);
         sharkEnemies.add(shk);
     }
 

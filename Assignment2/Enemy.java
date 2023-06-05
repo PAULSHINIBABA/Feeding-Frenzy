@@ -140,8 +140,7 @@ public class Enemy {
         setSize(size);
 
         // Set the spawn point
-        setRandomSpawnXPos();
-        setRandomSpawnYPos();
+        setSpawnPosition();
 
         // Set the enemy velocity
         velocityRange = 50.0;
@@ -380,10 +379,12 @@ public class Enemy {
     //-------------------------------------------------------
     public void drawAll() {
         drawEnemy();
+        // Debug for user
         drawEnemyCollider();
         drawEnemyHeadCollider();
 
-        drawSpawnPosition();
+        // Debug for dev only
+//        drawSpawnPosition();
     }
     public void drawEnemy() {
         // Draw the enemy image
@@ -468,7 +469,7 @@ public class Enemy {
                 player.getHeight());
     }
     public void checkEnemyBounds(Environment env, myfish player, ArrayList<Enemy> removalValues) {
-        boolean removeEnemy = (RANDOM_VALUE.nextInt(100) < 1);
+        boolean removeEnemy = (RANDOM_VALUE.nextInt(100) < leaveEnvironmentChance);
 
         // The game boundaries
         double[] envBound = new double[4];
