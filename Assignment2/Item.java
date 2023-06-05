@@ -206,7 +206,6 @@ public class Item {
         engine.drawLine(x1, y1, x1, y2);
         engine.drawLine(x2, y1, x2, y2);
     }
-
     public void windowToGlobalCOMOffset(double x, double y) {
         windowToGlobalCOMOffsetX = -x;
         windowToGlobalCOMOffsetY = -y;

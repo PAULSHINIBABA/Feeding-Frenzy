@@ -36,7 +36,6 @@ public class Main extends GameEngine {
         initEnemies();
     }
     public void update(double dt) {
-//        System.out.println("");
         updateSystem(dt);
         updateMenu(dt);
         updateCheckout(dt);
@@ -51,12 +50,10 @@ public class Main extends GameEngine {
         if (env.getIsPaused()) { return; }
 
         updatePlayer(dt);
-        // TODO: Re-add these
         updateItems(dt);
         updateEnemies(dt);
     }
     public void paintComponent() {
-//        changeColor(0,0,0);
         changeBackgroundColor(0,0,0);
         // The bottom most layer
         drawMenu();
@@ -65,7 +62,6 @@ public class Main extends GameEngine {
 
         drawEnvironment();
 
-        // TODO: Re-add these
         drawEnemies(enemies); // Draw enemy first
         drawEnemies(sharkEnemies); // Draw shark enemy next
         drawItems(); // Then draw items
@@ -236,7 +232,6 @@ public class Main extends GameEngine {
 
         // Check if the player has reached the medium size threshold
         if (myfish.getSize() == 0 && (currentGoal >= env.getGrowthThresholdMedium())) {
-//            System.out.println("Updating the fish size to 1");
             myfish.setSize(1);
             myfish.updateSize();
         }
@@ -252,7 +247,6 @@ public class Main extends GameEngine {
     }
 
 
-
     //-------------------------------------------------------
     // Mouse Handler
     //-------------------------------------------------------
@@ -263,10 +257,7 @@ public class Main extends GameEngine {
 
     // MousePressed Event Handler
     public void mousePressed(MouseEvent e) {
-        if(e.getButton() == MouseEvent.BUTTON1) {
-            mouse1Pressed = true;
-            System.out.println(mouse1Pressed);
-        }
+        if(e.getButton() == MouseEvent.BUTTON1) { mouse1Pressed = true; }
     }
 
     public void mouseHandler() {
@@ -322,10 +313,12 @@ public class Main extends GameEngine {
     public boolean downKey;
     public boolean escKey;
     public boolean spaceKey;
+//    public boolean ctrlKey;
+//    public boolean shiftKey;
 
     // Called whenever a key is pressed
     public void keyPressed(KeyEvent e) {
-//        //The user pressed left arrow
+        //The user pressed left arrow
         if(e.getKeyCode() == KeyEvent.VK_LEFT) { leftKey = true; }
         // The user pressed right arrow
         if(e.getKeyCode() == KeyEvent.VK_RIGHT) { rightKey = true; }
@@ -337,11 +330,15 @@ public class Main extends GameEngine {
         if(e.getKeyCode() == KeyEvent.VK_ESCAPE) { escKey = true; }
         // The user pressed spaceKey
         if(e.getKeyCode() == KeyEvent.VK_SPACE) { spaceKey = true; }
+//        // The user pressed ctrlKey
+//        if(e.getKeyCode() == KeyEvent.VK_CONTROL) { ctrlKey = true; }
+//        // The user pressed shiftKey
+//        if(e.getKeyCode() == KeyEvent.VK_SHIFT) { shiftKey = true; }
     }
 
     // Called whenever a key is released
     public void keyReleased(KeyEvent e) {
-//        // The user released left arrow
+        // The user released left arrow
         if(e.getKeyCode() == KeyEvent.VK_LEFT) { leftKey = false; }
         // The user released right arrow
         if(e.getKeyCode() == KeyEvent.VK_RIGHT) { rightKey = false; }
@@ -353,6 +350,10 @@ public class Main extends GameEngine {
         if(e.getKeyCode() == KeyEvent.VK_ESCAPE) { escKey = false; }
         // The user released spaceKey
         if(e.getKeyCode() == KeyEvent.VK_SPACE) { spaceKey = false; }
+//        // The user released ctrlKey
+//        if(e.getKeyCode() == KeyEvent.VK_CONTROL) { ctrlKey = false; }
+//        // The user released shiftKey
+//        if(e.getKeyCode() == KeyEvent.VK_SHIFT) { shiftKey = false; }
     }
 
 
@@ -928,6 +929,8 @@ public class Main extends GameEngine {
             drawpearl();
             drawstarfish();
             drawboom();
+
+//            starfish.drawItemSpawnPoint();
         }
     }
     public void drawboom(){
@@ -949,10 +952,10 @@ public class Main extends GameEngine {
         }
     }
 //    public void drawPearlColliders() {
-//        double pearlX = pearl.getpositionx();
-//        double pearlY = pearl.getpositiony();
-//        double pearlW = pearl.getwidth();
-//        double pearlH = pearl.getheight();
+//        double pearlX = pearl.getXPos();
+//        double pearlY = pearl.getYPos();
+//        double pearlW = pearl.getWidth();
+//        double pearlH = pearl.getHeight();
 //        double x1 = pearlX;
 //        double x2 = pearlX + pearlW;
 //        double y1 = pearlY;
@@ -963,23 +966,19 @@ public class Main extends GameEngine {
 //        drawLine(x1, y2, x2, y2);
 //        drawLine(x1, y1, x1, y2);
 //        drawLine(x2, y1, x2, y2);
-//
-//        // TODO: remove this, it is used only for testing
-//        drawGameBoundaryColliderTest();
 //    }
-
-    public void drawGameBoundaryColliderTest() {
-        double boundX1 = env.getBoundaryX1();
-        double boundX2 = env.getBoundaryX2();
-        double boundY1 = env.getBoundaryY1();
-        double boundY2 = env.getBoundaryY2();
-
-        changeColor(255,255,0);
-        drawLine(boundX1, boundY1, boundX2, boundY1);
-        drawLine(boundX1, boundY2, boundX2, boundY2);
-        drawLine(boundX1, boundY1, boundX1, boundY2);
-        drawLine(boundX2, boundY1, boundX2, boundY2);
-    }
+//    public void drawGameBoundaryColliderTest() {
+//        double boundX1 = env.getBoundaryX1();
+//        double boundX2 = env.getBoundaryX2();
+//        double boundY1 = env.getBoundaryY1();
+//        double boundY2 = env.getBoundaryY2();
+//
+//        changeColor(255,255,0);
+//        drawLine(boundX1, boundY1, boundX2, boundY1);
+//        drawLine(boundX1, boundY2, boundX2, boundY2);
+//        drawLine(boundX1, boundY1, boundX1, boundY2);
+//        drawLine(boundX2, boundY1, boundX2, boundY2);
+//    }
 
     //-------------------------------------------------------
     // Enemy methods
@@ -999,9 +998,7 @@ public class Main extends GameEngine {
     int enemyHeight;
     public void initEnemies() {
         // Define the maximum enemy spawns based on screen dimensions
-        // TODO: Add this back
-//        maxEnemies = width / 100;
-        maxEnemies = 1;
+        maxEnemies = width / 100;
         maxShark = width / 500;
 
         // Instantiate the enemy arraylists
@@ -1044,6 +1041,9 @@ public class Main extends GameEngine {
             ArrayList<Enemy> removalValues = new ArrayList<Enemy>();
             if (enemies.size() > 0) {
                 for (Enemy en : enemies) {
+                    en.setPlayAreaCOM(env.getVisibleAreaCOMX(), env.getVisibleAreaCOMY());
+                    en.setWindowToGlobalCOMOffset(myfish.getXPos(), myfish.getYPos());
+
                     // Update the enemy positions
                     en.updateEnemyPosition(dt, true);
                     // Check if the player has been bitten
@@ -1058,7 +1058,7 @@ public class Main extends GameEngine {
                     }
 
                     // Check if enemy moves out of bounds
-                    en.checkEnemyBounds(env, removalValues);
+                    en.checkEnemyBounds(env, myfish, removalValues);
                 }
             }
             // Remove the enemies marked for removal
@@ -1081,7 +1081,7 @@ public class Main extends GameEngine {
                         }
                     }
                     // Check if shark enemy moves out of bounds
-                    sen.checkEnemyBounds(env, removalValues);
+                    sen.checkEnemyBounds(env, myfish, removalValues);
                 }
             }
             // Remove the shark enemies marked for removal
@@ -1102,6 +1102,18 @@ public class Main extends GameEngine {
     }
     // The method to spawn an enemy on click
     public void SpawnEnemy() {
+//        if (ctrlKey) {
+//            // Make sure the game bounds are up before spawning items
+//            double rangeX = env.getBoundaryX2() - env.getBoundaryX1();
+//            double rangeY = env.getBoundaryY2() - env.getBoundaryY1();
+//            // Make sure the ranges are positive
+//            if (rangeX < 0) { rangeX *= -1.0; }
+//            if (rangeY < 0) { rangeY *= -1.0; }
+//
+//            if (rangeX > 0 && rangeY > 0) { createEnemy(); }
+//        }
+//        if (shiftKey) { enemies.clear(); }
+
         enemySpawnTimer = env.getCountDownTimerWOffset() - enemySpawnTimerPrevious;
         if (enemySpawnTimer > enemySpawnDelay) {
             createEnemy();
@@ -1136,25 +1148,12 @@ public class Main extends GameEngine {
         final int enemyMedium = 78; // 45 + 33
         int selectSize = randSys.nextInt(100);
 
-//        double playAreaWidth = env.getPlayAreaWidth();
-//        double playAreaHeight = env.getPlayAreaHeight();
-//        double playAreaXOffset = env.getEnvironmentXOffset();
-//        double playAreaYOffset = env.getEnvironmentYOffset();
-
-        double globalPlayAreaWidth = env.getGlobalPlayAreaWidth();
-        double globalPlayAreaHeight = env.getGlobalPlayAreaHeight();
-        double globalPlayAreaX = env.getGlobalPlayAreaCOMX();
-        double globalPlayAreaY = env.getGlobalPlayAreaCOMY();
-        double globalPlayAreaOffsetX = env.getGlobalPlayAreaOffsetX();
-        double globalPlayAreaOffsetY = env.getGlobalPlayAreaOffsetY();
-
         // Retrieve the game boundaries
         double[] envBound = new double[4];
-        Random nr = new Random();
-        envBound[0] = env.getVisibleAreaCOMX() + myfish.getXPos(); // Left edge
-        envBound[1] = env.getVisibleAreaCOMX() + myfish.getXPos() + env.getGlobalWidth(); // Right edge
-        envBound[2] = env.getVisibleAreaCOMY() + myfish.getYPos(); // Top edge
-        envBound[3] = env.getVisibleAreaCOMY() + myfish.getYPos() + env.getGlobalHeight(); // Bottom edge
+        envBound[0] = env.getVisibleAreaCOMX() + env.getWindowToGlobalOriginOffsetX(); // Left edge
+        envBound[1] = env.getVisibleAreaCOMX() + env.getWindowToGlobalOriginOffsetX() + env.getGlobalWidth(); // Right edge
+        envBound[2] = env.getVisibleAreaCOMY() + env.getWindowToGlobalOriginOffsetY(); // Top edge
+        envBound[3] = env.getVisibleAreaCOMY() + env.getWindowToGlobalOriginOffsetY() + env.getGlobalHeight(); // Bottom edge
 
         Enemy en;
         int size;
@@ -1173,48 +1172,51 @@ public class Main extends GameEngine {
             headOffsetTemp = 0;
             tempImage = enemyFish[2];
         }
-
-//        en = new Enemy(this, tempImage, size, playAreaXOffset, playAreaYOffset, playAreaWidth, playAreaHeight);
-//        en = new Enemy(this,
-//                tempImage,
-//                size,
-//                (globalPlayAreaX - globalPlayAreaOffsetX),
-//                (globalPlayAreaY - globalPlayAreaOffsetY),
-//                globalPlayAreaWidth,
-//                globalPlayAreaHeight);
         en = new Enemy(this,
                 tempImage,
                 size,
                 envBound[0],
                 envBound[2],
                 env.getGlobalWidth(),
-                env.getGlobalHeight());
+                env.getGlobalHeight(),
+                env.getVisibleAreaCOMX(),
+                env.getVisibleAreaCOMY(),
+                env.getWindowToGlobalOriginOffsetX(),
+                env.getWindowToGlobalOriginOffsetY());
+
         en.setHeadYOffset(headOffsetTemp);
+        en.setSpawnPosition();
+//        en.setChanceToLeaveEnvironment(100);
         enemies.add(en);
     }
     public void createShark() {
         if (sharkEnemies.size() >= maxShark) { return; }
 
-        double globalPlayAreaWidth = env.getGlobalPlayAreaWidth();
-        double globalPlayAreaHeight = env.getGlobalPlayAreaHeight();
-        double globalPlayAreaX = env.getGlobalPlayAreaCOMX();
-        double globalPlayAreaY = env.getGlobalPlayAreaCOMY();
-        double globalPlayAreaOffsetX = env.getGlobalPlayAreaOffsetX();
-        double globalPlayAreaOffsetY = env.getGlobalPlayAreaOffsetY();
+        // Retrieve the game boundaries
+        double[] envBound = new double[4];
+        envBound[0] = env.getVisibleAreaCOMX() + env.getWindowToGlobalOriginOffsetX(); // Left edge
+        envBound[1] = env.getVisibleAreaCOMX() + env.getWindowToGlobalOriginOffsetX() + env.getGlobalWidth(); // Right edge
+        envBound[2] = env.getVisibleAreaCOMY() + env.getWindowToGlobalOriginOffsetY(); // Top edge
+        envBound[3] = env.getVisibleAreaCOMY() + env.getWindowToGlobalOriginOffsetY() + env.getGlobalHeight(); // Bottom edge
 
         // The shark should be the largest size
         Enemy shk = new Enemy(this,
                 shark,
                 3,
-                (globalPlayAreaX - globalPlayAreaOffsetX),
-                (globalPlayAreaY - globalPlayAreaOffsetY),
-                globalPlayAreaWidth,
-                globalPlayAreaHeight);
+                envBound[0],
+                envBound[2],
+                env.getGlobalWidth(),
+                env.getGlobalHeight(),
+                env.getVisibleAreaCOMX(),
+                env.getVisibleAreaCOMY(),
+                env.getWindowToGlobalOriginOffsetX(),
+                env.getWindowToGlobalOriginOffsetY());
 
         // The shark should be very fast, ie (400 + range(400))
         shk.setRandomVelocity(400, 400);
         shk.setYHeading(0.0); // Don't move vertically (unless spawning close to the top or bottom)
-        shk.setChanceToLeaveEnvironment(50); // The shark will always leave the environment
+        shk.setChanceToLeaveEnvironment(100); // The shark will always leave the environment
+        shk.setSpawnPosition();
         sharkEnemies.add(shk);
     }
 
@@ -1352,19 +1354,7 @@ public class Main extends GameEngine {
                 gameState = 6; // Go to CheckoutPage
             }
             UpdateTimer(wasPaused);
-            if (!env.getIsPaused()) {
-                // TODO: WIP, fix to make sure the environment updates to player coordinates
-//                env.updateCurrentGlobalPlayerCoordinates(myfish.getXPos() + (myfish.getWidth() * 2.5), myfish.getYPos() - (myfish.getHeight()));
-//                System.out.println("\tfx:" + myfish.getXPos() + "\tfy:" + myfish.getYPos());
-                env.setWindowToGlobalCOMOffsetX(myfish.getXPos(), myfish.getYPos());
-//                if (myfish.getSize() == 0) {
-//                    env.updateCurrentGlobalPlayerCoordinates(myfish.getXPos() + (myfish.getWidth() * 2.5), myfish.getYPos() - (myfish.getHeight()));
-//                } else if (myfish.getSize() == 1) {
-//                    env.updateCurrentGlobalPlayerCoordinates(myfish.getXPos() + (myfish.getWidth() * 2.2), myfish.getYPos() - (myfish.getHeight()));
-//                } else if (myfish.getSize() == 2) {
-//                    env.updateCurrentGlobalPlayerCoordinates(myfish.getXPos() + (myfish.getWidth() * 1.0), myfish.getYPos());
-//                }
-            }
+            if (!env.getIsPaused()) { env.setWindowToGlobalCOMOffsetX(myfish.getXPos(), myfish.getYPos()); }
         }
     }
 
@@ -1383,8 +1373,6 @@ public class Main extends GameEngine {
         pearl.resetTimeVisible();
 
         // Reset the bomb
-//        boom.setvisible(false);
-//        boom.resettimevis();
         boom.setVisible(false);
         boom.resetTimeVisible();
 

@@ -60,13 +60,16 @@ public class Enemy {
     private double imageBodyYOffset;
     private double imageBodyLength;
     private double imageBodyHeight;
+    private double playAreaCOMX;
+    private double playAreaCOMY;
+    private double windowToGlobalCOMOffsetX;
+    private double windowToGlobalCOMOffsetY;
+    private double globalWidth;
+    private double globalHeight;
 
-    //
-//    private double windowToGlobalCOMOffsetX;
-//    private double windowToGlobalCOMOffsetY;
-//    private double playAreaCOMX;
-//    private double playAreaCOMY;
-
+    // Spawn position
+    private double spawnXPos;
+    private double spawnYPos;
 
     // The Enemy class constructor
     // The Enemy requires:
@@ -74,8 +77,33 @@ public class Enemy {
     // - The enemy size
     // - The frameWidth
     // - The frameHeight
-    public Enemy(GameEngine engine, Image image, int size, double frameXOffset, double frameYOffset, double frameWidth, double frameHeight) throws IllegalArgumentException {
-        this(engine, image, size, 0.0, 0.0, 0.0, 0.0, 0.0, frameXOffset, frameYOffset, frameWidth, frameHeight);
+    public Enemy(GameEngine engine,
+                 Image image,
+                 int size,
+                 double frameXOffset,
+                 double frameYOffset,
+                 double frameWidth,
+                 double frameHeight,
+                 double playAreaCOMX,
+                 double playAreaCOMY,
+                 double windowToGlobalCOMOffsetX,
+                 double windowToGlobalCOMOffsetY) throws IllegalArgumentException {
+        this(engine,
+                image,
+                size,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                frameXOffset,
+                frameYOffset,
+                frameWidth,
+                frameHeight,
+                playAreaCOMX,
+                playAreaCOMY,
+                windowToGlobalCOMOffsetX,
+                windowToGlobalCOMOffsetY);
     }
     public Enemy(GameEngine engine,
                  Image image,
@@ -88,10 +116,20 @@ public class Enemy {
                  double frameXOffset,
                  double frameYOffset,
                  double frameWidth,
-                 double frameHeight) throws IllegalArgumentException {
+                 double frameHeight,
+                 double playAreaCOMX,
+                 double playAreaCOMY,
+                 double windowToGlobalCOMOffsetX,
+                 double windowToGlobalCOMOffsetY) throws IllegalArgumentException {
         this.engine = engine;
         // Initialize the randomizing variable
         RANDOM_VALUE = new Random();
+        this.playAreaCOMX = playAreaCOMX;
+        this.playAreaCOMY = playAreaCOMY;
+        this.windowToGlobalCOMOffsetX = -windowToGlobalCOMOffsetX;
+        this.windowToGlobalCOMOffsetY = -windowToGlobalCOMOffsetY;
+        globalWidth = frameWidth;
+        globalHeight = frameHeight;
 
         // Set the enemy image
         if (image == null) { throw new IllegalArgumentException("The enemy image cannot be null"); }
@@ -100,6 +138,10 @@ public class Enemy {
         // Set the enemy size
         if ((size < MIN_SIZE) || (size > MAX_SIZE)) { throw new IllegalArgumentException("The enemy size must be greater than " + MIN_SIZE + " and less than " + MAX_SIZE); }
         setSize(size);
+
+        // Set the spawn point
+        setRandomSpawnXPos();
+        setRandomSpawnYPos();
 
         // Set the enemy velocity
         velocityRange = 50.0;
@@ -111,8 +153,8 @@ public class Enemy {
         // Check whether to randomly assign a position or not
         boolean randomPos = ((xPos == 0.0) && (yPos == 0.0));
         if (randomPos) {
-            setRandomXPos(frameWidth, frameXOffset);
-            setRandomYPos(frameHeight, frameYOffset);
+            this.xPos = spawnXPos;
+            this.yPos = spawnYPos;
         } else {
             // Assigning position based on input
             this.xPos = xPos;
@@ -164,14 +206,41 @@ public class Enemy {
     }
     public void setXPos(double xPos) { this.xPos = xPos; }
     public void setYPos(double yPos) { this.yPos = yPos; }
+    public void setSpawnXPos(double spawnXPos) { this.spawnXPos = spawnXPos; }
+    public void setSpawnYPos(double spawnYPos) { this.spawnYPos = spawnYPos; }
     public void setRandomXPos(double frameWidth, double frameXOffset) {
         // Randomly assigning a position
         boolean enterLeft = RANDOM_VALUE.nextBoolean();
         if (enterLeft) { setXPos( frameXOffset - (colliderBodyLength + EDGE_OFFSET) ); }
         else { setXPos( frameXOffset + frameWidth + colliderBodyLength + EDGE_OFFSET ); }
     }
+    public void setRandomSpawnXPos() {
+        // Randomly assigning a position
+        boolean enterLeft = RANDOM_VALUE.nextBoolean();
+        // The game boundaries
+        double[] envBound = new double[2];
+        envBound[0] = playAreaCOMX + windowToGlobalCOMOffsetX; // Left edge
+        envBound[1] = playAreaCOMX + windowToGlobalCOMOffsetX + globalWidth; // Right edge
+
+        if (enterLeft) { spawnXPos = envBound[0] - (playAreaCOMX + windowToGlobalCOMOffsetX); }
+        else { spawnXPos = envBound[1] - (playAreaCOMX + windowToGlobalCOMOffsetX); }
+    }
     public void setRandomYPos(double frameHeight, double frameYOffset) {
         setYPos(frameYOffset + EDGE_OFFSET + colliderBodyYOffset + RANDOM_VALUE.nextDouble(frameHeight - (2 * (EDGE_OFFSET + colliderBodyYOffset))));
+    }
+    public void setRandomSpawnYPos() {
+        // The game boundaries
+        double[] envBound = new double[2];
+        envBound[0] = playAreaCOMY + windowToGlobalCOMOffsetY; // Top edge
+        envBound[1] = playAreaCOMY + windowToGlobalCOMOffsetY + globalHeight; // Bottom edge
+
+        double diffY = envBound[1] - envBound[0];
+        if (diffY > 0) {
+            spawnYPos = envBound[0] + RANDOM_VALUE.nextDouble(envBound[1] - envBound[0]) - (playAreaCOMY + windowToGlobalCOMOffsetY);
+        } else {
+            System.out.println("Bound difference was 0!");
+            spawnYPos = 0.0;
+        }
     }
     public void setPos(double xPos, double yPos) {
         this.xPos = xPos;
@@ -197,8 +266,12 @@ public class Enemy {
         headingYDirection = yHeading;
     }
     public void setSidedXHeading(double frameWidth) {
-        // If the heading is undefined, then choose based on spawn edge
-        if (xPos < (frameWidth / 2.0)) { setXHeading(1.0); } // Head right
+        // Takes the env params and sets the initial positions
+        double[] envBound = new double[4];
+        envBound[0] = playAreaCOMX + windowToGlobalCOMOffsetX; // Left edge
+        envBound[1] = playAreaCOMX + windowToGlobalCOMOffsetX + globalWidth; // Right edge
+
+        if (xPos < (((envBound[1] - envBound[0]) / 2.0) + envBound[0])) { setXHeading(1.0); } // Head right
         else { setXHeading(-1.0); } // Head left
     }
     public void setRandomXHeading() {
@@ -245,12 +318,10 @@ public class Enemy {
         imageBodyLength = l;
         imageBodyHeight = h;
     }
-
     public void setChanceToLeaveEnvironment(int chance) throws IllegalArgumentException {
         if ((chance < 0) || (chance > 100)) { throw new IllegalArgumentException("The chance cannot be less than 0 or greater than 100;"); }
         leaveEnvironmentChance = chance;
     }
-
     public void setHeadXOffset(double x) {
         colliderHeadXOffset = x;
     }
@@ -258,6 +329,23 @@ public class Enemy {
     public void setHeadOffset(double x, double y, double r) {
         setHeadXOffset(x);
         setHeadYOffset(y);
+    }
+    // Set the play area centre of mass
+    // This is required to be set to the actual play area for "camera panning" to work.
+    public void setPlayAreaCOM(double x, double y) {
+        playAreaCOMX = x;
+        playAreaCOMY = y;
+    }
+    // Set the display window to global play area centre of mass offsets
+    public void setWindowToGlobalCOMOffset(double x, double y) {
+        windowToGlobalCOMOffsetX = -x;
+        windowToGlobalCOMOffsetY = -y;
+    }
+    public void setGlobalWidth(double globalWidth) { this.globalWidth = globalWidth; }
+    public void setGlobalHeight(double globalHeight) { this.globalHeight = globalHeight; }
+    public void setSpawnPosition() {
+        setRandomSpawnXPos();
+        setRandomSpawnYPos();
     }
 
 
@@ -290,28 +378,25 @@ public class Enemy {
     //-------------------------------------------------------
     // Other methods
     //-------------------------------------------------------
-    public void updateEnemyPosition(double dt, boolean shouldRandomize) {
-        if (shouldRandomize) { randomizeEnemyMovement(); }
-        xPos += headingXDirection * velocity * dt;
-        yPos += headingYDirection * velocity * dt;
-    }
     public void drawAll() {
         drawEnemy();
         drawEnemyCollider();
         drawEnemyHeadCollider();
+
+        drawSpawnPosition();
     }
     public void drawEnemy() {
         // Draw the enemy image
         if (headingXDirection == -1.0) {
             engine.drawImage(image,
-                    (xPos + imageBodyXOffset),
-                    (yPos - imageBodyYOffset),
+                    (xPos + playAreaCOMX + windowToGlobalCOMOffsetX + imageBodyXOffset),
+                    (yPos + playAreaCOMY + windowToGlobalCOMOffsetY - imageBodyYOffset),
                     -imageBodyLength,
                     imageBodyHeight);
         } else {
             engine.drawImage(image,
-                    (xPos - imageBodyXOffset),
-                    (yPos - imageBodyYOffset),
+                    (xPos + playAreaCOMX + windowToGlobalCOMOffsetX - imageBodyXOffset),
+                    (yPos + playAreaCOMY + windowToGlobalCOMOffsetY - imageBodyYOffset),
                     imageBodyLength,
                     imageBodyHeight);
         }
@@ -319,10 +404,10 @@ public class Enemy {
     // Debug: Used to show the enemy body colliders
     public void drawEnemyCollider() {
         // Calculate the collision offsets
-        double x1 = xPos - colliderBodyXOffset;
-        double y1 = yPos - colliderBodyYOffset;
-        double x2 = xPos + colliderBodyXOffset;
-        double y2 = yPos + colliderBodyYOffset;
+        double x1 = xPos + playAreaCOMX + windowToGlobalCOMOffsetX - colliderBodyXOffset;
+        double y1 = yPos + playAreaCOMY + windowToGlobalCOMOffsetY - colliderBodyYOffset;
+        double x2 = xPos + playAreaCOMX + windowToGlobalCOMOffsetX + colliderBodyXOffset;
+        double y2 = yPos + playAreaCOMY + windowToGlobalCOMOffsetY + colliderBodyYOffset;
 
         // Draw the collision boxes
         engine.changeColor(0, 255, 0);
@@ -333,12 +418,15 @@ public class Enemy {
 
         // Draw the origin
         engine.changeColor(255, 0, 0);
-        engine.drawSolidCircle(xPos, yPos, 2);
+        engine.drawSolidCircle(
+                xPos + playAreaCOMX + windowToGlobalCOMOffsetX,
+                yPos + playAreaCOMY + windowToGlobalCOMOffsetY,
+                2);
     }
     // Debug: Used to show the enemy head colliders
     public void drawEnemyHeadCollider() {
-        double x = xPos;
-        double y = yPos + colliderHeadYOffset;
+        double x = xPos + playAreaCOMX + windowToGlobalCOMOffsetX;
+        double y = yPos + playAreaCOMY + windowToGlobalCOMOffsetY + colliderHeadYOffset;
         double xH = colliderHeadXOffset;
 
         double x1;
@@ -348,9 +436,16 @@ public class Enemy {
         engine.changeColor(255,0,0);
         engine.drawCircle(x1, y, 2);
     }
+    public void drawSpawnPosition() {
+        this.engine.changeColor(255,0,255);
+        this.engine.drawSolidCircle(spawnXPos, spawnYPos, 5);
+    }
+    public void updateEnemyPosition(double dt, boolean shouldRandomize) {
+        xPos += (headingXDirection * velocity * dt);
+        yPos += (headingYDirection * velocity * dt);
+    }
     public void randomizeEnemyMovement() {
         // Roll each chance separately
-//        Random randSys = new Random();
         int changeChance = 1; // 1% chance
         // Randomize horizontal direction
         if (RANDOM_VALUE.nextInt(100) < changeChance) { setRandomXHeading(); }
@@ -367,39 +462,45 @@ public class Enemy {
 
         return calcDistPointToSquare(ex,
                 (yPos + colliderHeadYOffset),
-                (player.getXPos() - player.getOffsetX()),
-                (player.getYPos() - player.getOffsetY()),
+                (-windowToGlobalCOMOffsetX - (player.getWidth() / 2.0)),
+                (-windowToGlobalCOMOffsetY - (player.getHeight() / 2.0)),
                 player.getWidth(),
                 player.getHeight());
     }
-    public void checkEnemyBounds(Environment env, ArrayList<Enemy> removalValues) {
-//        Random randSys = new Random();
-        boolean removeEnemy = (RANDOM_VALUE.nextInt(100) < getChanceToLeaveEnvironment());
-        if (removeEnemy) {
-//            System.out.println("Adding enemy to remove");
-            removalValues.add(this);
-            return;
-        }
+    public void checkEnemyBounds(Environment env, myfish player, ArrayList<Enemy> removalValues) {
+        boolean removeEnemy = (RANDOM_VALUE.nextInt(100) < 1);
 
-        // TODO: Fix this
-        double playAreaXOffset = env.getEnvironmentXOffset();
-        double playAreaYOffset = env.getEnvironmentYOffset();
-//        double playAreaXOffset = 0;
-//        double playAreaYOffset = 0;
-
-        double bodyLengthOffset =  colliderBodyLength / 2;
-        double bodyHeightOffset =  colliderBodyHeight / 2;
+        // The game boundaries
+        double[] envBound = new double[4];
+        envBound[0] = playAreaCOMX + windowToGlobalCOMOffsetX; // Left edge
+        envBound[1] = playAreaCOMX + windowToGlobalCOMOffsetX + globalWidth; // Right edge
+        envBound[2] = playAreaCOMY + windowToGlobalCOMOffsetY; // Top edge
+        envBound[3] = playAreaCOMY + windowToGlobalCOMOffsetY + globalHeight; // Bottom edge
 
         // Check horizontal bounds
-        if ((xPos <= (playAreaXOffset - bodyLengthOffset)) && (headingXDirection == -1.0)) { headingXDirection = 1.0; }
-        if ((xPos >= (playAreaXOffset + env.getPlayAreaWidth() + bodyLengthOffset)) && (headingXDirection == 1.0)) { headingXDirection = -1.0; }
+        double[] enemyGlobalXPos = {
+                (xPos + playAreaCOMX + windowToGlobalCOMOffsetX), // Item left face
+                (xPos + playAreaCOMX + windowToGlobalCOMOffsetX + globalWidth) // Item right face
+        };
+        if ((enemyGlobalXPos[0] < envBound[0]) && (headingXDirection == -1.0)) {
+            if (removeEnemy) { removalValues.add(this); }
+            else { headingXDirection = 1.0; }
+        }
+        if ((enemyGlobalXPos[0] > envBound[1]) && (headingXDirection == 1.0)) {
+            if (removeEnemy) { removalValues.add(this); }
+            else { headingXDirection = -1.0; }
+        }
+
         // Check vertical bounds
-        if (yPos <= (playAreaYOffset + bodyHeightOffset)) { headingYDirection = 1.0; }
-        if (yPos >= (playAreaYOffset + env.getPlayAreaHeight() - bodyHeightOffset)) { headingYDirection = -1.0; }
+        double[] enemyGlobalYPos = {
+                (yPos + playAreaCOMY + windowToGlobalCOMOffsetY), // Item top face
+                (yPos + playAreaCOMY + windowToGlobalCOMOffsetY + globalHeight) // Item bottom face
+        };
+        if (enemyGlobalYPos[0] < envBound[2]) { headingYDirection = 1.0; }
+        if (enemyGlobalYPos[0] > envBound[3]) { headingYDirection = -1.0; }
     }
     public boolean calcDistPointToSquare(double px, double py, double ex, double ey, double el, double eh) {
-        if ((px >= ex) && (px <= (ex + el)) && (py >= ey) && (py <= (ey + eh))) { return true; }
-        return false;
+        return (px >= ex) && (px <= (ex + el)) && (py >= ey) && (py <= (ey + eh));
     }
 
     // TODO: consider other enemy behaviours can be added once the main parts work.
