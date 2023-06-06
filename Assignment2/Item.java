@@ -3,7 +3,7 @@
  * ID: 11115713
  *
  * Reference: Lucas (Xidi Kuang)
- * ID:
+ * ID: 21008041
  *
  * The Item Class
  *
@@ -14,6 +14,7 @@
  * Many of the getter/setter methods from starfish.java, pearl.java, and boom.java were refactored
  * into this Item Class because there were duplicate methods.
  */
+
 package Assignment2;
 
 import java.awt.*;

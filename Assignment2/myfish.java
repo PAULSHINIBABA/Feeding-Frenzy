@@ -1,9 +1,11 @@
 /*
  * Author: Lucass (Xidi Kuang)
- * ID:
+ * ID: 21008041
  *
- * Co-Author: Robert Tubman (Refactored to merge with team code)
+ * Co-Author: Robert Tubman (Minor tweaking to merge with team code)
  * ID: 11115713
+ *
+ * The player "myfish.java" class that handles the player controls.
  */
 
 package Assignment2;
@@ -148,7 +150,10 @@ public class myfish {
     //**************************************************
     // Other methods
     //**************************************************
+    // Get the player collider rectangle
     public Rectangle getmyfishRec() { return new Rectangle( (int)(originX - offsetX), (int)(originY - offsetY), (int)myfish_w, (int)myfish_h ); }
+
+    // Update the player fields
     public void updatemyfish(double dt,
                              boolean up,
                              boolean down,
@@ -160,21 +165,25 @@ public class myfish {
                              double h) {
 
         boolean isMoving = false;
+        // Handle the upwards movement
         if (up) {
             isMoving = true;
             myfishspeed_y -= speedAcceleration  * dt; // Update the speed
             if (myfishspeed_y < -maxSpeed) { myfishspeed_y = -maxSpeed; } // Limit the speed
         }
+        // Handle the downward movement
         if (down) {
             isMoving = true;
             myfishspeed_y += speedAcceleration  * dt; // Update the speed
             if (myfishspeed_y > maxSpeed) { myfishspeed_y = maxSpeed; } // Limit the speed
         }
+        // Handle the leftward movement
         if (left) {
             isMoving = true;
             myfishspeed_x -= speedAcceleration  * dt; // Update the speed
             if (myfishspeed_x < -maxSpeed) { myfishspeed_x = -maxSpeed; } // Limit the speed
         }
+        // Handle the rightward movement
         if (right) {
             isMoving = true;
             myfishspeed_x += speedAcceleration  * dt; // Update the speed
@@ -216,6 +225,8 @@ public class myfish {
         }
     }
 
+    // Normalize the speed of the player
+    // TODO: fix this, due to not working correctly
     public double[] normalizeSpeed(double x, double y) {
         // Calculate the directional vector
         double c = Math.sqrt((Math.pow(x, 2) + Math.pow(y, 2)));
@@ -232,18 +243,28 @@ public class myfish {
 
         return normalized; // return the normalized values
     }
+
+    // Increment the max speed of the player
     public void incrementMaxSpeed(double maxSpeed) { this.maxSpeed += maxSpeed; }
+
+    // Increment the acceleration speed of the player
     public void incrementAccelerationSpeed(double accelVal) { this.speedAcceleration += accelVal; }
+
+    // Reset the speed of the player
     public void resetSpeed() {
         speedAcceleration = SPEED_ACCELERATION_DEFAULT;
         maxSpeed = MAX_SPEED_DEFAULT;
     }
+
+    // Update the players offset parameters
     public void updateOffsets() {
         offsetX = myfish_w / 2.0;
         offsetY = myfish_h / 2.0;
         fishImageOffsetX = fishImageWidth / 2.0;
         fishImageOffsetY = fishImageHeight / 2.0;
     }
+
+    // Update the size of the player
     public void updateSize() {
         switch (playerSize) {
             case 0 -> {

@@ -80,8 +80,6 @@ public class Enemy {
     public Enemy(GameEngine engine,
                  Image image,
                  int size,
-                 double frameXOffset,
-                 double frameYOffset,
                  double frameWidth,
                  double frameHeight,
                  double playAreaCOMX,
@@ -96,8 +94,6 @@ public class Enemy {
                 0.0,
                 0.0,
                 0.0,
-                frameXOffset,
-                frameYOffset,
                 frameWidth,
                 frameHeight,
                 playAreaCOMX,
@@ -113,8 +109,6 @@ public class Enemy {
                  double yPos,
                  double xHeading,
                  double yHeading,
-                 double frameXOffset,
-                 double frameYOffset,
                  double frameWidth,
                  double frameHeight,
                  double playAreaCOMX,
@@ -374,27 +368,32 @@ public class Enemy {
     public double getDefaultVelocity() { return defaultVelocity; }
     public double getDefaultVelocityRange() { return velocityRange; }
 
+
     //-------------------------------------------------------
     // Other methods
     //-------------------------------------------------------
+    // Draw all the enemy parameters
     public void drawAll() {
         drawEnemy();
+
         // Debug for user
-        drawEnemyCollider();
-        drawEnemyHeadCollider();
+//        drawEnemyCollider();
+//        drawEnemyHeadCollider();
 
         // Debug for dev only
 //        drawSpawnPosition();
     }
+
+    // Draw the enemy image
     public void drawEnemy() {
         // Draw the enemy image
-        if (headingXDirection == -1.0) {
+        if (headingXDirection == -1.0) { // Facing left
             engine.drawImage(image,
                     (xPos + playAreaCOMX + windowToGlobalCOMOffsetX + imageBodyXOffset),
                     (yPos + playAreaCOMY + windowToGlobalCOMOffsetY - imageBodyYOffset),
                     -imageBodyLength,
                     imageBodyHeight);
-        } else {
+        } else { // Facing right
             engine.drawImage(image,
                     (xPos + playAreaCOMX + windowToGlobalCOMOffsetX - imageBodyXOffset),
                     (yPos + playAreaCOMY + windowToGlobalCOMOffsetY - imageBodyYOffset),
@@ -402,6 +401,7 @@ public class Enemy {
                     imageBodyHeight);
         }
     }
+
     // Debug: Used to show the enemy body colliders
     public void drawEnemyCollider() {
         // Calculate the collision offsets
@@ -424,6 +424,7 @@ public class Enemy {
                 yPos + playAreaCOMY + windowToGlobalCOMOffsetY,
                 2);
     }
+
     // Debug: Used to show the enemy head colliders
     public void drawEnemyHeadCollider() {
         double x = xPos + playAreaCOMX + windowToGlobalCOMOffsetX;
@@ -437,6 +438,8 @@ public class Enemy {
         engine.changeColor(255,0,0);
         engine.drawCircle(x1, y, 2);
     }
+
+    // Debug: draw the spawning position
     public void drawSpawnPosition() {
         this.engine.changeColor(255,0,255);
         this.engine.drawSolidCircle(spawnXPos, spawnYPos, 5);
@@ -445,6 +448,8 @@ public class Enemy {
         xPos += (headingXDirection * velocity * dt);
         yPos += (headingYDirection * velocity * dt);
     }
+
+    // Randomize the enemy movement
     public void randomizeEnemyMovement() {
         // Roll each chance separately
         int changeChance = 1; // 1% chance
@@ -455,6 +460,8 @@ public class Enemy {
         // Randomize velocity
         if (RANDOM_VALUE.nextInt(100) < changeChance) { setRandomVelocity(getDefaultVelocity(), getDefaultVelocityRange()); }
     }
+
+    // Check if the enemy has bitten the player
     public boolean checkEnemyBitePlayer(myfish player) {
         // Enemy collider fields
         double ex;
@@ -468,6 +475,8 @@ public class Enemy {
                 player.getWidth(),
                 player.getHeight());
     }
+
+    // Check if the enemy has left the play area
     public void checkEnemyBounds(Environment env, myfish player, ArrayList<Enemy> removalValues) {
         boolean removeEnemy = (RANDOM_VALUE.nextInt(100) < leaveEnvironmentChance);
 
@@ -503,6 +512,4 @@ public class Enemy {
     public boolean calcDistPointToSquare(double px, double py, double ex, double ey, double el, double eh) {
         return (px >= ex) && (px <= (ex + el)) && (py >= ey) && (py <= (ey + eh));
     }
-
-    // TODO: consider other enemy behaviours can be added once the main parts work.
 }

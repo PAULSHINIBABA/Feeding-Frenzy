@@ -32,15 +32,12 @@ public class CheckoutPage {
     private double scoreX;
     private double scoreY;
     private int drawFonts;
-//    private int scoreFont;
     private int pearlsEaten;
     private double pEatX;
     private double pEatY;
-//    private int pEatFont;
     private int starfishEaten;
     private double sfEatX;
     private double sfEatY;
-//    private int sfEatFont;
     private double mainMenuButtonColliderX;
     private double mainMenuButtonColliderY;
     private double mainMenuButtonColliderWidth;
@@ -79,15 +76,15 @@ public class CheckoutPage {
         score = 0;
         scoreX = (this.backgroundWidth / 2.0) - displayOffsetX;
         scoreY = (this.backgroundHeight / 3.0);
-//        scoreFont = 28;
+
         pearlsEaten = 0;
         pEatX = (this.backgroundWidth / 2.0) - displayOffsetX;
         pEatY = scoreY + drawFonts + displayOffsetY;
-//        pEatFont = 28;
+
         starfishEaten = 0;
         sfEatX = (this.backgroundWidth / 2.0) - displayOffsetX;
         sfEatY = pEatY + drawFonts + displayOffsetY;
-//        sfEatFont = 28;
+
         double offset = 50;
         double buttonSize = 50;
         mainMenuButtonColliderWidth = buttonSize * 2;
@@ -155,8 +152,7 @@ public class CheckoutPage {
     //-------------------------------------------------------
     // Other methods
     //-------------------------------------------------------
-//    public void initCheckout() {}
-//    public void updateCheckout() {}
+    // draw all of the content in the checkout page
     public void drawCheckout(Image[] enemies) {
         drawBackground();
         drawScore();
@@ -167,14 +163,22 @@ public class CheckoutPage {
         drawReturnToMainMenuButton();
         drawNextLevelButton();
         drawCheckoutLine();
+
+        // Debug: draw the buttons colliders
 //        drawButtonColliders();
     }
+
+    // Draw the levels background
     public void drawBackground() {
         engine.drawImage(background, imageX, imageY, backgroundWidth, backgroundHeight);
     }
+
+    // Draw the players score
     public void drawScore() {
         engine.drawText(scoreX, scoreY, ("Score: " + score), "Sans Serif", drawFonts);
     }
+
+    // Draw the number of enemies eaten in the level
     public void drawEnemiesEaten(Image[] enemies) {
         double yOffsetsImage = (backgroundHeight / 3.0) - drawFonts;
         double yOffsets = scoreY;
@@ -184,7 +188,6 @@ public class CheckoutPage {
         double h = enemyBaseHeight*2;
         for (int i = 0; i < enemyTypes; i++) {
             engine.drawImage(enemies[i], x1, yOffsetsImage, w, h);
-//            engine.drawText(x2, (yOffsets - (drawFonts / 2.0)), (": " + Integer.toString(enemiesEaten[i])), "Sans serif", drawFonts);
             engine.drawText(x2, yOffsets, (": " + Integer.toString(enemiesEaten[i])), "Sans serif", drawFonts);
             yOffsets += enemiesEatenYOffset;
             yOffsetsImage += enemiesEatenYOffset;
@@ -192,6 +195,8 @@ public class CheckoutPage {
 //            drawLines(enemiesEatenXOffset, yOffsets, enemyBaseWidth, enemyBaseHeight);
         }
     }
+
+    // Debug: Draw the colliders box
     public void drawLines(double x, double y, double w, double h) {
         engine.changeColor(255,0,0);
         engine.drawLine(x,y,x+w,y);
@@ -199,14 +204,20 @@ public class CheckoutPage {
         engine.drawLine(x,y,x,y+h);
         engine.drawLine(x+w,y,x+w,y+h);
     }
+
+    // Draw the number of pearls eaten
     public void drawPearlsEaten() {
         engine.changeColor(0,0,0);
         engine.drawText(pEatX, pEatY, ("Pearls: " + pearlsEaten), "Sans Serif", drawFonts);
     }
+
+    // draw the number of starfish eaten
     public void drawStarfishEaten() {
         engine.changeColor(0,0,0);
         engine.drawText(sfEatX, sfEatY, ("Starfish: " + starfishEaten), "Sans Serif", drawFonts);
     }
+
+    // Draw the button to return to the main menu
     public void drawReturnToMainMenuButton() {
         engine.drawImage(backButtonImage,
                 mainMenuButtonColliderX,
@@ -214,6 +225,8 @@ public class CheckoutPage {
                 mainMenuButtonColliderWidth,
                 mainMenuButtonColliderHeight);
     }
+
+    // Draw the button for the next level
     public void drawNextLevelButton() {
         engine.drawImage(continueButtonImage,
                 (nextLevelButtonColliderX + nextLevelButtonColliderWidth - mainMenuButtonColliderRadius),
@@ -222,12 +235,14 @@ public class CheckoutPage {
                 nextLevelButtonColliderHeight);
     }
 
+    // Debug: Draw the button colliders
     public void drawButtonColliders() {
         engine.changeColor(255,0,0);
         engine.drawCircle(mainMenuButtonColliderX + mainMenuButtonColliderRadius, mainMenuButtonColliderY, mainMenuButtonColliderRadius);
         engine.drawCircle(nextLevelButtonColliderX, nextLevelButtonColliderY, nextLevelButtonColliderRadius);
     }
 
+    // Draw the text to show that the level was completed
     public void drawCheckoutLine() {
         double checkoutLineX = (backgroundWidth / 2.0) - displayOffsetX;
         double checkoutLineY = (backgroundHeight / 4.0);
@@ -236,34 +251,19 @@ public class CheckoutPage {
         engine.drawText(checkoutLineX, checkoutLineY, "STAGE COMPLETE!", "a", fontSize);
     }
 
+    // Check if a button was clicked
     public String checkClickTarget(double mX, double mY) {
         if (checkDistance(mX, mY, mainMenuButtonColliderX + mainMenuButtonColliderRadius, mainMenuButtonColliderY, mainMenuButtonColliderRadius)) {
             return "main_menu";
         } else if (checkDistance(mX, mY, nextLevelButtonColliderX, nextLevelButtonColliderY, nextLevelButtonColliderRadius)) {
-            if (restartButton) {
-                return "restart";
-            } else {
-                return "next_level";
-            }
-        } else {
-            return "nothing";
-        }
+            if (restartButton) { return "restart"; }
+            else { return "next_level"; }
+
+        } else { return "nothing"; }
     }
 
+    // Check the distance between the mouse and button (by radius)
     public boolean checkDistance(double x1, double y1, double x2, double y2, double r) {
-        double value = Math.sqrt((powerOf((x2 - x1), 2.0) + powerOf((y2 - y1), 2.0)));
-        System.out.println("distance:" + value);
-        if (value <= r) { return true; }
-        else { return false; }
-    }
-
-    public double powerOf(double x, double power) {
-        if (power == 0) { return 1.0; }
-        else if (power == 1) { return x; }
-        else {
-            double value = x;
-            for (int i = 1; i < power; i++) { value *= x; }
-            return value;
-        }
+        return Math.sqrt((Math.pow((x2 - x1), 2.0) + Math.pow((y2 - y1), 2.0))) <= r;
     }
 }

@@ -1,9 +1,6 @@
 /*
- * Author: Robert Tubman
+ * Author: Robert Tubman (Merging, debugging, and refactoring)
  * ID: 11115713
- *
- * Co-Author: Lucass (Xidi Kuang)
- * ID: 21008041
  *
  * The Main Class which contains the entry point.
  * As well as the code to wrap all the classes together to make the game run.
@@ -21,9 +18,13 @@ import java.util.Objects;
 import java.util.Random;
 
 public class Main extends GameEngine {
+
+    // Main game instance
     public static void main(String[] args) {
         createGame(new Main());
     }
+
+    // Initialize the game parameters
     public void init() {
         InitSystem();
         initMenu();
@@ -35,6 +36,8 @@ public class Main extends GameEngine {
         initItems();
         initEnemies();
     }
+
+    // Update the main processing loop
     public void update(double dt) {
         updateSystem(dt);
         updateMenu(dt);
@@ -53,6 +56,8 @@ public class Main extends GameEngine {
         updateItems(dt);
         updateEnemies(dt);
     }
+
+    // Paint the components
     public void paintComponent() {
         changeBackgroundColor(0,0,0);
         // The bottom most layer
@@ -111,6 +116,7 @@ public class Main extends GameEngine {
     float inGameVolume; // Adjusted volume for a particularly loud audio file
     Image transparentWhiteBackground;
 
+    // Initialize the system fields
     public void InitSystem() {
         // Handle the audio I/O
         audioMusicCap = 3;
@@ -164,10 +170,12 @@ public class Main extends GameEngine {
         transparentWhiteBackground = loadImage(assetPathImage + "background/background_w.png");
     }
 
+    // Process the mouse handler in the system update
     public void updateSystem(double dt) {
         mouseHandler();
     }
 
+    // Check if there was a collider between the players head and an enemy
     public void colliderCheck() {
         // Get the player head x collider
         double px;
@@ -190,20 +198,15 @@ public class Main extends GameEngine {
                 // If the player can eat the enemy (based on size equality)
                 if (myfish.getSize() >= enSize) {
                     // Player was equal to or greater than the enemy
-
                     // Play bite sfx
                     playAudioSFX(0, 1.0f);
-
                     // Get the score based on enemy size
                     int eatScore = enSize + 1;
                     env.setEatEnemyBySize(enSize);
-
                     // Set the player score in the environment
                     env.setScore((env.getScore() + eatScore));
-
                     // Increase the players current progress to the level goal
                     env.setCurrentGoal(env.getCurrentGoal() + 1);
-
                     // Add enemy to removal list
                     removalValues.add(en);
                 }
@@ -213,11 +216,13 @@ public class Main extends GameEngine {
         // Remove enemies in the removal list
         removeEnemies(enemies, removalValues);
     }
+
     // Set the volume to play sfx
     public void playAudioSFX(int index, float volume) {
         ah.setVolume(volume);
         ah.playAudioSFX(index);
     }
+
     // Set the volume to restart music
     public void restartMusicLoop(int index, float volume) {
         ah.stopCurrentAudioMusic();
@@ -225,6 +230,7 @@ public class Main extends GameEngine {
         ah.setCurrentMusic(index);
         ah.startCurrentAudioMusic();
     }
+
     // Grow the player size (to allow eating more enemy types)
     public void growPlayerSize() {
         // Get the players current goal state
@@ -241,6 +247,8 @@ public class Main extends GameEngine {
             myfish.updateSize();
         }
     }
+
+    // Calculate the distance between the point and square
     public boolean calcDistPointToSquare(double px, double py, double ex, double ey, double el, double eh) {
         if ((px >= ex) && (px <= (ex + el)) && (py >= ey) && (py <= (ey + eh))) { return true; }
         return false;
@@ -260,6 +268,7 @@ public class Main extends GameEngine {
         if(e.getButton() == MouseEvent.BUTTON1) { mouse1Pressed = true; }
     }
 
+    // Process the mouse pressed events
     public void mouseHandler() {
         if (mouse1Pressed) {
             if (mousePressedCount == 0) {
@@ -267,29 +276,15 @@ public class Main extends GameEngine {
                 playAudioSFX(7, 1.2f);
 
                 // Process mouse state
-                if (gameState == 0) {
-                    gameStateString = sm.menuMouseClicked(mouseX, mouseY);
-
-                } else if (gameState == 2) {
-                    gameStateString = inGameMenuFromMain.inGameMenuMouseClicked(mouseX, mouseY);
-
-                }  else if (gameState == 3) {
-                    gameStateString = hp.inGameMenuMouseClicked(mouseX, mouseY);
-
-                }  else if (gameState == 4) {
-                    if (env.getIsPaused()) {
-                        gameStateString = inGameMenu.inGameMenuMouseClicked(mouseX, mouseY);
-                    }
-
-                } else if (gameState == 6) {
-                    gameStateString = chkpg.checkClickTarget(mouseX, mouseY);
-
-                }
+                if (gameState == 0) { gameStateString = sm.menuMouseClicked(mouseX, mouseY); }
+                else if (gameState == 2) { gameStateString = inGameMenuFromMain.inGameMenuMouseClicked(mouseX, mouseY); }
+                else if (gameState == 3) { gameStateString = hp.inGameMenuMouseClicked(mouseX, mouseY); }
+                else if (gameState == 4) {
+                    if (env.getIsPaused()) { gameStateString = inGameMenu.inGameMenuMouseClicked(mouseX, mouseY); }
+                } else if (gameState == 6) { gameStateString = chkpg.checkClickTarget(mouseX, mouseY); }
             }
             mousePressedCount += 1;
-        } else {
-            mousePressedCount = 0;
-        }
+        } else { mousePressedCount = 0; }
     }
 
     // MouseReleased Event Handler
@@ -313,8 +308,6 @@ public class Main extends GameEngine {
     public boolean downKey;
     public boolean escKey;
     public boolean spaceKey;
-//    public boolean ctrlKey;
-//    public boolean shiftKey;
 
     // Called whenever a key is pressed
     public void keyPressed(KeyEvent e) {
@@ -328,12 +321,8 @@ public class Main extends GameEngine {
         if(e.getKeyCode() == KeyEvent.VK_DOWN) { downKey = true; }
         // The user pressed ESC
         if(e.getKeyCode() == KeyEvent.VK_ESCAPE) { escKey = true; }
-        // The user pressed spaceKey
-        if(e.getKeyCode() == KeyEvent.VK_SPACE) { spaceKey = true; }
-//        // The user pressed ctrlKey
-//        if(e.getKeyCode() == KeyEvent.VK_CONTROL) { ctrlKey = true; }
-//        // The user pressed shiftKey
-//        if(e.getKeyCode() == KeyEvent.VK_SHIFT) { shiftKey = true; }
+//        // The user pressed spaceKey
+//        if(e.getKeyCode() == KeyEvent.VK_SPACE) { spaceKey = true; }
     }
 
     // Called whenever a key is released
@@ -348,12 +337,8 @@ public class Main extends GameEngine {
         if(e.getKeyCode() == KeyEvent.VK_DOWN) { downKey = false; }
         // The user released ESC
         if(e.getKeyCode() == KeyEvent.VK_ESCAPE) { escKey = false; }
-        // The user released spaceKey
-        if(e.getKeyCode() == KeyEvent.VK_SPACE) { spaceKey = false; }
-//        // The user released ctrlKey
-//        if(e.getKeyCode() == KeyEvent.VK_CONTROL) { ctrlKey = false; }
-//        // The user released shiftKey
-//        if(e.getKeyCode() == KeyEvent.VK_SHIFT) { shiftKey = false; }
+//        // The user released spaceKey
+//        if(e.getKeyCode() == KeyEvent.VK_SPACE) { spaceKey = false; }
     }
 
 
@@ -373,6 +358,7 @@ public class Main extends GameEngine {
     final int LOADING_TIPS_LENGTH = 3;
     Image[] loadingTips = new Image[LOADING_TIPS_LENGTH];
 
+    // Initialize the main menu fields
     public void initMenu() {
         titleWidth = 500;
         titleHeight = (int)(titleWidth * 0.3);
@@ -413,6 +399,7 @@ public class Main extends GameEngine {
                 height);
     }
 
+    // Process the main menu
     public void updateMenu(double dt) {
         if (gameState == 0) {
             if (Objects.equals(gameStateString, "single_player")) {
@@ -439,9 +426,8 @@ public class Main extends GameEngine {
         } else if (gameState == 1) {
             lp.startLoading();
             lp.updatePage(dt);
-            // TODO: add this back in so the player can't skip the loading page
-//            if (spaceKey && (lp.getProgress() >= 1.0)) {
-            if (spaceKey) {
+
+            if (spaceKey && (lp.getProgress() >= 1.0)) {
                 // Play the splash sound sfx
                 playAudioSFX(8, 1.0f);
 
@@ -456,6 +442,7 @@ public class Main extends GameEngine {
         }
     }
 
+    // draw the main menu or the loading page
     public void drawMenu() {
         if (gameState == 0) { sm.drawAll(); }
         else if (gameState == 1) { lp.drawAll(); }
@@ -468,17 +455,22 @@ public class Main extends GameEngine {
     helppage hp;
     Image helpPageImage;
 
+    // Initialize the help page fields
     public void initHelpPage() {
         helpPageImage = loadImage(assetPathImage + "background/background4.png");
         hp = new helppage(this, helpPageImage, startTitle, backButtonImage, titleWidth, titleHeight, width, height);
         hp.setWhiteBackgroundImage(transparentWhiteBackground);
     }
+
+    // Update the help page
     public void updateHelpPage() {
         if (gameState == 3) {
             if (Objects.equals(gameStateString, "main_menu")) { gameState = 0; }
             gameStateString = "nothing";
         }
     }
+
+    // Draw the help page
     public void drawHelpPage() {
         if (gameState == 3) {
             hp.drawall();
@@ -502,6 +494,8 @@ public class Main extends GameEngine {
     double backgroundY;
     double backGroundWidth;
     double backGroundHeight;
+
+    // Initialize the in game settings menu
     public void initInGameMenu() {
         inGameMenuBackground = loadImage(assetPathImage + "background/background4.png");
         inGameMenuBackIcon = loadImage(assetPathImage + "icon/icon_return2.png");
@@ -545,6 +539,8 @@ public class Main extends GameEngine {
         inGameMenuFromMain.setBackIconParameters();
         inGameMenuFromMain.setMusicButtonParameters();
     }
+
+    // Update the settings menu
     public void updateInGameMenu(double dt) {
         if (gameState == 2) { processInGameMenu(); }
         if (gameState == 4) {
@@ -552,6 +548,7 @@ public class Main extends GameEngine {
         }
     }
 
+    // Process the settings menu
     public void processInGameMenu() {
         switch(gameStateString) {
             case "main_menu":
@@ -628,6 +625,8 @@ public class Main extends GameEngine {
         }
         gameStateString = "nothing";
     }
+
+    // Draw the settings menu
     public void drawInGameMenu() {
         if (gameState == 2) { inGameMenuFromMain.drawInGameMenu(); }
         if (gameState == 4) {
@@ -643,6 +642,8 @@ public class Main extends GameEngine {
     Image backButtonImage;
     Image continueiButtonImage;
     boolean setCheckoutPage;
+
+    // Initialize the checkout fields
     public void initCheckout() {
         try {
             checkoutImage = loadImage(assetPathImage + "background/background4.png");
@@ -663,6 +664,8 @@ public class Main extends GameEngine {
 
         setCheckoutPage = false;
     }
+
+    // Update the checkout page
     public void updateCheckout(double dt) {
         if (gameState == 6) {
             if (!setCheckoutPage) {
@@ -676,6 +679,7 @@ public class Main extends GameEngine {
                 setCheckoutPage = true;
             }
 
+            // Process the button click result
             if (gameStateString == "main_menu") {
                 // Reset the music
                 restartMusicLoop(0, overAllVolume);
@@ -714,6 +718,8 @@ public class Main extends GameEngine {
             resetGameLevel();
         }
     }
+
+    // Draw the checkout page
     public void drawCheckout() {
         if (gameState == 6) {
             Image[] enImages = {enemyFish[0], enemyFish[1], enemyFish[2]};
@@ -727,9 +733,8 @@ public class Main extends GameEngine {
     //-------------------------------------------------------
     myfish myfish;
     Image myFishImage;
-    Image pearlimage;
-    Image boomimage;
-    Image starfishimage;
+
+    // Initialize the player fields
     public void initPlayer() {
         double fishW = 60;
         double fishH = 40;
@@ -748,24 +753,24 @@ public class Main extends GameEngine {
 
         myFishImage = loadImage(assetPathImage + "entity/entity_player1.png");
     }
+
+    // Update the player
     public void updatePlayer(double dt) {
         if (gameState == 4) {
-            if (spaceKey) {
-                myfish.setIsAlive(true);
-                env.setCurrentGoal(env.getCurrentGoal() + 1);
-            } // TODO: CHEAT for debug, remove when done
-
             // Player is dead don't process the player
             if (!myfish.getIsAlive()) { return; }
 
             if (leftKey) { myfish.setFacingLeft(true); }
             else if (rightKey) { myfish.setFacingLeft(false); }
 
+            // If the player is still alive, check the collider for collisions
+            // and grow the player if the size has changed
             if (myfish.getIsAlive()) {
                 colliderCheck();
                 growPlayerSize();
             }
 
+            // Process the player
             double ox = env.getGlobalCOMX();
             double oy = env.getGlobalCOMY();
             double w = env.getGlobalWidth();
@@ -781,6 +786,8 @@ public class Main extends GameEngine {
                     h);
         }
     }
+
+    // Draw the player (processing loop)
     public void drawPlayer() {
         if (gameState == 4) {
             // Draw player if they are alive
@@ -788,16 +795,17 @@ public class Main extends GameEngine {
         }
     }
 
+    // Draw the player
     public void drawMyself() {
         // Decide which image to draw based on direction
         Image currentFishImage = myFishImage;
-        if (myfish.getFacingLeft()) {
+        if (myfish.getFacingLeft()) { // Facing left
             drawImage(currentFishImage,
                     (env.getVisibleAreaCOMX() + myfish.getImageOffsetX()),
                     (env.getVisibleAreaCOMY() - myfish.getImageOffsetY()),
                     -myfish.getImageWidth(),
                     myfish.getImageHeight());
-        } else {
+        } else { // Facing right
             drawImage(currentFishImage,
                     (env.getVisibleAreaCOMX() - myfish.getImageOffsetX()),
                     (env.getVisibleAreaCOMY() - myfish.getImageOffsetY()),
@@ -805,9 +813,11 @@ public class Main extends GameEngine {
                     myfish.getImageHeight());
         }
 
-        drawPlayerCollider(); // TODO: Remove before submitting, or add as a setting to show some debug commands?
+        // Debug: draw the player collider for debugging purposes
+//        drawPlayerCollider();
     }
 
+    // Debug: Draw the player collider for debugging purposes
     public void drawPlayerCollider() {
         // Draw the collider box
         changeColor(0,255,0);
@@ -832,6 +842,7 @@ public class Main extends GameEngine {
                 (env.getVisibleAreaCOMX() + myfish.getOffsetX()),
                 (env.getVisibleAreaCOMY() + myfish.getOffsetY()));
 
+        // Draw the head collider
         changeColor(255,0,0);
         double fishX;
         double fishY = env.getVisibleAreaCOMY() + myfish.getFishHeadColliderYOffset();
@@ -848,6 +859,11 @@ public class Main extends GameEngine {
     pearl pearl;
     boom boom;
     starfish starfish;
+    Image pearlimage;
+    Image boomimage;
+    Image starfishimage;
+
+    // Initialize the item fields
     public void initItems() {
         pearlimage = loadImage(assetPathImage + "item/item_pearl1.png");
         boomimage = loadImage(assetPathImage + "item/item_bomb1.png");
@@ -856,6 +872,8 @@ public class Main extends GameEngine {
         boom = new boom(this, boomimage);
         starfish = new starfish(this, starfishimage);
     }
+
+    // Update and handle all the item processing
     public void updateItems(double dt) {
         if(!env.getIsLevelComplete()) {
             // Make sure the game bounds are up before spawning items
@@ -924,27 +942,38 @@ public class Main extends GameEngine {
             }
         }
     }
+
+    // Draw all the items
     public void drawItems() {
         if (gameState == 4) {
             drawpearl();
             drawstarfish();
             drawboom();
 
+            // Debug: to draw the item collider
+//            pearl.drawItemSpawnPoint();
 //            starfish.drawItemSpawnPoint();
+//            bomb.drawItemSpawnPoint();
         }
     }
+
+    // Draw the bomb item
     public void drawboom(){
         if (boom.getIsVisible()) {
             boom.drawItem();
             boom.drawItemColliders();
         }
     }
+
+    // Draw the starfish item
     public void drawstarfish() {
         if (starfish.getIsVisible()) {
             starfish.drawItem();
             starfish.drawItemColliders();
         }
     }
+
+    // Draw the pearl item
     public void drawpearl() {
         if (pearl.getIsVisible()) {
             pearl.drawItem();
@@ -968,6 +997,8 @@ public class Main extends GameEngine {
     int[] enemyEaten;
     int enemyWidth;
     int enemyHeight;
+
+    // Initialize the enemy fields
     public void initEnemies() {
         // Define the maximum enemy spawns based on screen dimensions
         maxEnemies = width / 100;
@@ -1004,6 +1035,7 @@ public class Main extends GameEngine {
         }
     }
 
+    // Update enemies (main update loop)
     public void updateEnemies(double dt) {
         if (gameState == 4) {
             // Spawn enemy fish
@@ -1022,11 +1054,14 @@ public class Main extends GameEngine {
             removeEnemies(sharkEnemies, removalValues);
         }
     }
+
+    // Update all the enemies that currently exist
     public void updateAllEnemies(double dt, ArrayList<Enemy> ens, ArrayList<Enemy> removalValues) {
         for (Enemy en : ens) {
             en.setPlayAreaCOM(env.getVisibleAreaCOMX(), env.getVisibleAreaCOMY());
             en.setWindowToGlobalCOMOffset(myfish.getXPos(), myfish.getYPos());
             // Update the enemy positions
+            en.randomizeEnemyMovement();
             en.updateEnemyPosition(dt, true);
             // Check if the player has been bitten
             if (en.checkEnemyBitePlayer(myfish)) {
@@ -1042,6 +1077,8 @@ public class Main extends GameEngine {
             en.checkEnemyBounds(env, myfish, removalValues);
         }
     }
+
+    // Remove specific enemies
     public void removeEnemies(ArrayList<Enemy> enemies, ArrayList<Enemy> removalValues) {
         // Remove the enemies that have been selected for removal.
         if (removalValues.size() > 0) {
@@ -1050,11 +1087,14 @@ public class Main extends GameEngine {
             }
         }
     }
+
+    // Remove all the enemies
     public void removeAllEnemies(ArrayList<Enemy> enemies, ArrayList<Enemy> sharkEnemies) {
         enemies.clear();
         sharkEnemies.clear();
     }
-    // The method to spawn an enemy on click
+
+    // Spawn the enemy based on the enemy fields
     public void SpawnEnemy() {
         enemySpawnTimer = env.getCountDownTimerWOffset() - enemySpawnTimerPrevious;
         if (enemySpawnTimer > enemySpawnDelay) {
@@ -1073,11 +1113,15 @@ public class Main extends GameEngine {
             }
         }
     }
+
+    // Draw all the enemies
     public void drawEnemies(ArrayList<Enemy> enemies) {
         if (gameState == 4) {
             for (Enemy en : enemies) { en.drawAll(); }
         }
     }
+
+    // Create the regular enemies
     public void createEnemy() {
         if (enemies.size() >= maxEnemies) { return; }
 
@@ -1117,8 +1161,6 @@ public class Main extends GameEngine {
         en = new Enemy(this,
                 tempImage,
                 size,
-                envBound[0],
-                envBound[2],
                 env.getGlobalWidth(),
                 env.getGlobalHeight(),
                 env.getVisibleAreaCOMX(),
@@ -1129,6 +1171,8 @@ public class Main extends GameEngine {
         en.setHeadYOffset(headOffsetTemp);
         enemies.add(en);
     }
+
+    // Create the "shark" enemy (A lionfish png was selected but the concept remains)
     public void createShark() {
         if (sharkEnemies.size() >= maxShark) { return; }
 
@@ -1143,8 +1187,6 @@ public class Main extends GameEngine {
         Enemy shk = new Enemy(this,
                 shark,
                 3,
-                envBound[0],
-                envBound[2],
                 env.getGlobalWidth(),
                 env.getGlobalHeight(),
                 env.getVisibleAreaCOMX(),
@@ -1186,6 +1228,7 @@ public class Main extends GameEngine {
     int escKeyCount;
     boolean byPassUnpause;
 
+    // Initialize the initial environment fields
     public void initEnvironment() {
         imagesCap = 3;
         envImages = new Image[imagesCap];
@@ -1251,6 +1294,8 @@ public class Main extends GameEngine {
         inGameMenuFromMain.setGrowthTargetValue(goalMaximum);
         inGameMenuFromMain.setTimeAttackTimeValue(defaultTime);
     }
+
+    // Update the environment every game tick
     public void updateEnvironment(double dt) {
         if (gameState == 4) {
             // Check if the level is complete
@@ -1297,6 +1342,8 @@ public class Main extends GameEngine {
         }
     }
 
+    // Reset the game level fields
+    // There is more than 1 reset method so the resetting from different states can be accommodated for
     public void resetGameLevel() {
         // Remove all enemies from the level
         removeAllEnemies(enemies, sharkEnemies);
@@ -1343,6 +1390,8 @@ public class Main extends GameEngine {
         setCheckoutPage = false;
     }
 
+    // Reset some fields for a new game
+    // There is more than 1 reset method so the resetting from different states can be accommodated for
     public void finalReset() {
         env.setScore(0);
         env.setEnemyEatenCounter();
@@ -1353,6 +1402,8 @@ public class Main extends GameEngine {
         myfish.setYVel(0);
     }
 
+    // Reset the targets for the level
+    // There is more than 1 reset method so the resetting from different states can be accommodated for
     public void resetGameTargets() {
         // Reset the game level
         env.setCurrentLevel(0);
@@ -1374,6 +1425,7 @@ public class Main extends GameEngine {
         env.setCurrentTimeAttackLevel(targetTime - timeMinimum);
     }
 
+    // Proceed to the next level, set the next level fields
     public void nextLevel() {
         // Increment level
         env.setCurrentLevel(env.getCurrentLevel() + 1);
@@ -1413,6 +1465,7 @@ public class Main extends GameEngine {
         }
     }
 
+    // Update the timer for the level
     public void UpdateTimer(boolean wasPaused) {
         // return if paused
         if (env.getIsPaused()) { return; }
@@ -1435,10 +1488,12 @@ public class Main extends GameEngine {
         if (env.getIsTimeAttack()) { env.setCountDownCurrentTimer(env.getCountDownTimerWOffset()); }
     }
 
+    // Draw the environment
     public void drawEnvironment() {
         if (gameState == 4) { env.drawEnvironment(); }
     }
 
+    // Draw the top most layer for the environment
     public void drawEnvironmentLayerTop() {
         if (gameState == 4) {
             env.drawHUD();
@@ -1448,8 +1503,8 @@ public class Main extends GameEngine {
             env.drawCurrentToTargetGoal();
             env.drawGrowth();
 
-            // TODO: remove debug
-            env.drawImageShouldBeSize();
+            // Debug: Draw the boundaries for the size that the level should be
+//            env.drawImageShouldBeSize();
         }
     }
 }

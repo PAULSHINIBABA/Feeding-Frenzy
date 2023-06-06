@@ -66,8 +66,6 @@ public class Environment {
     private double imageOriginY;
     private double imageYOffset;
     private double imageXOffset;
-//    private double imageWidth;
-//    private double imageHeight;
     // The hud parameters are for the feedback on player progress, tied to the screen width and height
     private double hudWidth;
     private double hudHeight;
@@ -154,8 +152,6 @@ public class Environment {
         visibleAreaCOMX = (visibleAreaWidth / 2.0) + hudWidth;
         visibleAreaCOMY = (visibleAreaHeight / 2.0) + hudHeight;
         // Set the (visible) play area offsets from origin
-//        visibleAreaOffsetX = (visibleAreaWidth / 2.0);
-//        visibleAreaOffsetY = (visibleAreaHeight / 2.0);
         visibleAreaOffsetX = (visibleAreaWidth / 2.0);
         visibleAreaOffsetY = (visibleAreaHeight / 2.0);
 
@@ -180,8 +176,6 @@ public class Environment {
         // Set the image fields
         imageOriginX = hudWidth + (visibleAreaWidth / 2.0);
         imageOriginY = hudHeight + (visibleAreaHeight / 2.0);
-//        imageWidth = visibleAreaWidth;
-//        imageHeight = visibleAreaHeight;
         imageXOffset = imageOriginX - (visibleAreaWidth / 2.0);
         imageYOffset = imageOriginY - (visibleAreaHeight / 2.0);
 
@@ -216,12 +210,10 @@ public class Environment {
         if ((index < 0) || (index >= levelImageCap)) { throw new IllegalArgumentException("Index to set image is out of range"); }
         levelImages[index] = levelImage;
     }
-//    public void setEnvironmentWidth(int width) { imageWidth = width; }
-//    public void setEnvironmentHeight(int height) { imageHeight = height; }
-//    public void setEnvironmentOriginX(double x) { imageOriginX = x; }
-//    public void setEnvironmentOriginY(double y) { imageOriginY = y; }
-//    public void setEnvironmentXOffset(double x) { imageXOffset = x; }
-//    public void setEnvironmentYOffset(double y) { imageYOffset = y; }
+    public void setEnvironmentOriginX(double x) { imageOriginX = x; }
+    public void setEnvironmentOriginY(double y) { imageOriginY = y; }
+    public void setEnvironmentXOffset(double x) { imageXOffset = x; }
+    public void setEnvironmentYOffset(double y) { imageYOffset = y; }
     public void setEnvironmentPlayWidth(int visibleAreaWidth) throws IllegalArgumentException {
         if (visibleAreaWidth < 0) { throw new IllegalArgumentException("Cannot set the play area width to a negative integer"); }
         this.visibleAreaWidth = visibleAreaWidth - (2 * hudWidth);
@@ -268,12 +260,11 @@ public class Environment {
         if (tGoal == 0) { targetGoal = defaultTargetGoal; }
         else { targetGoal = tGoal; }
     }
-
     public void setIsPaused(boolean paused) { isPaused = paused; }
     public void setPlayAreaOffsetX(int x) { visibleAreaOffsetX = x; }
     public void setPlayAreaOffsetY(int y) { visibleAreaOffsetY = y; }
-//    public void setPlayAreaWidth(int width) { visibleAreaWidth = width; }
-//    public void setPlayAreaHeight(int height) { visibleAreaHeight = height; }
+    public void setPlayAreaWidth(int width) { visibleAreaWidth = width; }
+    public void setPlayAreaHeight(int height) { visibleAreaHeight = height; }
     public void setHUDWidth(int width) { hudWidth = width; }
     public void setHUDHeight(int height) { hudHeight = height; }
     public void setTimer(double newTime) { timer = (newTime - baseTime) / 1000.0; }
@@ -281,7 +272,6 @@ public class Environment {
     public void setIsTimeAttack(boolean isTimeAttack) { this.isTimeAttack = isTimeAttack; }
     public void setCountDownTimer(double timer) { countdownTimer = timer; }
     public void setCountDownCurrentTimer(double timer) { countdownTimerCurrent = timer; }
-//    public void setCountDownTimerOffset(double timer) { countdownTimeOffset = timer; }
     public void setPausableTimer(double timer) { pausableTimer = timer; }
     public void setEndLevel() {
         Timer timer = new Timer(600, e->endLevel = true);
@@ -321,7 +311,6 @@ public class Environment {
     public void setCurrentPlayerGlobalY(double py) { currentPlayerGlobalY = py; }
     public void setVisibleAreaCOMX(double x) { visibleAreaCOMX = x; }
     public void setVisibleAreaCOMY(double y) { visibleAreaCOMY = y; }
-
     public void setWindowCOMX(double x) { windowCOMX = x; }
     public void setWindowCOMY(double y) { windowCOMY = y; }
     public void setWindowWidth(double width) { windowWidth = width; }
@@ -348,15 +337,10 @@ public class Environment {
     public int getGrowthThresholdLarge() { return growthThresholdLarge; }
     public int getCurrentGoal() { return currentGoal; }
     public int getTargetGoal() { return targetGoal; }
-//    public Image getEnvironment() { return levelImage; }
     public Image getEnvironmentAtIndex(int index) throws IllegalArgumentException {
         if ((index < 0) || (index >= levelImageCap)) { throw new IllegalArgumentException("The index to get the image is out of range"); }
         return levelImages[index];
     }
-//    public double getEnvironmentWidth() { return imageWidth;}
-//    public double getEnvironmentHeight() { return imageHeight; }
-//    public double getEnvironmentOriginX() { return imageOriginX; }
-//    public double getEnvironmentOriginY() { return imageOriginY; }
     public double getEnvironmentXOffset() { return imageXOffset; }
     public double getEnvironmentYOffset() { return imageYOffset; }
     public boolean getIsPaused() { return isPaused; }
@@ -427,13 +411,18 @@ public class Environment {
     //-------------------------------------------------------
     // Other Methods
     //-------------------------------------------------------
+    // Initialize the environment to set the base time
     public void initEnvironment() { setBaseTime(engine.getTime()); }
+
+    // Update the environment background boundaries
     public void updateEnvironment(double dt) {
         environmentBoundaryX1 = visibleAreaCOMX + windowToGlobalCOMOffsetX;
         environmentBoundaryX2 = visibleAreaCOMX + windowToGlobalCOMOffsetX + globalWidth;
         environmentBoundaryY1 = visibleAreaCOMY + windowToGlobalCOMOffsetY;
         environmentBoundaryY2 = visibleAreaCOMY + windowToGlobalCOMOffsetY + globalHeight;
     }
+
+    // Draw the background image based on the current level
     public void drawEnvironment() {
         engine.changeBackgroundColor(0,0,0);
         engine.clearBackground((int)globalPlayAreaWidth, (int)globalPlayAreaHeight);
@@ -470,10 +459,13 @@ public class Environment {
                 globalWidth,
                 globalHeight);
 
-        drawEnvironmentCollider();
+        // Debug: draw the environments colliders
+//        drawEnvironmentCollider();
 
         engine.restoreLastTransform();
     }
+
+    // Draw the HUD
     public void drawHUD() {
         double hudWidth = getHUDWidth();
         double hudHeight = getHUDHeight();
@@ -490,6 +482,7 @@ public class Environment {
         engine.drawSolidRectangle(0,0, engine.width(), hudHeight);
     }
 
+    // Debug: Draw the borders for how big the background image should be
     public void drawImageShouldBeSize() {
         double areaX = engine.width() - (2 * hudWidth);
         double areaY = engine.height() - (hudHeight + hudWidth);
@@ -510,11 +503,9 @@ public class Environment {
         engine.drawLine(x2, y1, x2, y2);
 
     }
+
+    // Debug: Draw the collider for the environment
     public void drawEnvironmentCollider() {
-//        visibleAreaCOMX + windowToGlobalCOMOffsetX,
-//                visibleAreaCOMY + windowToGlobalCOMOffsetY,
-//                globalWidth,
-//                globalHeight);
         double x1 = visibleAreaCOMX + windowToGlobalCOMOffsetX;
         double y1 = visibleAreaCOMY + windowToGlobalCOMOffsetY;
         double x2 = visibleAreaCOMX + windowToGlobalCOMOffsetX + globalWidth;
@@ -526,6 +517,8 @@ public class Environment {
         engine.drawLine(x1,y1,x1,y2);
         engine.drawLine(x2,y1,x2,y2);
     }
+
+    // Draw the current time in game
     public void drawTimer(boolean isTimeAttack) {
         double displayTime = getCountDownTimerWOffset();
         int clr = 0;
@@ -536,11 +529,15 @@ public class Environment {
             drawTimeAttackBar();
         }
     }
+
+    // Draw the players current score
     public void drawScore() {
         int clr = 0;
         engine.changeColor(clr,clr,clr);
         engine.drawText(hudOffsetX, (hudOffsetY + hudFontSize + hudInfoSpacing), ("Score: " + Double.toString(getScore())), "Sans Serif", hudFontSize);
     }
+
+    // draw the growth bar
     public void drawGrowth() {
         double growthTarget = getTargetGoal();
         double growthM = getGrowthThresholdMedium();
@@ -581,6 +578,8 @@ public class Environment {
         // draw the growth bar borders
         drawPanelBorder(growthBarXOffset, growthBarYOffset, growthBarLength, hudBarThickness);
     }
+
+    // Draw the time attack bar
     public void drawTimeAttackBar() {
         double timeAttackLimit = getCountDownTimer();
         double timeAttackRemaining = getCountDownCurrentTimer();
@@ -606,6 +605,8 @@ public class Environment {
         // draw the time attack borders
         drawPanelBorder(timeAttackBarXOffset, timeAttackBarYOffset, timeAttackBarLength, hudBarThickness);
     }
+
+    // draw the time attack countdown bar, borders
     public void drawPanelBorder(double x, double y, double l, double h) {
         int clr = 0;
         engine.changeColor(clr,clr,clr);
@@ -616,6 +617,8 @@ public class Environment {
         engine.drawLine(x,y,x,y+h,thickness);
         engine.drawLine(x+l,y,x+l,y+h,thickness);
     }
+
+    // Draw the current number of fish eaten out of the total required
     public void drawCurrentToTargetGoal() {
         engine.changeColor(0,0,0);
         engine.drawText(hudOffsetX,
@@ -624,6 +627,8 @@ public class Environment {
                 "Sans Serif",
                 hudFontSize);
     }
+
+    // Reset the level
     public void resetLevel() {
         currentScore = 0;
         growthThresholdMedium = defaultGrowthThresholdM;
@@ -631,8 +636,14 @@ public class Environment {
         currentGoal = 0;
         targetGoal = 0;
     }
+
+    // Add an offset time to the countdown time
     public void addCountDownTimerOffset(double timer) { countdownTimeOffset += timer; }
+
+    // Method to round a double to 2 decimal places
     public double round2DP(double value) { return Math.round(value * 100.0) / 100.0; }
+
+    // Check if the level is complete
     public void environmentLevelCompleteCheck() {
         if (isTimeAttack) {
             if (countdownTimerCurrent >= countdownTimer) { levelComplete = true; }
@@ -640,7 +651,11 @@ public class Environment {
             if (currentGoal >= targetGoal) { levelComplete = true; }
         }
     }
+
+    // Add to the player score
     public void addScore(int score) { currentScore += score; }
+
+    // Update the player to global coordinates (Use the setCurrentGlobalPlayerCoordinates)
     public void updateCurrentGlobalPlayerCoordinates(double px, double py) {
         currentPlayerGlobalX = -px;
         currentPlayerGlobalY = -py;

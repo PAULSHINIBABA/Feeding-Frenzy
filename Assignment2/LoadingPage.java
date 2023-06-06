@@ -1,11 +1,17 @@
 /*
  * Author: Paul (Zeju Fan)
- * ID:
+ * ID: 21019135
  *
  * Co-Author: Robert Tubman (Major refactoring to merge with team code)
  * ID: 11115713
+ *
  * Co-Author: Lucass (Minor refactoring)
  * ID: 21008041
+ *
+ * The LoadingPage class
+ *
+ * This class handles the switching of the context from the main menu to the in-game
+ * context.
  */
 
 package Assignment2;
@@ -46,10 +52,7 @@ public class LoadingPage {
     private final int gameStartPromptWidthDefault;
     private int windowWidth;
     private int windowHeight;
-//    private int oscillatingPromptMultiplier;
-//    private int oscillator;
     private boolean canDrawLine;
-//    private boolean oscillationDirection;
 
     // Constructor
     public LoadingPage(GameEngine engine, Image loadingImage, Image title, int titleW, int titleH, Image[] tips, int imagTipsLength, int windowWidth, int windowHeight) {
@@ -58,6 +61,7 @@ public class LoadingPage {
         this.windowWidth = windowWidth;
         this.windowHeight = windowHeight;
 
+        // title fields
         this.loadingImage = loadingImage;
         this.title = title;
         titleWidth = titleW;
@@ -69,30 +73,29 @@ public class LoadingPage {
         IMAGES = new Image[IMAGES_LENGTH];
         System.arraycopy(tips, 0, IMAGES, 0, IMAGES_LENGTH);
 
+        // Loading bar and tip fields
         currentTips = 0;
         progress = 0.0;
         isLoading = false;
-
         loadingBarWidth = 300;
         loadingBarHeight = 10;
         loadingBarX = (windowWidth / 2) - (loadingBarWidth / 2);
         loadingBarY = (windowHeight / 2) + (windowHeight / 3);
 
+        // Tips images fields
         tipsImageWidth = 450;
         tipsImageHeight = 100;
         tipsImageX = (windowWidth / 2) - (tipsImageWidth / 2);
         tipsImageY = (windowHeight / 2) + (windowHeight / 8);
 
+        // Game start prompt fields
         gameStartPrompt = "Press Space to Start";
         gameStartPromptWidth = 240;
         gameStartPromptHeight = 26;
         linePosX = (windowWidth / 2) - (gameStartPromptWidth / 2);
         linePosY = (windowHeight / 2) + (windowHeight / 4);
-//        oscillatingPromptMultiplier = 0;
-//        oscillator = 0;
         gameStartPromptWidthDefault = 240;
         canDrawLine = false;
-//        oscillationDirection = false;
     }
 
 
@@ -106,6 +109,8 @@ public class LoadingPage {
     // Other methods
     //**************************************************
     // Emulate loading page
+    // This loading page doesn't actually load anything.
+    // It is a page to give the user a temporary reprieve between contexts
     public void startLoading() {
         if (!isLoading) {
             // Start the timer to switch images every 2 seconds
@@ -122,14 +127,17 @@ public class LoadingPage {
         isLoading = false;
     }
 
+    // Draw the loading page background
     public void drawLoadingImage() {
         engine.drawImage(loadingImage, 0, 0, engine.width(), engine.height());
     }
 
+    // Draw the title
     public void drawTitle() {
         engine.drawImage(title, titleX, titleY, titleWidth, titleHeight);
     }
 
+    // Draw the loading bar
     public void drawLoadingBar() {
         engine.changeColor(Color.lightGray);
         engine.drawRectangle(loadingBarX, loadingBarY, loadingBarWidth, loadingBarHeight);
@@ -138,36 +146,22 @@ public class LoadingPage {
         engine.drawSolidRectangle(loadingBarX, loadingBarY, (int) (loadingBarWidth * progress), loadingBarHeight);
     }
 
+    // Draw the current tip
     public void drawCurrentImage() {
         engine.saveCurrentTransform();
         engine.drawImage(IMAGES[currentTips], tipsImageX, tipsImageY, tipsImageWidth, tipsImageHeight);
         engine.restoreLastTransform();
     }
+
+    // Draw the prompt to show the user that they can start the game
     public void drawLine(){
         if (canDrawLine) {
             engine.changeColor(0, 0, 50);
             engine.drawText(linePosX, linePosY + gameStartPromptHeight, gameStartPrompt, "a", gameStartPromptHeight);
-
-//            engine.changeColor(255, 0, 0);
-//            engine.drawLine(linePosX,
-//                    linePosY,
-//                    linePosX + gameStartPromptWidth,
-//                    linePosY);
-//            engine.drawLine(linePosX,
-//                    linePosY + gameStartPromptHeight,
-//                    linePosX + gameStartPromptWidth,
-//                    linePosY + gameStartPromptHeight);
-//            engine.drawLine(linePosX,
-//                    linePosY,
-//                    linePosX,
-//                    linePosY + gameStartPromptHeight);
-//            engine.drawLine(linePosX + gameStartPromptWidth,
-//                    linePosY,
-//                    linePosX + gameStartPromptWidth,
-//                    linePosY + gameStartPromptHeight);
         }
     }
 
+    // Update the loading bar in the page
     public void updatePage(double dt) {
         // Loading bar speed
         progress += 0.01;
@@ -175,33 +169,9 @@ public class LoadingPage {
             progress = 1.0;
             canDrawLine = true;
         }
-
-//        if (canDrawLine) { updateLine(dt); }
     }
 
-    // Oscillating number
-    // Reference: https://stackoverflow.com/questions/3671160/how-to-use-a-sine-cosine-wave-to-return-an-oscillating-number
-//    public void updateLine(double dt) {
-////        Number1 = (int)(Math.sin(_pos*2*Math.PI/PERIOD)*(SCALE/2) + (SCALE/2));
-//        final int period = 6;
-//        final int scale = 6;
-//        int value = (int)(Math.sin(oscillator * 2 * Math.PI / period) * (scale / 2));
-//        if (oscillationDirection) {
-//            oscillator += 1;
-//        } else {
-//            oscillator -= 1;
-//        }
-//
-//        if (oscillator > period) { oscillationDirection = false; }
-//        if (oscillator < 0) { oscillationDirection = true; }
-//
-//        oscillatingPromptMultiplier = value + gameStartPromptHeight;
-//        gameStartPromptWidth = gameStartPromptWidthDefault - gameStartPromptHeight + oscillatingPromptMultiplier;
-//        gameStartPromptHeight = oscillatingPromptMultiplier;
-//        linePosX = (windowWidth / 2) - (gameStartPromptWidth / 2);
-//        linePosY = (windowHeight / 2) + (windowHeight / 4) - value;
-//    }
-
+    // Draw all the images with this method
     public void drawAll() {
         drawLoadingImage();
         drawTitle();
@@ -210,6 +180,7 @@ public class LoadingPage {
         drawLine();
     }
 
+    // Switch the displayed tip context
     class SwitchImageTask extends TimerTask {
         @Override
         public void run() {

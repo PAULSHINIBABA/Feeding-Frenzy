@@ -4,13 +4,15 @@
  *
  * Co-Author: Robert Tubman (Major refactoring to merge with team code)
  * ID: 11115713
+ *
+ * The helppage class
+ *
+ * This page is used to show some helpful tips about playing the game
  */
-
 
 package Assignment2;
 
 import java.awt.*;
-import java.util.ArrayList;
 
 public class helppage {
     private GameEngine engine;

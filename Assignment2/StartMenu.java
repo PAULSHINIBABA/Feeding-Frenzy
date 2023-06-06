@@ -1,26 +1,27 @@
 /*
  * Author: Paul (Zeju Fan)
- * ID:
+ * ID: 21019135
  *
  * Co-Author: Robert Tubman (Major refactoring to merge with team code)
  * ID: 11115713
+ *
  * Co-Author: Lucass (Xidi Kuang) (Minor tweaks)
- * ID:
+ * ID: 21008041
+ *
+ *
+ * The StartMenu class
+ *
+ * This class is used to handle the main menu visuals and controls
  */
 
 package Assignment2;
 
-import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.IOException;
 
 public class StartMenu {
-    // TODO: Should remove all the "Magic number" fields in the methods in the class
     private final GameEngine engine;
     // Image of the background
     private Image background;
@@ -65,11 +66,13 @@ public class StartMenu {
                      int windowWidth,
                      int windowHeight) {
         this.engine = engine;
+        this.background = background;
+
+        // Set the screen dimensions
         this.windowWidth = windowWidth;
         this.windowHeight = windowHeight;
 
-        this.background = background;
-
+        // Set the buttons positions fields
         this.buttonImagesLength = buttonsImageLength;
         buttonWidth = 140;
         buttonHeight = 50;
@@ -89,11 +92,13 @@ public class StartMenu {
             BUTTON_Y_POSITIONS[i] = offsetY;
             offsetY += incrementY;
         }
-        // Set the help menu position
+
+        // Set the help menu button fields
         int buttonOffset = 10;
         BUTTON_X_POSITIONS[buttonImagesLength - 1] = buttonOffset;
         BUTTON_Y_POSITIONS[buttonImagesLength - 1] = this.windowHeight - buttonHeight - buttonOffset;
 
+        // Set the title fields
         this.title = title;
         titleWidth = titleW;
         titleHeight = titleH;
@@ -117,30 +122,41 @@ public class StartMenu {
     //-------------------------------------------------------
     // Setter
     //-------------------------------------------------------
+    // Set the title x position
     public void setTitleXPosition(int x) { titleXPos = x; }
+
+    // Set the title y position
     public void setTitleYPosition(int y) { titleYPos = y; }
 
     // Refactored into AudioHandler Class
 //    public void setMusicButtonXPosition(int x) { musicButtonXPos = x; }
 //    public void setMusicButtonYPosition(int y) { musicButtonYPos = y; }
+
+    // Set all the buttons x positions
     public void setButtonsXPositions(int[] newButtonPositions) throws IllegalArgumentException {
         if ((newButtonPositions.length > buttonImagesLength) || newButtonPositions.length < buttonImagesLength) {
             throw new IllegalArgumentException("The new buttons x positions array length is incorrect");
         }
         System.arraycopy(newButtonPositions, 0, BUTTON_X_POSITIONS, 0, buttonImagesLength);
     }
+
+    // Set all the buttons y positions
     public void setButtonsYPositions(int[] newButtonPositions) throws IllegalArgumentException {
         if ((newButtonPositions.length > buttonImagesLength) || newButtonPositions.length < buttonImagesLength) {
             throw new IllegalArgumentException("The new buttons y positions array length is incorrect");
         }
         System.arraycopy(newButtonPositions, 0, BUTTON_Y_POSITIONS, 0, buttonImagesLength);
     }
+
+    // Set the buttons x position at index
     public void setButtonsXPositionAt(int index, int x) throws IllegalArgumentException {
         if (index < 0 || index >= buttonImagesLength) {
             throw new IllegalArgumentException("Index for buttons x position is out of bounds");
         }
         BUTTON_X_POSITIONS[index] = x;
     }
+
+    // Set the buttons y position at index
     public void setButtonsYPositionAt(int index, int y) {
         if (index < 0 || index >= buttonImagesLength) {
             throw new IllegalArgumentException("Index for buttons y position is out of bounds");
@@ -163,18 +179,25 @@ public class StartMenu {
     //-------------------------------------------------------
     // Getter
     //-------------------------------------------------------
+    // Get the title x position
     public int getTitleXPos() { return titleXPos; }
+
+    // Get the title y position
     public int getTitleYPos() { return titleYPos; }
 
     // Refactored into AudioHandler Class
 //    public int getMusicButtonXPos() { return musicButtonXPos; }
 //    public int getMusicButtonYPos() { return musicButtonYPos; }
+
+    // Get the button x position at index
     public int getButtonsXPositionAt(int index) throws IllegalArgumentException {
         if (index < 0 || index >= buttonImagesLength) {
             throw new IllegalArgumentException("Index for buttons x position is out of bounds");
         }
         return BUTTON_X_POSITIONS[index];
     }
+
+    // get the button y position at index
     public int getButtonsYPositionAt(int index) throws IllegalArgumentException {
         if (index < 0 || index >= buttonImagesLength) {
             throw new IllegalArgumentException("Index for buttons y position is out of bounds");
@@ -187,10 +210,8 @@ public class StartMenu {
     //-------------------------------------------------------
     // Other methods
     //-------------------------------------------------------
+    // Handle the mouse clicked event for the main menu
     public String menuMouseClicked(double mouseX, double mouseY) {
-        System.out.println(" > ");
-//        double mouseX = e.getX();
-//        double mouseY = e.getY();
 
         // Handle menu button clicks
         for (int i = 0; i < buttonImagesLength; i++) {
@@ -202,25 +223,21 @@ public class StartMenu {
             switch(i) {
                 case 0: // Single player
                     if (clickButton(mouseX, mouseY, buttonX, buttonY, buttonW, buttonH)) {
-                        System.out.println(" > Single Player");
                         return "single_player";
                     }
                 case 1: // Time attack
                     if (clickButton(mouseX, mouseY, buttonX, buttonY, buttonW, buttonH)) {
-                        System.out.println(" > Time Attack");
                         return "time_attack";
                     }
                 case 2: // Settings/Options?
                     if (clickButton(mouseX, mouseY, buttonX, buttonY, buttonW, buttonH)) {
-                        System.out.println(" > Settings");
                         return "settings";
                     }
                     break;
                 case 3: // Quit
                     if (clickButton(mouseX, mouseY, buttonX, buttonY, buttonW, buttonH)) {
-                        System.out.println(" > Quit");
-                        Timer timer = new Timer(1000, new ActionListener() {
-                            // Click the Exit and wait 1 second then Exit the program
+                        Timer timer = new Timer(600, new ActionListener() {
+                            // Click the Exit and wait 0.6 seconds then Exit the program
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 System.exit(0);
@@ -230,9 +247,8 @@ public class StartMenu {
                         timer.start();
                     }
                     break;
-                case 4: // Help menu?
+                case 4: // Help menu
                     if (clickButton(mouseX, mouseY, buttonX, buttonY, buttonW, buttonH)) {
-                        System.out.println(" > Help Menu");
                         return "help_page";
                     }
                     break;
@@ -242,7 +258,7 @@ public class StartMenu {
         }
 
         // Refactored into AudioHandler Class
-        // Handle music button toggle
+//        // Handle music button toggle
 //        double musicButtonX = 475;
 //        double musicButtonY = 475;
 //        double musicButtonRadius = 25;
@@ -251,43 +267,43 @@ public class StartMenu {
 //            toggleMusic();
 //        }
 
+        // Nothing was clicked
         return "nothing";
     }
-    
-    //check the mouse location
+
+    // Check whether the button was clicked (by radius)
     public boolean clickButton(double mouseX, double mouseY, double buttonX, double buttonY, double radius) {
         double dx = mouseX - buttonX;
         double dy = mouseY - buttonY;
         return (dx * dx + dy * dy) <= (radius * radius);
     }
 
+    // Check whether the button was clicked (by box)
     public boolean clickButton(double mouseX, double mouseY, double buttonX, double buttonY, double buttonW, double buttonH) {
         // Check if the mouse is in the box
         if ((mouseX > buttonX) && (mouseX < buttonX + buttonW) && (mouseY > buttonY) && (mouseY < buttonY + buttonH)) { return true; }
         else { return false; }
     }
     
-    //draw background
+    // Draw the background
     public void drawBackground() {
         engine.saveCurrentTransform();
         engine.drawImage(background, 0, 0, windowWidth, windowHeight);
         engine.restoreLastTransform();
     }
     
-    //draw title
+    // Draw the title
     public void drawTitle() {
         engine.saveCurrentTransform();
         engine.drawImage(title, titleXPos, titleYPos, titleWidth, titleHeight);
         engine.restoreLastTransform();
     }
     
-    //draw button
+    // Draw the buttons on the main menu
     public void drawButton() {
         for (int i = 0; i < buttonImagesLength; i++) {
             int buttonX = BUTTON_X_POSITIONS[i];
             int buttonY = BUTTON_Y_POSITIONS[i];
-
-//            engine.drawImage(buttonImages[i], buttonX - buttonOffset, buttonY - buttonOffset, buttonWidth, buttonHeight);
             engine.drawImage(buttonImages[i], buttonX, buttonY, buttonWidth, buttonHeight);
         }
 
@@ -339,7 +355,7 @@ public class StartMenu {
         drawButton();
     }
 
-//    // Refactored into AudioHandler Class
+    // Refactored into the AudioHandler Class
 //    // Initialize the music file to play on the StartMenu
 //    public void initMusic(String audioPath) {
 //        try {

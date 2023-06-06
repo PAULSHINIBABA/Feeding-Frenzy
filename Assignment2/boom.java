@@ -1,9 +1,13 @@
 /*
- * Author: Lucass
- * ID:
+ * Author: Lucass (Xidi Kuang)
+ * ID: 21008041
  *
  * Co-Author: Robert Tubman (Minor tweaking to merge with team code)
  * ID: 11115713
+ *
+ * The bomb class
+ * This class handles the updating of the bomb item. The parent class is the Item
+ * class which handles the setting/getting and some processing
  *
  * Many of the getter/setter methods were refactored into Item Class because there were duplicate
  * methods in starfish.java, pearl.java, and boom.java
