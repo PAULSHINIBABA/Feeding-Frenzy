@@ -103,6 +103,7 @@ public class LoadingPage {
     // Getters
     //**************************************************
     public double getProgress() { return progress; }
+    public boolean getCanDrawLine() { return canDrawLine; }
 
 
     //**************************************************

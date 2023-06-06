@@ -82,7 +82,7 @@ public class helppage {
         timeAttackHelp = "TIME ATTACK: The player is tasked with getting as many points as possible until the timer runs out.";
 
         // Single player help
-        singlePlayerHelp = "SINGLE PLAYER: the player is tasked with eating a predetermined number of enemy fish to complete the level shown in the growth bar";
+        singlePlayerHelp = "SINGLE PLAYER: The player is tasked with eating a predetermined number of enemy fish to complete the level shown in the growth bar";
 
         // Description help
         descriptionHelp = "Play as a little fish with a big appetite. Eat everything you come across, where the more you eat, the bigger you become!";

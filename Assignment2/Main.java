@@ -13,6 +13,7 @@ package Assignment2;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.image.AreaAveragingScaleFilter;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
@@ -321,8 +322,8 @@ public class Main extends GameEngine {
         if(e.getKeyCode() == KeyEvent.VK_DOWN) { downKey = true; }
         // The user pressed ESC
         if(e.getKeyCode() == KeyEvent.VK_ESCAPE) { escKey = true; }
-//        // The user pressed spaceKey
-//        if(e.getKeyCode() == KeyEvent.VK_SPACE) { spaceKey = true; }
+        // The user pressed spaceKey
+        if(e.getKeyCode() == KeyEvent.VK_SPACE) { spaceKey = true; }
     }
 
     // Called whenever a key is released
@@ -337,8 +338,8 @@ public class Main extends GameEngine {
         if(e.getKeyCode() == KeyEvent.VK_DOWN) { downKey = false; }
         // The user released ESC
         if(e.getKeyCode() == KeyEvent.VK_ESCAPE) { escKey = false; }
-//        // The user released spaceKey
-//        if(e.getKeyCode() == KeyEvent.VK_SPACE) { spaceKey = false; }
+        // The user released spaceKey
+        if(e.getKeyCode() == KeyEvent.VK_SPACE) { spaceKey = false; }
     }
 
 
@@ -428,10 +429,11 @@ public class Main extends GameEngine {
             lp.updatePage(dt);
 
             if (spaceKey && (lp.getProgress() >= 1.0)) {
+//            if (spaceKey && lp.getCanDrawLine()) {
                 // Play the splash sound sfx
                 playAudioSFX(8, 1.0f);
 
-                // Reset the music
+                // Reset the music`
                 restartMusicLoop(1, inGameVolume);
 
                 // Set to the game play area instance
@@ -670,9 +672,18 @@ public class Main extends GameEngine {
         if (gameState == 6) {
             if (!setCheckoutPage) {
                 // Checkout page should load.
+                // Count the number of pearls eaten
+                int pearlCount = 0;
+                for (pearl pl : pearlL) { pearlCount += pl.getTimesEaten(); }
+                chkpg.setPearlsEaten(pearlCount);
+
+                // Count the number of starfish eaten
+                int starfishCount = 0;
+                for (starfish sf : starfishL) { starfishCount += sf.getTimesEaten(); }
+                chkpg.setStarfishEaten(starfishCount);
+
+                // Set the score and the number of enemies eaten
                 chkpg.setScore(env.getScore());
-                chkpg.setPearlsEaten(pearl.getTimesEaten());
-                chkpg.setStarfishEaten(starfish.getTimesEaten());
                 chkpg.setEnemiesEaten(env.getEnemiesEaten());
                 if (env.getRestartLevel()) { chkpg.setRestartButton(); }
 
@@ -856,9 +867,12 @@ public class Main extends GameEngine {
     //-------------------------------------------------------
     // Item methods
     //-------------------------------------------------------
-    pearl pearl;
-    boom boom;
-    starfish starfish;
+    ArrayList<pearl> pearlL;
+    int maxPearls;
+    ArrayList<boom> boomL;
+    int maxBombs;
+    ArrayList<starfish> starfishL;
+    int maxStarfish;
     Image pearlimage;
     Image boomimage;
     Image starfishimage;
@@ -868,9 +882,27 @@ public class Main extends GameEngine {
         pearlimage = loadImage(assetPathImage + "item/item_pearl1.png");
         boomimage = loadImage(assetPathImage + "item/item_bomb1.png");
         starfishimage = loadImage(assetPathImage + "item/item_starfish1.png");
-        pearl = new pearl(this, pearlimage);
-        boom = new boom(this, boomimage);
-        starfish = new starfish(this, starfishimage);
+
+        maxPearls = (int)(playAreaDimension / 800);
+        pearlL = new ArrayList<pearl>();
+        for (int i = 0; i < maxPearls; i++) {
+            pearl np = new pearl(this, pearlimage);
+            pearlL.add(np);
+        }
+
+        maxBombs = (int)(playAreaDimension / 500);
+        boomL = new ArrayList<boom>();
+        for (int i = 0; i < maxBombs; i++) {
+            boom nb = new boom(this, boomimage);
+            boomL.add(nb);
+        }
+
+        maxStarfish = (int)(playAreaDimension / 1000);
+        starfishL = new ArrayList<starfish>();
+        for (int i = 0; i < maxStarfish; i++) {
+            starfish ns = new starfish(this, starfishimage);
+            starfishL.add(ns);
+        }
     }
 
     // Update and handle all the item processing
@@ -884,60 +916,66 @@ public class Main extends GameEngine {
             if (rangeY < 0) { rangeY *= -1.0; }
 
             if (rangeX > 0 && rangeY > 0) {
-                pearl.setPlayAreaCOM(env.getVisibleAreaCOMX(), env.getVisibleAreaCOMY());
-                pearl.setWindowToGlobalCOMOffset(myfish.getXPos(), myfish.getYPos());
+                for (pearl pl : pearlL) {
+                    pl.setPlayAreaCOM(env.getVisibleAreaCOMX(), env.getVisibleAreaCOMY());
+                    pl.setWindowToGlobalCOMOffset(myfish.getXPos(), myfish.getYPos());
 
-                // Update the pearl
-                if (pearl.updatepearl(dt,
-                        env.getGlobalWidth(),
-                        env.getGlobalHeight(),
-                        (2 * myfish.getOffsetX()),
-                        (2 * myfish.getOffsetY()))) {
+                    // Update the pearl
+                    if (pl.updatepearl(dt,
+                            env.getGlobalWidth(),
+                            env.getGlobalHeight(),
+                            (2 * myfish.getOffsetX()),
+                            (2 * myfish.getOffsetY()))) {
 
-                    // Play bite sfx
-                    playAudioSFX(1, 1.0f);
-                    // Play pop sfx
-                    playAudioSFX(7, 1.0f);
+                        // Play bite sfx
+                        playAudioSFX(1, 1.0f);
+                        // Play pop sfx
+                        playAudioSFX(7, 1.0f);
 
-                    double speedVal = 25.0;
-                    myfish.incrementMaxSpeed(speedVal);
-                    myfish.incrementAccelerationSpeed(speedVal);
+                        double speedVal = 25.0;
+                        myfish.incrementMaxSpeed(speedVal);
+                        myfish.incrementAccelerationSpeed(speedVal);
+                    }
                 }
 
-                starfish.setPlayAreaCOM(env.getVisibleAreaCOMX(), env.getVisibleAreaCOMY());
-                starfish.setWindowToGlobalCOMOffset(myfish.getXPos(), myfish.getYPos());
+                for (starfish sf : starfishL) {
+                    sf.setPlayAreaCOM(env.getVisibleAreaCOMX(), env.getVisibleAreaCOMY());
+                    sf.setWindowToGlobalCOMOffset(myfish.getXPos(), myfish.getYPos());
 
-                // Update the starfish
-                if (starfish.updatestarfish(dt,
-                        env.getGlobalWidth(),
-                        env.getGlobalHeight(),
-                        (2 * myfish.getOffsetX()),
-                        (2 * myfish.getOffsetY()))) {
+                    // Update the starfish
+                    if (sf.updatestarfish(dt,
+                            env.getGlobalWidth(),
+                            env.getGlobalHeight(),
+                            (2 * myfish.getOffsetX()),
+                            (2 * myfish.getOffsetY()))) {
 
-                    // Play bite sound
-                    playAudioSFX(1, 1.0f);
-                    // Play power up sfx
-                    playAudioSFX(6, 1.0f);
+                        // Play bite sound
+                        playAudioSFX(1, 1.0f);
+                        // Play power up sfx
+                        playAudioSFX(6, 1.0f);
 
-                    // Update the environment score
-                    env.addScore(20);
+                        // Update the environment score
+                        env.addScore(20);
+                    }
                 }
 
-                boom.setPlayAreaCOM(env.getVisibleAreaCOMX(), env.getVisibleAreaCOMY());
-                boom.setWindowToGlobalCOMOffset(myfish.getXPos(), myfish.getYPos());
+                for (boom bm : boomL) {
+                    bm.setPlayAreaCOM(env.getVisibleAreaCOMX(), env.getVisibleAreaCOMY());
+                    bm.setWindowToGlobalCOMOffset(myfish.getXPos(), myfish.getYPos());
 
-                // Update the bomb
-                if (boom.updateboom(dt,
-                        env.getGlobalWidth(),
-                        env.getGlobalHeight(),
-                        (2 * myfish.getOffsetX()),
-                        (2 * myfish.getOffsetY()))) {
+                    // Update the bomb
+                    if (bm.updateboom(dt,
+                            env.getGlobalWidth(),
+                            env.getGlobalHeight(),
+                            (2 * myfish.getOffsetX()),
+                            (2 * myfish.getOffsetY()))) {
 
-                    // Play explosion sfx
-                    playAudioSFX(10, 1.2f);
+                        // Play explosion sfx
+                        playAudioSFX(10, 1.2f);
 
-                    myfish.setIsAlive(false);
-                    env.setEndLevel();
+                        myfish.setIsAlive(false);
+                        env.setEndLevel();
+                    }
                 }
             }
         }
@@ -959,25 +997,37 @@ public class Main extends GameEngine {
 
     // Draw the bomb item
     public void drawboom(){
-        if (boom.getIsVisible()) {
-            boom.drawItem();
-            boom.drawItemColliders();
+        for (boom bm : boomL) {
+            if (bm.getIsVisible()) {
+                bm.drawItem();
+
+//                // Debug: draw the item collider
+//                bm.drawItemColliders();
+            }
         }
     }
 
     // Draw the starfish item
     public void drawstarfish() {
-        if (starfish.getIsVisible()) {
-            starfish.drawItem();
-            starfish.drawItemColliders();
+        for (starfish sf : starfishL) {
+            if (sf.getIsVisible()) {
+                sf.drawItem();
+
+//                // Debug: draw the item collider
+//                sf.drawItemColliders();
+            }
         }
     }
 
     // Draw the pearl item
     public void drawpearl() {
-        if (pearl.getIsVisible()) {
-            pearl.drawItem();
-            pearl.drawItemColliders();
+        for (pearl pl : pearlL) {
+            if (pl.getIsVisible()) {
+                pl.drawItem();
+
+//                // Debug: draw the item collider
+//                pl.drawItemColliders();
+            }
         }
     }
 
@@ -1000,9 +1050,9 @@ public class Main extends GameEngine {
 
     // Initialize the enemy fields
     public void initEnemies() {
-        // Define the maximum enemy spawns based on screen dimensions
-        maxEnemies = width / 100;
-        maxShark = width / 500;
+        // Define the maximum enemy spawns based on environment dimensions
+        maxEnemies = (int)(playAreaDimension / 100);
+        maxShark = (int)(playAreaDimension / 800);
 
         // Instantiate the enemy arraylists
         enemies = new ArrayList<Enemy>();
@@ -1043,25 +1093,25 @@ public class Main extends GameEngine {
 
             // Process the normal enemies
             ArrayList<Enemy> removalValues = new ArrayList<Enemy>();
-            if (enemies.size() > 0) { updateAllEnemies(dt, enemies, removalValues); }
+            if (enemies.size() > 0) { updateAllEnemies(dt, enemies, removalValues, false); }
             // Remove the enemies marked for removal
             removeEnemies(enemies, removalValues);
 
             // Process the shark enemy
             removalValues = new ArrayList<Enemy>();
-            if (sharkEnemies.size() > 0) { updateAllEnemies(dt, sharkEnemies, removalValues); }
+            if (sharkEnemies.size() > 0) { updateAllEnemies(dt, sharkEnemies, removalValues, true); }
             // Remove the shark enemies marked for removal
             removeEnemies(sharkEnemies, removalValues);
         }
     }
 
     // Update all the enemies that currently exist
-    public void updateAllEnemies(double dt, ArrayList<Enemy> ens, ArrayList<Enemy> removalValues) {
+    public void updateAllEnemies(double dt, ArrayList<Enemy> ens, ArrayList<Enemy> removalValues, boolean isShark) {
         for (Enemy en : ens) {
             en.setPlayAreaCOM(env.getVisibleAreaCOMX(), env.getVisibleAreaCOMY());
             en.setWindowToGlobalCOMOffset(myfish.getXPos(), myfish.getYPos());
             // Update the enemy positions
-            en.randomizeEnemyMovement();
+            if (!isShark) { en.randomizeEnemyMovement(); }
             en.updateEnemyPosition(dt, true);
             // Check if the player has been bitten
             if (en.checkEnemyBitePlayer(myfish)) {
@@ -1227,6 +1277,7 @@ public class Main extends GameEngine {
     int level = 0;
     int escKeyCount;
     boolean byPassUnpause;
+    double playAreaDimension;
 
     // Initialize the initial environment fields
     public void initEnvironment() {
@@ -1265,8 +1316,9 @@ public class Main extends GameEngine {
         timeAttackComplete = false;
         escKeyCount = 0;
         byPassUnpause = false;
+        playAreaDimension = 2000;
 
-        env = new Environment(this, envImages, !isSinglePlayer);
+        env = new Environment(this, envImages, !isSinglePlayer, playAreaDimension);
         env.setEnvironmentPlayWidth(width);
         env.setEnvironmentPlayHeight(height);
         env.setCurrentLevel(0);
@@ -1355,17 +1407,23 @@ public class Main extends GameEngine {
 
         // Remove all items from the level
         // Reset the pearl
-        pearl.setVisible(false);
-        pearl.resetTimeVisible();
+        for (pearl pl : pearlL) {
+            pl.setVisible(false);
+            pl.resetTimeVisible();
+        }
 
         // Reset the bomb
-        boom.setVisible(false);
-        boom.resetTimeVisible();
+        for (boom bm : boomL) {
+            bm.setVisible(false);
+            bm.resetTimeVisible();
+        }
 
         // Reset the starfish
-        starfish.setVisible(false);
-        starfish.resetTimeVisible();
-        starfish.setSpeed(0.0, 0.0);
+        for (starfish sf : starfishL) {
+            sf.setVisible(false);
+            sf.resetTimeVisible();
+            sf.setSpeed(0.0, 0.0);
+        }
 
         // Reset the player
         myfish.setXPos(width / 2.0);
@@ -1395,11 +1453,12 @@ public class Main extends GameEngine {
     public void finalReset() {
         env.setScore(0);
         env.setEnemyEatenCounter();
-        pearl.setTimesEaten(0);
-        starfish.setTimesEaten(0);
         myfish.setSize(0);
         myfish.updateSize();
         myfish.setYVel(0);
+
+        for (pearl pl : pearlL) { pl.setTimesEaten(0); }
+        for (starfish sf : starfishL) { sf.setTimesEaten(0); }
     }
 
     // Reset the targets for the level

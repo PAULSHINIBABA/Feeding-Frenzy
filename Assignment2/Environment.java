@@ -116,7 +116,7 @@ public class Environment {
     private double environmentBoundaryY2;
 
     // The Environment constructor
-    public Environment(GameEngine engine, Image[] levelImages, boolean isTimeAttack) {
+    public Environment(GameEngine engine, Image[] levelImages, boolean isTimeAttack, double globalWidth) {
         this.engine = engine;
         levelImageCap = levelImages.length;
         this.levelImages = levelImages;
@@ -135,11 +135,11 @@ public class Environment {
         windowCOMY = windowHeight / 2.0;
         windowOffsetX = windowWidth / 2.0;
         windowOffsetY = windowHeight / 2.0;
-        globalWidth = 900;
-        globalHeight = (globalWidth / 4) * 3;
-        globalCOMX = globalWidth / 2.0;
+        this.globalWidth = globalWidth;
+        globalHeight = (this.globalWidth / 16) * 9;
+        globalCOMX = this.globalWidth / 2.0;
         globalCOMY = globalHeight / 2.0;
-        globalOffsetX = globalWidth / 2.0;
+        globalOffsetX = this.globalWidth / 2.0;
         globalOffsetY = globalHeight / 2.0;
         // The player coordinate on global coordinate
         windowToGlobalCOMOffsetX = 0.0;
