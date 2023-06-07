@@ -2,6 +2,12 @@
  * Author: Robert Tubman
  * ID: 11115713
  *
+ * Team:
+ * David, 22004319
+ * Lucas (Xidi Kuang), 21008041
+ * Paul (Zeju Fan), 21019135
+ * Robert Tubman, 11115713
+ *
  * The Enemy Class
  *
  * Use this class to instantiate enemy "Fish" in the game.

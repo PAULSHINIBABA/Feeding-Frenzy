@@ -4,6 +4,20 @@
  *
  * Co-Author: Robert Tubman (Major refactoring to merge with team code)
  * ID: 11115713
+ *
+ * Team:
+ * David, 22004319
+ * Lucas (Xidi Kuang), 21008041
+ * Paul (Zeju Fan), 21019135
+ * Robert Tubman, 11115713
+ *
+ * The INGAMEMENU class
+ *
+ * This handles the settings page from the main menu as well as from in-game.
+ * The game parameters for enabling the Shark Enemies (Lionfish), adjusting the growth threshold per level,
+ * adjusting the duration available per level, as well as a toggle for the music are present.
+ *
+ * From the in-game settings page, only enable shark and toggle music are available.
  */
 
 package Assignment2;

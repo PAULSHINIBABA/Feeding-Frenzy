@@ -2,6 +2,12 @@
  * Author: Robert Tubman
  * ID: 11115713
  *
+ * Team:
+ * David, 22004319
+ * Lucas (Xidi Kuang), 21008041
+ * Paul (Zeju Fan), 21019135
+ * Robert Tubman, 11115713
+ *
  * The Environment Class
  *
  * The Environment Class is used to instantiate a level for the game.
@@ -11,6 +17,7 @@
  * - The current value in the in-game level current goal
  * - The current value in the in-game level target goal
  */
+
 package Assignment2;
 
 import javax.swing.*;

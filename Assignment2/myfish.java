@@ -5,6 +5,12 @@
  * Co-Author: Robert Tubman (Minor tweaking to merge with team code)
  * ID: 11115713
  *
+ * Team:
+ * David, 22004319
+ * Lucas (Xidi Kuang), 21008041
+ * Paul (Zeju Fan), 21019135
+ * Robert Tubman, 11115713
+ *
  * The player "myfish.java" class that handles the player controls.
  */
 

@@ -5,6 +5,12 @@
  * Reference: Lucas (Xidi Kuang)
  * ID: 21008041
  *
+ * Team:
+ * David, 22004319
+ * Lucas (Xidi Kuang), 21008041
+ * Paul (Zeju Fan), 21019135
+ * Robert Tubman, 11115713
+ *
  * The Item Class
  *
  * Use this class to instantiate items in the game.

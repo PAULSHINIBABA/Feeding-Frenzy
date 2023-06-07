@@ -8,6 +8,12 @@
  * Co-Author: Lucass (Minor refactoring)
  * ID: 21008041
  *
+ * Team:
+ * David, 22004319
+ * Lucas (Xidi Kuang), 21008041
+ * Paul (Zeju Fan), 21019135
+ * Robert Tubman, 11115713
+ *
  * The LoadingPage class
  *
  * This class handles the switching of the context from the main menu to the in-game

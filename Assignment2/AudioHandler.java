@@ -5,6 +5,12 @@
  * Reference: Paul (Zeju Fan)
  * ID: 21019135
  *
+ * Team:
+ * David, 22004319
+ * Lucas (Xidi Kuang), 21008041
+ * Paul (Zeju Fan), 21019135
+ * Robert Tubman, 11115713
+ *
  * The initial state for the audio handling was made by Paul in the StartMenu class, but
  * a more comprehensive audio handling class was required to keep the audio processing
  * in one location, so the code from the StartMenu class was refactored here.

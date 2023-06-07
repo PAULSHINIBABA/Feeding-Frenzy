@@ -2,6 +2,12 @@
  * Author: Robert Tubman (Merging, debugging, and refactoring)
  * ID: 11115713
  *
+ * Team:
+ * David, 22004319
+ * Lucas (Xidi Kuang), 21008041
+ * Paul (Zeju Fan), 21019135
+ * Robert Tubman, 11115713
+ *
  * The Main Class which contains the entry point.
  * As well as the code to wrap all the classes together to make the game run.
  *
@@ -13,7 +19,6 @@ package Assignment2;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.image.AreaAveragingScaleFilter;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
@@ -1332,7 +1337,7 @@ public class Main extends GameEngine {
         env.setCountDownTimer(targetTime);
         env.setGrowthThresholdLarge(growthThresholdL);
         env.setGrowthThresholdMedium(growthThresholdM);
-        env.setHardMode(false);
+        env.setHardMode(true);
         env.setMaxLevel(goalMaximum);
         env.setMinTimeAttackLevel(timeMinimum);
         env.setCurrentTimeAttackLevel(targetTime - timeMinimum);

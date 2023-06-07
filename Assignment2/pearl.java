@@ -5,6 +5,12 @@
  * Co-Author: Robert Tubman (Minor tweaking to merge with team code)
  * ID: 11115713
  *
+ * Team:
+ * David, 22004319
+ * Lucas (Xidi Kuang), 21008041
+ * Paul (Zeju Fan), 21019135
+ * Robert Tubman, 11115713
+ *
  * The pearl class
  * This class handles the updating of the pearl item. The parent class is the Item
  * class which handles the setting/getting and some processing
