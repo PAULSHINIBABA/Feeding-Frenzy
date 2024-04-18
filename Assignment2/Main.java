@@ -98,8 +98,8 @@ public class Main extends GameEngine {
     // "next_level"; go to next level was clicked
     // "restart"; restart level was clicked
     String gameStateString;
-    final String assetPathImage = "Assignment2/assets/image/"; // Asset paths
-    final String assetPathAudio = "Assignment2/assets/audio/"; // Asset paths
+    final String assetPathImage = "../Assignment2/assets/image/"; // Asset paths
+    final String assetPathAudio = "../Assignment2/assets/audio/"; // Asset paths
 
     // gameState = 0; Main menu
     // gameState = 1; Loading page
